@@ -1,5 +1,6 @@
 'use client'
 
+import { Suspense } from 'react'
 import { useSession } from 'next-auth/react'
 import { useSearchParams } from 'next/navigation'
 import { LoginScreen } from '@/components/login-screen'
@@ -9,7 +10,7 @@ import { StorefrontPreview } from '@/components/storefront/storefront-preview'
 import { ProductPage } from '@/components/storefront/product-page'
 import { Loader2 } from 'lucide-react'
 
-export default function Home() {
+function HomeContent() {
   const { data: session, status } = useSession()
   const search = useSearchParams()
   const view = search.get('view')
@@ -47,4 +48,16 @@ export default function Home() {
 
   // Unknown role → back to login
   return <LoginScreen />
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    }>
+      <HomeContent />
+    </Suspense>
+  )
 }
