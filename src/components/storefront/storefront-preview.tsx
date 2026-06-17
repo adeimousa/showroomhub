@@ -9,6 +9,7 @@ import { toast } from 'sonner'
 import { StorefrontRenderer } from './storefront-renderer'
 import { CartDrawer } from './cart-drawer'
 import { LanguageSwitcher } from '@/components/language-switcher'
+import { loc as locHelper } from '@/lib/loc'
 
 type SiteData = {
   tenant: any
@@ -49,12 +50,7 @@ export function StorefrontPreview({ slug }: { slug: string }) {
   }, [slug])
 
   // Helper to get localized text from any object with name/nameAr/nameHe etc.
-  const loc = (obj: any, field: string = 'name') => {
-    if (!obj) return ''
-    if (lang === 'ar' && obj[`${field}Ar`]) return obj[`${field}Ar`]
-    if (lang === 'he' && obj[`${field}He`]) return obj[`${field}He`]
-    return obj[field] || ''
-  }
+  const loc = (obj: any, field: string = 'name') => locHelper(obj, field, lang)
 
   const addToCart = (product: any) => {
     cartStore.add({

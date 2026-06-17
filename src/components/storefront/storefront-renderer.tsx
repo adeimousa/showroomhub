@@ -16,7 +16,6 @@
 
 import { useState } from 'react'
 import { Search, ShoppingCart, Heart, Menu, X, Phone, Mail, MapPin, Facebook, Instagram, Twitter, Star, ChevronRight, Eye } from 'lucide-react'
-import { ProductDetailsDialog } from './product-details-dialog'
 
 type TranslateFn = (key: string, fallback?: string, vars?: Record<string, string | number>) => string
 
@@ -69,23 +68,11 @@ export function StorefrontRenderer({ tenant, layout, lang, loc, t, isRTL, cartCo
   const slide = activeSlides[0]
   const cats = tenant.categories
 
-  // Product details dialog state
-  const [openProduct, setOpenProduct] = useState<any | null>(null)
-
-  // Compute related products: same category, excluding the open product
-  const relatedProducts = openProduct
-    ? tenant.products
-        .filter((p: any) => p.id !== openProduct.id && p.category?.id === openProduct.category?.id)
-        .slice(0, 5)
-    : []
-
-  const handleViewDetails = (p: any) => setOpenProduct(p)
-  const handleSelectRelated = (p: any) => {
-    setOpenProduct(p)
-    // Scroll to top of dialog
-    if (typeof document !== 'undefined') {
-      const dialog = document.querySelector('[role="dialog"]')
-      if (dialog) dialog.scrollTop = 0
+  // Navigate to the full product page when a card is clicked.
+  // Uses URL-based routing so the page can be shared / bookmarked.
+  const handleViewDetails = (p: any) => {
+    if (typeof window !== 'undefined') {
+      window.location.href = `/?view=product&slug=${encodeURIComponent(tenant.slug)}&productId=${encodeURIComponent(p.id)}`
     }
   }
 
@@ -184,22 +171,6 @@ export function StorefrontRenderer({ tenant, layout, lang, loc, t, isRTL, cartCo
         radius={radius}
         fontHead={fontVar(fontHeading)}
         cats={cats}
-      />
-
-      {/* Product details dialog */}
-      <ProductDetailsDialog
-        product={openProduct}
-        open={!!openProduct}
-        onOpenChange={(o) => !o && setOpenProduct(null)}
-        tenant={{
-          name: tenant.name,
-          slug: tenant.slug,
-          whatsappNumber: tenant.whatsappNumber,
-          whatsappPrefill: tenant.whatsappPrefill,
-        }}
-        loc={loc}
-        related={relatedProducts}
-        onSelectRelated={handleSelectRelated}
       />
     </div>
   )
@@ -601,8 +572,8 @@ function ProductCard({ p, loc, t, primary, accent, text, radius, onAddToCart, on
       <div className={compact ? 'p-2' : 'p-3'}>
         <div className="text-[10px] opacity-60 mb-0.5">{p.category ? `${p.category.icon} ${loc(p.category)}` : ''}</div>
         <div className={`font-medium line-clamp-1 ${compact ? 'text-xs' : 'text-sm'}`}>{loc(p)}</div>
-        {!compact && p.description && (
-          <div className="text-xs opacity-60 line-clamp-2 mt-1">{p.description}</div>
+        {!compact && loc(p, 'description') && (
+          <div className="text-xs opacity-60 line-clamp-2 mt-1">{loc(p, 'description')}</div>
         )}
         <div className="flex items-center justify-between mt-2">
           <div>
@@ -648,7 +619,7 @@ function ProductRow({ p, loc, t, primary, accent, text, radius, onAddToCart, onV
       <div className="flex-1 min-w-0">
         <div className="text-[10px] opacity-60">{p.category ? `${p.category.icon} ${loc(p.category)}` : ''}</div>
         <div className="font-medium line-clamp-1">{loc(p)}</div>
-        {p.description && <div className="text-xs opacity-60 line-clamp-1 hidden sm:block">{p.description}</div>}
+        {loc(p, 'description') && <div className="text-xs opacity-60 line-clamp-1 hidden sm:block">{loc(p, 'description')}</div>}
         <div className="flex items-center gap-2 mt-0.5">
           <span className="font-bold text-sm">${p.price.toLocaleString()}</span>
           {discount > 0 && <span className="text-xs line-through opacity-50">${p.compareAt.toLocaleString()}</span>}

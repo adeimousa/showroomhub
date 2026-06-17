@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { MultiLanguageInput } from '@/components/admin/multi-language-input'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Switch } from '@/components/ui/switch'
@@ -31,11 +32,16 @@ type Layout = { id: string; name: string; category: string; premium: boolean }
 type Tenant = {
   id: string
   name: string
+  nameAr: string | null
+  nameHe: string | null
   slug: string
   email: string
   phone: string | null
   whatsappNumber: string | null
   whatsappPrefill: string | null
+  description: string | null
+  descriptionAr: string | null
+  descriptionHe: string | null
   status: string
   plan: string
   layoutId: string | null
@@ -380,13 +386,21 @@ function TenantFormDialog({
   title: string
 }) {
   const { t } = useI18n()
-  const [name, setName] = useState(initial?.name || '')
+  const [name, setName] = useState({
+    en: initial?.name || '',
+    ar: initial?.nameAr || '',
+    he: initial?.nameHe || '',
+  })
   const [slug, setSlug] = useState(initial?.slug || '')
   const [email, setEmail] = useState(initial?.email || '')
   const [phone, setPhone] = useState(initial?.phone || '')
   const [whatsappNumber, setWhatsappNumber] = useState(initial?.whatsappNumber || '')
   const [whatsappPrefill, setWhatsappPrefill] = useState(initial?.whatsappPrefill || '')
-  const [description, setDescription] = useState('')
+  const [description, setDescription] = useState({
+    en: initial?.description || '',
+    ar: initial?.descriptionAr || '',
+    he: initial?.descriptionHe || '',
+  })
   const [status, setStatus] = useState(initial?.status || 'ACTIVE')
   const [plan, setPlan] = useState(initial?.plan || 'BASIC')
   const [layoutId, setLayoutId] = useState<string>(initial?.layoutId || 'none')
@@ -398,18 +412,22 @@ function TenantFormDialog({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!name || !slug || !email) {
+    if (!name.en || !slug || !email) {
       toast.error(t('common.required'))
       return
     }
     onSubmit({
-      name,
+      name: name.en,
+      nameAr: name.ar || undefined,
+      nameHe: name.he || undefined,
       slug: slug.toLowerCase().replace(/[^a-z0-9-]/g, '-'),
       email,
       phone: phone || undefined,
       whatsappNumber: whatsappNumber || undefined,
       whatsappPrefill: whatsappPrefill || undefined,
-      description: description || undefined,
+      description: description.en || undefined,
+      descriptionAr: description.ar || undefined,
+      descriptionHe: description.he || undefined,
       status,
       plan,
       layoutId: layoutId === 'none' ? null : layoutId,
@@ -425,21 +443,23 @@ function TenantFormDialog({
           <DialogDescription>{t('brand.tagline')}</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="t-name">{t('common.name')} *</Label>
-              <Input id="t-name" value={name} onChange={(e) => setName(e.target.value)} required />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="t-slug">{t('tenants.slug')} *</Label>
-              <Input
-                id="t-slug"
-                value={slug}
-                onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
-                placeholder="my-store"
-                required
-              />
-            </div>
+          <MultiLanguageInput
+            label={t('common.name')}
+            field="name"
+            values={name}
+            onChange={setName}
+            required
+            placeholder="e.g. Demo Furniture"
+          />
+          <div className="space-y-1.5">
+            <Label htmlFor="t-slug">{t('tenants.slug')} *</Label>
+            <Input
+              id="t-slug"
+              value={slug}
+              onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
+              placeholder="my-store"
+              required
+            />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
@@ -474,10 +494,15 @@ function TenantFormDialog({
               <p className="text-[10px] text-muted-foreground">First line of the WhatsApp order message.</p>
             </div>
           </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="t-desc">{t('common.description')}</Label>
-            <Textarea id="t-desc" value={description} onChange={(e) => setDescription(e.target.value)} rows={2} />
-          </div>
+          <MultiLanguageInput
+            label={t('common.description')}
+            field="description"
+            values={description}
+            onChange={setDescription}
+            multiline
+            rows={3}
+            placeholder="A short paragraph about this store…"
+          />
           <div className="grid grid-cols-3 gap-3">
             <div className="space-y-1.5">
               <Label>{t('common.status')}</Label>

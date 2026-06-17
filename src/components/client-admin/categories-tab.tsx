@@ -8,6 +8,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { MultiLanguageInput } from '@/components/admin/multi-language-input'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
@@ -22,6 +23,8 @@ import { cn } from '@/lib/utils'
 type Category = {
   id: string
   name: string
+  nameAr: string | null
+  nameHe: string | null
   icon: string | null
   _count: { products: number }
 }
@@ -196,16 +199,25 @@ function CategoryFormDialog({
   title: string
 }) {
   const { t } = useI18n()
-  const [name, setName] = useState(initial?.name || '')
+  const [name, setName] = useState({
+    en: initial?.name || '',
+    ar: initial?.nameAr || '',
+    he: initial?.nameHe || '',
+  })
   const [icon, setIcon] = useState(initial?.icon || '📦')
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!name) {
+    if (!name.en) {
       toast.error(t('common.required'))
       return
     }
-    onSubmit({ name, icon })
+    onSubmit({
+      name: name.en,
+      nameAr: name.ar || undefined,
+      nameHe: name.he || undefined,
+      icon,
+    })
   }
 
   return (
@@ -216,10 +228,14 @@ function CategoryFormDialog({
           <DialogDescription>{t('brand.tagline')}</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="c-name">{t('common.name')} *</Label>
-            <Input id="c-name" value={name} onChange={(e) => setName(e.target.value)} required autoFocus />
-          </div>
+          <MultiLanguageInput
+            label={t('common.name')}
+            field="name"
+            values={name}
+            onChange={setName}
+            required
+            placeholder="e.g. Living Room"
+          />
           <div className="space-y-1.5">
             <Label>{t('categories.icon')}</Label>
             <div className="flex flex-wrap gap-1">

@@ -6,6 +6,7 @@ import { LoginScreen } from '@/components/login-screen'
 import { SuperAdminDashboard } from '@/components/super-admin/super-admin-dashboard'
 import { ClientAdminDashboard } from '@/components/client-admin/client-admin-dashboard'
 import { StorefrontPreview } from '@/components/storefront/storefront-preview'
+import { ProductPage } from '@/components/storefront/product-page'
 import { Loader2 } from 'lucide-react'
 
 export default function Home() {
@@ -13,6 +14,12 @@ export default function Home() {
   const search = useSearchParams()
   const view = search.get('view')
   const slug = search.get('slug')
+  const productId = search.get('productId')
+
+  // Public product page (open to anyone with slug + productId)
+  if (view === 'product' && slug && productId) {
+    return <ProductPage slug={slug} productId={productId} />
+  }
 
   // Public storefront preview mode (open to anyone with the slug)
   if (view === 'site' && slug) {

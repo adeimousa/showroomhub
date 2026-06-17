@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { MultiLanguageInput } from '@/components/admin/multi-language-input'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Switch } from '@/components/ui/switch'
@@ -34,6 +35,8 @@ type Product = {
   nameAr: string | null
   nameHe: string | null
   description: string | null
+  descriptionAr: string | null
+  descriptionHe: string | null
   price: number
   compareAt: number | null
   sku: string | null
@@ -314,8 +317,16 @@ function ProductFormDialog({
   title: string
 }) {
   const { t } = useI18n()
-  const [name, setName] = useState(initial?.name || '')
-  const [description, setDescription] = useState(initial?.description || '')
+  const [name, setName] = useState({
+    en: initial?.name || '',
+    ar: initial?.nameAr || '',
+    he: initial?.nameHe || '',
+  })
+  const [description, setDescription] = useState({
+    en: initial?.description || '',
+    ar: initial?.descriptionAr || '',
+    he: initial?.descriptionHe || '',
+  })
   const [price, setPrice] = useState(initial ? String(initial.price) : '')
   const [compareAt, setCompareAt] = useState(initial?.compareAt ? String(initial.compareAt) : '')
   const [sku, setSku] = useState(initial?.sku || '')
@@ -327,13 +338,17 @@ function ProductFormDialog({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!name || !price) {
+    if (!name.en || !price) {
       toast.error(t('common.required'))
       return
     }
     onSubmit({
-      name,
-      description: description || undefined,
+      name: name.en,
+      nameAr: name.ar || undefined,
+      nameHe: name.he || undefined,
+      description: description.en || undefined,
+      descriptionAr: description.ar || undefined,
+      descriptionHe: description.he || undefined,
       price: Number(price),
       compareAt: compareAt ? Number(compareAt) : null,
       sku: sku || undefined,
@@ -373,15 +388,24 @@ function ProductFormDialog({
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="p-name">{t('common.name')} *</Label>
-            <Input id="p-name" value={name} onChange={(e) => setName(e.target.value)} required />
-          </div>
+          <MultiLanguageInput
+            label={t('common.name')}
+            field="name"
+            values={name}
+            onChange={setName}
+            required
+            placeholder="e.g. Velvet Lounge Sofa"
+          />
 
-          <div className="space-y-1.5">
-            <Label htmlFor="p-desc">{t('common.description')}</Label>
-            <Textarea id="p-desc" value={description} onChange={(e) => setDescription(e.target.value)} rows={2} />
-          </div>
+          <MultiLanguageInput
+            label={t('common.description')}
+            field="description"
+            values={description}
+            onChange={setDescription}
+            multiline
+            rows={3}
+            placeholder="Materials, dimensions, story behind the piece…"
+          />
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">

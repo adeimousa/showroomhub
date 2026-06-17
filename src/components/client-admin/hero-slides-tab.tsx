@@ -8,6 +8,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { MultiLanguageInput } from '@/components/admin/multi-language-input'
 import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -23,7 +24,11 @@ import { cn } from '@/lib/utils'
 type Slide = {
   id: string
   title: string
+  titleAr: string | null
+  titleHe: string | null
   subtitle: string | null
+  subtitleAr: string | null
+  subtitleHe: string | null
   image: string | null
   ctaText: string
   ctaLink: string
@@ -215,8 +220,16 @@ function SlideFormDialog({
   title: string
 }) {
   const { t } = useI18n()
-  const [titleField, setTitleField] = useState(initial?.title || '')
-  const [subtitle, setSubtitle] = useState(initial?.subtitle || '')
+  const [titleField, setTitleField] = useState({
+    en: initial?.title || '',
+    ar: initial?.titleAr || '',
+    he: initial?.titleHe || '',
+  })
+  const [subtitle, setSubtitle] = useState({
+    en: initial?.subtitle || '',
+    ar: initial?.subtitleAr || '',
+    he: initial?.subtitleHe || '',
+  })
   const [image, setImage] = useState(initial?.image || '🖼️')
   const [ctaText, setCtaText] = useState(initial?.ctaText || 'Shop Now')
   const [ctaLink, setCtaLink] = useState(initial?.ctaLink || '#')
@@ -225,13 +238,17 @@ function SlideFormDialog({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!titleField) {
+    if (!titleField.en) {
       toast.error(t('common.required'))
       return
     }
     onSubmit({
-      title: titleField,
-      subtitle: subtitle || undefined,
+      title: titleField.en,
+      titleAr: titleField.ar || undefined,
+      titleHe: titleField.he || undefined,
+      subtitle: subtitle.en || undefined,
+      subtitleAr: subtitle.ar || undefined,
+      subtitleHe: subtitle.he || undefined,
       image,
       ctaText,
       ctaLink,
@@ -266,14 +283,21 @@ function SlideFormDialog({
               ))}
             </div>
           </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="s-title">{t('hero.title_field')} *</Label>
-            <Input id="s-title" value={titleField} onChange={(e) => setTitleField(e.target.value)} required />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="s-subtitle">{t('hero.subtitle_field')}</Label>
-            <Input id="s-subtitle" value={subtitle} onChange={(e) => setSubtitle(e.target.value)} />
-          </div>
+          <MultiLanguageInput
+            label={t('hero.title_field')}
+            field="title"
+            values={titleField}
+            onChange={setTitleField}
+            required
+            placeholder="e.g. Summer Collection 2026"
+          />
+          <MultiLanguageInput
+            label={t('hero.subtitle_field')}
+            field="subtitle"
+            values={subtitle}
+            onChange={setSubtitle}
+            placeholder="e.g. Up to 30% off hand-picked pieces"
+          />
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label htmlFor="s-cta">{t('hero.ctaText')}</Label>
