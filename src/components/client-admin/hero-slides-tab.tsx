@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { MultiLanguageInput } from '@/components/admin/multi-language-input'
+import { ImageUpload } from '@/components/admin/image-upload'
 import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -18,7 +19,7 @@ import {
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { Plus, Pencil, Trash2, Images, Loader2, GripVertical } from 'lucide-react'
+import { Plus, Pencil, Trash2, Images, Loader2, GripVertical, Image } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 type Slide = {
@@ -136,8 +137,12 @@ export function HeroSlidesTab() {
                   <GripVertical className="h-4 w-4" />
                   <span className="text-xs font-mono">{i + 1}</span>
                 </div>
-                <div className="h-20 w-32 rounded-lg bg-gradient-to-br from-amber-100 to-rose-100 flex items-center justify-center text-4xl shrink-0">
-                  {s.image || '🖼️'}
+                <div className="h-20 w-32 rounded-lg bg-gradient-to-br from-amber-100 to-rose-100 flex items-center justify-center shrink-0 overflow-hidden">
+                  {s.image ? (
+                    <img src={s.image} alt={s.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <Image className="h-10 w-10 text-muted-foreground/40" alt="" />
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
@@ -230,7 +235,7 @@ function SlideFormDialog({
     ar: initial?.subtitleAr || '',
     he: initial?.subtitleHe || '',
   })
-  const [image, setImage] = useState(initial?.image || '🖼️')
+  const [image, setImage] = useState(initial?.image || '')
   const [ctaText, setCtaText] = useState(initial?.ctaText || 'Shop Now')
   const [ctaLink, setCtaLink] = useState(initial?.ctaLink || '#')
   const [order, setOrder] = useState(initial ? String(initial.order) : '0')
@@ -265,24 +270,14 @@ function SlideFormDialog({
           <DialogDescription>{t('hero.subtitle')}</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-1.5">
-            <Label>{t('hero.image_emoji')}</Label>
-            <div className="flex flex-wrap gap-1">
-              {EMOJI_CHOICES.map((e) => (
-                <button
-                  key={e}
-                  type="button"
-                  onClick={() => setImage(e)}
-                  className={cn(
-                    'h-10 w-10 rounded-lg border text-2xl flex items-center justify-center transition-all',
-                    image === e ? 'border-emerald-500 bg-emerald-50 scale-105' : 'border-slate-200 hover:border-slate-300'
-                  )}
-                >
-                  {e}
-                </button>
-              ))}
-            </div>
-          </div>
+          {/* Image upload */}
+          <ImageUpload
+            value={image}
+            onChange={setImage}
+            label={t('hero.image_emoji')}
+            aspectRatio="16/9"
+          />
+
           <MultiLanguageInput
             label={t('hero.title_field')}
             field="title"

@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { MultiLanguageInput } from '@/components/admin/multi-language-input'
+import { ImageUpload } from '@/components/admin/image-upload'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Switch } from '@/components/ui/switch'
@@ -193,8 +194,12 @@ export function ProductsTab() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
           {filtered.map((p) => (
             <Card key={p.id} className="border-slate-200 overflow-hidden group">
-              <div className="aspect-square bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-6xl relative">
-                {p.image || '📦'}
+              <div className="aspect-square bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center relative">
+                {p.image ? (
+                  <img src={p.image} alt={p.name} className="w-full h-full object-cover" />
+                ) : (
+                  <Package className="h-16 w-16 text-muted-foreground/40" />
+                )}
                 {p.compareAt && p.compareAt > p.price && (
                   <Badge className="absolute top-2 left-2 bg-rose-600 text-[10px]">
                     -{Math.round((1 - p.price / p.compareAt) * 100)}%
@@ -331,7 +336,7 @@ function ProductFormDialog({
   const [compareAt, setCompareAt] = useState(initial?.compareAt ? String(initial.compareAt) : '')
   const [sku, setSku] = useState(initial?.sku || '')
   const [stock, setStock] = useState(initial ? String(initial.stock) : '0')
-  const [image, setImage] = useState(initial?.image || '📦')
+  const [image, setImage] = useState(initial?.image || '')
   const [categoryId, setCategoryId] = useState<string>(initial?.category?.id || 'none')
   const [featured, setFeatured] = useState(initial?.featured || false)
   const [status, setStatus] = useState(initial?.status || 'ACTIVE')
@@ -368,25 +373,13 @@ function ProductFormDialog({
           <DialogDescription>{t('brand.tagline')}</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Image picker */}
-          <div className="space-y-1.5">
-            <Label>{t('common.image')}</Label>
-            <div className="flex flex-wrap gap-1">
-              {EMOJI_CHOICES.map((e) => (
-                <button
-                  key={e}
-                  type="button"
-                  onClick={() => setImage(e)}
-                  className={cn(
-                    'h-10 w-10 rounded-lg border text-2xl flex items-center justify-center transition-all',
-                    image === e ? 'border-emerald-500 bg-emerald-50 scale-105' : 'border-slate-200 hover:border-slate-300'
-                  )}
-                >
-                  {e}
-                </button>
-              ))}
-            </div>
-          </div>
+          {/* Image upload */}
+          <ImageUpload
+            value={image}
+            onChange={setImage}
+            label={t('common.image')}
+            aspectRatio="1/1"
+          />
 
           <MultiLanguageInput
             label={t('common.name')}
