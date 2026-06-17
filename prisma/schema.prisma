@@ -35,8 +35,9 @@ model Tenant {
   name            String // public store name (English)
   nameAr          String? // Arabic
   nameHe          String? // Hebrew
-  slug            String   @unique // used for preview URL
-  domain          String? // custom domain (placeholder)
+  slug            String   @unique // used internally + for old preview URLs
+  domain          String? // primary custom domain (kept for backward compat)
+  customDomains   String   @default("[]") // JSON array of domains, e.g. ["velvetnight.com","www.velvetnight.com"]
   email           String
   phone           String?
   whatsappNumber  String? // E.164 without +, e.g. 15551234567 — used for cart checkout

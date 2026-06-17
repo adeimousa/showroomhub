@@ -19,12 +19,16 @@ const DEMO_ACCOUNTS = [
   { label: 'Heritage Oak', email: 'admin@heritageoak.com',    password: 'heritage123',  role: 'CLIENT_ADMIN' },
 ]
 
-export function LoginScreen() {
+export function LoginScreen({ tenantName }: { tenantName?: string } = {}) {
   const { t } = useI18n()
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+
+  // If tenantName is provided, we're on a tenant admin page — hide the
+  // "ShowroomHub" branding and demo accounts, show the tenant's name instead.
+  const isTenantAdmin = !!tenantName
 
   const handleSubmit = async (e: React.FormEvent, preset?: { email: string; password: string }) => {
     e.preventDefault()
@@ -61,17 +65,31 @@ export function LoginScreen() {
       {/* Top bar */}
       <header className="flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-2">
-          <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-amber-500 to-rose-500 flex items-center justify-center">
-            <Sofa className="h-5 w-5 text-white" />
-          </div>
-          <span className="font-bold text-lg">{t('brand.name')}</span>
+          {isTenantAdmin ? (
+            // Tenant admin login — show tenant's name, no ShowroomHub branding
+            <>
+              <div className="h-9 w-9 rounded-lg bg-slate-800 flex items-center justify-center">
+                <Store className="h-5 w-5 text-white" />
+              </div>
+              <span className="font-bold text-lg">{tenantName} Admin</span>
+            </>
+          ) : (
+            // Super admin login — ShowroomHub branding
+            <>
+              <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-amber-500 to-rose-500 flex items-center justify-center">
+                <Sofa className="h-5 w-5 text-white" />
+              </div>
+              <span className="font-bold text-lg">{t('brand.name')}</span>
+            </>
+          )}
         </div>
         <LanguageSwitcher />
       </header>
 
       {/* Main */}
       <main className="flex-1 grid lg:grid-cols-2 items-stretch">
-        {/* Left — hero */}
+        {/* Left — hero (only shown on super admin login, NOT on tenant admin login) */}
+        {!isTenantAdmin && (
         <section className="hidden lg:flex flex-col justify-center px-12 xl:px-24 py-12 bg-gradient-to-br from-amber-500/10 via-rose-500/5 to-transparent">
           <div className="max-w-xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-medium mb-6">
@@ -99,6 +117,7 @@ export function LoginScreen() {
             </ul>
           </div>
         </section>
+        )}
 
         {/* Right — login form */}
         <section className="flex items-center justify-center px-6 py-12">
@@ -151,6 +170,9 @@ export function LoginScreen() {
                 </Button>
               </form>
 
+              {/* Demo accounts — only shown on super admin login, NOT on tenant admin login */}
+              {!isTenantAdmin && (
+              <>
               <div className="relative my-6">
                 <Separator />
                 <span className="absolute inset-0 -top-3 mx-auto w-fit bg-white px-3 text-xs text-muted-foreground">
@@ -181,10 +203,14 @@ export function LoginScreen() {
                   </button>
                 ))}
               </div>
+              </>
+              )}
             </CardContent>
 
             <CardFooter className="text-center text-xs text-muted-foreground justify-center">
-              {t('brand.name')} · {new Date().getFullYear()}
+              {isTenantAdmin
+                ? `${tenantName} · ${new Date().getFullYear()}`
+                : `${t('brand.name')} · ${new Date().getFullYear()}`}
             </CardFooter>
           </Card>
         </section>

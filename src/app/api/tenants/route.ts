@@ -54,6 +54,7 @@ export async function POST(req: NextRequest) {
         phone: body.phone || null,
         whatsappNumber: body.whatsappNumber || null,
         whatsappPrefill: body.whatsappPrefill || null,
+        customDomains: body.customDomains || '[]',
         description: body.description || null,
         descriptionAr: body.descriptionAr || null,
         descriptionHe: body.descriptionHe || null,

@@ -39,6 +39,7 @@ type Tenant = {
   phone: string | null
   whatsappNumber: string | null
   whatsappPrefill: string | null
+  customDomains: string | null
   description: string | null
   descriptionAr: string | null
   descriptionHe: string | null
@@ -396,6 +397,13 @@ function TenantFormDialog({
   const [phone, setPhone] = useState(initial?.phone || '')
   const [whatsappNumber, setWhatsappNumber] = useState(initial?.whatsappNumber || '')
   const [whatsappPrefill, setWhatsappPrefill] = useState(initial?.whatsappPrefill || '')
+  const [customDomains, setCustomDomains] = useState(() => {
+    try {
+      return (JSON.parse(initial?.customDomains || '[]') as string[]).join('\n')
+    } catch {
+      return ''
+    }
+  })
   const [description, setDescription] = useState({
     en: initial?.description || '',
     ar: initial?.descriptionAr || '',
@@ -425,6 +433,12 @@ function TenantFormDialog({
       phone: phone || undefined,
       whatsappNumber: whatsappNumber || undefined,
       whatsappPrefill: whatsappPrefill || undefined,
+      customDomains: JSON.stringify(
+        customDomains
+          .split('\n')
+          .map((d: string) => d.trim().toLowerCase())
+          .filter(Boolean)
+      ),
       description: description.en || undefined,
       descriptionAr: description.ar || undefined,
       descriptionHe: description.he || undefined,
@@ -493,6 +507,21 @@ function TenantFormDialog({
               />
               <p className="text-[10px] text-muted-foreground">First line of the WhatsApp order message.</p>
             </div>
+          </div>
+          {/* Custom domains — one per line */}
+          <div className="space-y-1.5">
+            <Label htmlFor="t-domains">Custom domains</Label>
+            <Textarea
+              id="t-domains"
+              value={customDomains}
+              onChange={(e) => setCustomDomains(e.target.value)}
+              rows={2}
+              placeholder={"velvetnight.com\nwww.velvetnight.com"}
+            />
+            <p className="text-[10px] text-muted-foreground">
+              One domain per line. The tenant must point a CNAME record at your Vercel deployment
+              for each domain, and you must add each domain in the Vercel dashboard.
+            </p>
           </div>
           <MultiLanguageInput
             label={t('common.description')}

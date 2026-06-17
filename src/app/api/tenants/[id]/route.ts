@@ -27,7 +27,7 @@ const CLIENT_ADMIN_FIELDS = new Set([
 
 // Fields only a super admin can edit
 const SUPER_ADMIN_ONLY_FIELDS = new Set([
-  'name', 'nameAr', 'nameHe', 'slug', 'domain',
+  'name', 'nameAr', 'nameHe', 'slug', 'domain', 'customDomains',
   'status', 'plan', 'layoutId',
 ])
 

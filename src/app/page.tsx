@@ -1,63 +1,70 @@
-'use client'
+import { headers } from 'next/headers'
+import { db } from '@/lib/db'
+import { SuperAdminEntry } from '@/components/super-admin/super-admin-entry'
+import { StorefrontClient } from '@/components/storefront/storefront-client'
+import { NotConfigured } from '@/components/not-configured'
+import { StoreStatus } from '@/components/storefront/store-status'
 
-import { Suspense } from 'react'
-import { useSession } from 'next-auth/react'
-import { useSearchParams } from 'next/navigation'
-import { LoginScreen } from '@/components/login-screen'
-import { SuperAdminDashboard } from '@/components/super-admin/super-admin-dashboard'
-import { ClientAdminDashboard } from '@/components/client-admin/client-admin-dashboard'
-import { StorefrontPreview } from '@/components/storefront/storefront-preview'
-import { ProductPage } from '@/components/storefront/product-page'
-import { Loader2 } from 'lucide-react'
+/**
+ * Root page — routes based on the Host header (set by middleware).
+ *
+ * - If host === ADMIN_DOMAIN → super admin login/dashboard
+ * - If host is a tenant domain → tenant storefront (or paused/suspended page)
+ * - Otherwise → "not configured" page
+ *
+ * Legacy URLs (?view=site&slug=…) are kept for sandbox preview testing.
+ */
+export default async function Home({ searchParams }: { searchParams: Promise<{ [key: string]: string | undefined }> }) {
+  const params = await searchParams
+  const h = await headers()
+  const tenantId = h.get('x-tenant-id')
+  const isAdminDomain = h.get('x-is-admin-domain') === '1'
 
-function HomeContent() {
-  const { data: session, status } = useSession()
-  const search = useSearchParams()
-  const view = search.get('view')
-  const slug = search.get('slug')
-  const productId = search.get('productId')
-
-  // Public product page (open to anyone with slug + productId)
-  if (view === 'product' && slug && productId) {
-    return <ProductPage slug={slug} productId={productId} />
+  // Legacy: ?view=site&slug=… (sandbox preview)
+  if (params.view === 'site' && params.slug) {
+    const tenant = await db.tenant.findUnique({
+      where: { slug: params.slug },
+      include: {
+        layout: true,
+        categories: { include: { _count: { select: { products: true } } }, orderBy: { name: 'asc' } },
+        heroSlides: { orderBy: { order: 'asc' } },
+        products: { include: { category: true }, orderBy: { createdAt: 'desc' }, where: { status: 'ACTIVE' } },
+      },
+    })
+    if (tenant) {
+      if (tenant.status === 'PAUSED' || tenant.status === 'SUSPENDED') {
+        return <StoreStatus tenant={JSON.parse(JSON.stringify(tenant))} />
+      }
+      return <StorefrontClient tenant={JSON.parse(JSON.stringify(tenant))} />
+    }
+    return <NotConfigured />
   }
 
-  // Public storefront preview mode (open to anyone with the slug)
-  if (view === 'site' && slug) {
-    return <StorefrontPreview slug={slug} />
+  // If on the admin domain → super admin
+  if (isAdminDomain) {
+    return <SuperAdminEntry />
   }
 
-  // Auth loading
-  if (status === 'loading') {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    )
+  // If on a tenant domain → storefront
+  if (tenantId) {
+    const tenant = await db.tenant.findUnique({
+      where: { id: tenantId },
+      include: {
+        layout: true,
+        categories: { include: { _count: { select: { products: true } } }, orderBy: { name: 'asc' } },
+        heroSlides: { orderBy: { order: 'asc' } },
+        products: { include: { category: true }, orderBy: { createdAt: 'desc' }, where: { status: 'ACTIVE' } },
+      },
+    })
+    if (tenant) {
+      if (tenant.status === 'PAUSED' || tenant.status === 'SUSPENDED') {
+        return <StoreStatus tenant={JSON.parse(JSON.stringify(tenant))} />
+      }
+      return <StorefrontClient tenant={JSON.parse(JSON.stringify(tenant))} />
+    }
   }
 
-  // Not authenticated
-  if (!session?.user) {
-    return <LoginScreen />
-  }
-
-  // Route by role
-  const role = (session.user as any).role
-  if (role === 'SUPER_ADMIN') return <SuperAdminDashboard />
-  if (role === 'CLIENT_ADMIN') return <ClientAdminDashboard />
-
-  // Unknown role → back to login
-  return <LoginScreen />
+  // Unknown domain → not configured
+  return <NotConfigured />
 }
 
-export default function Home() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    }>
-      <HomeContent />
-    </Suspense>
-  )
-}
