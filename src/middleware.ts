@@ -37,7 +37,7 @@ const ADMIN_DOMAIN = process.env.ADMIN_DOMAIN || 'showroomhub.com'
 const hostCache = new Map<string, { data: any; expires: number }>()
 const CACHE_TTL = 60_000 // 60 seconds
 
-async function resolveHost(host: string): Promise<any> {
+async function resolveHost(host: string, origin: string): Promise<any> {
   const now = Date.now()
   const cached = hostCache.get(host)
   if (cached && cached.expires > now) {
@@ -45,10 +45,6 @@ async function resolveHost(host: string): Promise<any> {
   }
 
   // Call our own API to resolve the host. Use an absolute URL so fetch works in edge runtime.
-  // In production, use the request's origin; in dev, use localhost:3000
-  const origin = process.env.NODE_ENV === 'production'
-    ? new URL(req.url).origin
-    : 'http://localhost:3000'
   try {
     const res = await fetch(`${origin}/api/resolve-host?host=${encodeURIComponent(host)}`, {
       // Avoid caching at the fetch layer — we have our own cache
@@ -98,7 +94,8 @@ export async function middleware(req: NextRequest) {
   }
 
   // ----- Case 2: Tenant domain -----
-  const resolved = await resolveHost(effectiveHost)
+  const origin = new URL(req.url).origin
+  const resolved = await resolveHost(effectiveHost, origin)
 
   if (resolved.tenantId) {
     // Set tenant headers and pass through
