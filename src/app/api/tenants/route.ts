@@ -52,6 +52,8 @@ export async function POST(req: NextRequest) {
         slug: body.slug,
         email: body.email,
         phone: body.phone || null,
+        whatsappNumber: body.whatsappNumber || null,
+        whatsappPrefill: body.whatsappPrefill || null,
         description: body.description || null,
         descriptionAr: body.descriptionAr || null,
         descriptionHe: body.descriptionHe || null,

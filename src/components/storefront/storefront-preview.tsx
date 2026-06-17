@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import { useI18n } from '@/hooks/use-i18n'
+import { useCartStore } from '@/hooks/use-cart'
 import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
-import { ArrowLeft, ShoppingCart, Search, Heart, Menu, X, Loader2 } from 'lucide-react'
+import { ArrowLeft, ShoppingCart, Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
 import { StorefrontRenderer } from './storefront-renderer'
+import { CartDrawer } from './cart-drawer'
 import { LanguageSwitcher } from '@/components/language-switcher'
 
 type SiteData = {
@@ -16,8 +18,12 @@ type SiteData = {
 
 export function StorefrontPreview({ slug }: { slug: string }) {
   const { t, lang, isRTL } = useI18n()
-  const [cart, setCart] = useState<string[]>([])
-  const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const cartStore = useCartStore()
+
+  // Initialize / reset the cart store for this tenant whenever the slug changes
+  useEffect(() => {
+    cartStore.initForTenant(slug)
+  }, [slug])
 
   // Fetch tenant site data
   const [data, setData] = useState<SiteData | null>(null)
@@ -50,8 +56,15 @@ export function StorefrontPreview({ slug }: { slug: string }) {
     return obj[field] || ''
   }
 
-  const addToCart = (productId: string) => {
-    setCart((c) => [...c, productId])
+  const addToCart = (product: any) => {
+    cartStore.add({
+      id: product.id,
+      name: loc(product),
+      price: product.price,
+      image: product.image,
+      sku: product.sku,
+    })
+    toast.success(t('cart.added'), { description: loc(product) })
   }
 
   // Loading state
@@ -136,7 +149,13 @@ export function StorefrontPreview({ slug }: { slug: string }) {
           <span className="opacity-70 hidden sm:inline">Preview · {tenant.slug}</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="opacity-70 hidden sm:inline">Cart: {cart.length}</span>
+          <button
+            onClick={() => cartStore.open()}
+            className="flex items-center gap-1.5 px-2 py-1 rounded-md hover:bg-white/10 transition-colors"
+          >
+            <ShoppingCart className="h-3.5 w-3.5" />
+            <span>{cartStore.totalItems()}</span>
+          </button>
           <LanguageSwitcher />
         </div>
       </div>
@@ -160,10 +179,14 @@ export function StorefrontPreview({ slug }: { slug: string }) {
           loc={loc}
           t={t}
           isRTL={isRTL}
-          cart={cart}
+          cartCount={cartStore.totalItems()}
           onAddToCart={addToCart}
+          onOpenCart={() => cartStore.open()}
         />
       )}
+
+      {/* Cart drawer — lives at this level so it overlays everything */}
+      <CartDrawer tenant={tenant} />
     </div>
   )
 }

@@ -24,11 +24,12 @@ type Props = {
   loc: (obj: any, field?: string) => string
   t: (key: string, fallback?: string) => string
   isRTL: boolean
-  cart: string[]
-  onAddToCart: (id: string) => void
+  cartCount: number
+  onAddToCart: (product: any) => void
+  onOpenCart: () => void
 }
 
-export function StorefrontRenderer({ tenant, layout, lang, loc, t, isRTL, cart, onAddToCart }: Props) {
+export function StorefrontRenderer({ tenant, layout, lang, loc, t, isRTL, cartCount, onAddToCart, onOpenCart }: Props) {
   // Resolve final style: tenant override wins over layout default
   const primary     = tenant.themePrimary  || layout.primaryColor
   const accent      = tenant.themeAccent   || layout.accentColor
@@ -73,7 +74,8 @@ export function StorefrontRenderer({ tenant, layout, lang, loc, t, isRTL, cart, 
         cats={cats}
         loc={loc}
         t={t}
-        cartCount={cart.length}
+        cartCount={cartCount}
+        onOpenCart={onOpenCart}
         primary={primary}
         accent={accent}
         text={textColor}
@@ -166,7 +168,27 @@ export function StorefrontRenderer({ tenant, layout, lang, loc, t, isRTL, cart, 
 // HEADER VARIANTS
 // ============================================================
 
-function Header({ variant, tenantName, cats, loc, t, cartCount, primary, accent, text, bg, radius, fontHead }: any) {
+function CartButton({ count, onOpen, accent, primary, light, label }: { count: number; onOpen: () => void; accent: string; primary: string; light?: boolean; label: string }) {
+  return (
+    <button
+      onClick={onOpen}
+      className="relative p-1.5 rounded-md hover:bg-white/10 transition-colors"
+      aria-label={label}
+    >
+      <ShoppingCart className="h-4 w-4" style={{ color: light ? '#fff' : primary }} />
+      {count > 0 && (
+        <span
+          className="absolute -top-1 -right-1 h-4 min-w-4 px-1 rounded-full text-[10px] font-bold flex items-center justify-center"
+          style={{ background: accent, color: '#fff' }}
+        >
+          {count}
+        </span>
+      )}
+    </button>
+  )
+}
+
+function Header({ variant, tenantName, cats, loc, t, cartCount, onOpenCart, primary, accent, text, bg, radius, fontHead }: any) {
   const [open, setOpen] = useState(false)
 
   if (variant === 'minimal-bar') {
@@ -185,12 +207,7 @@ function Header({ variant, tenantName, cats, loc, t, cartCount, primary, accent,
         <div className="flex items-center gap-3">
           <Search className="h-4 w-4 opacity-90" />
           <Heart className="h-4 w-4 opacity-90 hidden sm:inline" />
-          <div className="relative">
-            <ShoppingCart className="h-4 w-4 opacity-90" />
-            {cartCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full text-[10px] flex items-center justify-center" style={{ background: accent }}>{cartCount}</span>
-            )}
-          </div>
+          <CartButton count={cartCount} onOpen={onOpenCart} accent={accent} primary={primary} light label={t('cart.title')} />
           <button className="md:hidden" onClick={() => setOpen(!open)}>
             {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
           </button>
@@ -220,11 +237,8 @@ function Header({ variant, tenantName, cats, loc, t, cartCount, primary, accent,
           </nav>
           <div className="text-center font-bold text-lg" style={{ fontFamily: fontHead, color: primary }}>{tenantName}</div>
           <div className="flex items-center gap-3 justify-end text-sm">
-            <Search className="h-4 w-4" />
-            <div className="relative">
-              <ShoppingCart className="h-4 w-4" />
-              {cartCount > 0 && <span className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full text-[10px] flex items-center justify-center text-white" style={{ background: accent }}>{cartCount}</span>}
-            </div>
+            <Search className="h-4 w-4" style={{ color: primary }} />
+            <CartButton count={cartCount} onOpen={onOpenCart} accent={accent} primary={primary} label={t('cart.title')} />
           </div>
         </div>
         {open && (
@@ -250,11 +264,8 @@ function Header({ variant, tenantName, cats, loc, t, cartCount, primary, accent,
             <a href="#" className="hover:opacity-70">{t('store.about')}</a>
             <a href="#" className="hover:opacity-70 hidden sm:inline">{t('store.contact')}</a>
             <div className="flex items-center gap-2">
-              <Search className="h-4 w-4" />
-              <div className="relative">
-                <ShoppingCart className="h-4 w-4" />
-                {cartCount > 0 && <span className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full text-[10px] flex items-center justify-center text-white" style={{ background: accent }}>{cartCount}</span>}
-              </div>
+              <Search className="h-4 w-4" style={{ color: primary }} />
+              <CartButton count={cartCount} onOpen={onOpenCart} accent={accent} primary={primary} label={t('cart.title')} />
             </div>
           </nav>
         </div>
@@ -545,7 +556,7 @@ function ProductCard({ p, loc, t, primary, accent, text, radius, onAddToCart, co
             )}
           </div>
           <button
-            onClick={() => onAddToCart(p.id)}
+            onClick={() => onAddToCart(p)}
             disabled={p.stock <= 0}
             className="px-2 py-1 text-[10px] font-medium text-white disabled:opacity-40 hover:opacity-90"
             style={{ background: primary, borderRadius: radius / 2 }}
@@ -584,7 +595,7 @@ function ProductRow({ p, loc, t, primary, accent, text, radius, onAddToCart }: a
           <div className="text-[10px] font-bold mb-1" style={{ color: accent }}>-{discount}% {t('store.off')}</div>
         )}
         <button
-          onClick={() => onAddToCart(p.id)}
+          onClick={() => onAddToCart(p)}
           disabled={p.stock <= 0}
           className="px-3 py-1.5 text-xs font-medium text-white disabled:opacity-40 hover:opacity-90"
           style={{ background: primary, borderRadius: radius / 2 }}

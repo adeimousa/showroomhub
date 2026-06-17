@@ -34,6 +34,8 @@ type Tenant = {
   slug: string
   email: string
   phone: string | null
+  whatsappNumber: string | null
+  whatsappPrefill: string | null
   status: string
   plan: string
   layoutId: string | null
@@ -382,6 +384,8 @@ function TenantFormDialog({
   const [slug, setSlug] = useState(initial?.slug || '')
   const [email, setEmail] = useState(initial?.email || '')
   const [phone, setPhone] = useState(initial?.phone || '')
+  const [whatsappNumber, setWhatsappNumber] = useState(initial?.whatsappNumber || '')
+  const [whatsappPrefill, setWhatsappPrefill] = useState(initial?.whatsappPrefill || '')
   const [description, setDescription] = useState('')
   const [status, setStatus] = useState(initial?.status || 'ACTIVE')
   const [plan, setPlan] = useState(initial?.plan || 'BASIC')
@@ -403,6 +407,8 @@ function TenantFormDialog({
       slug: slug.toLowerCase().replace(/[^a-z0-9-]/g, '-'),
       email,
       phone: phone || undefined,
+      whatsappNumber: whatsappNumber || undefined,
+      whatsappPrefill: whatsappPrefill || undefined,
       description: description || undefined,
       status,
       plan,
@@ -443,6 +449,29 @@ function TenantFormDialog({
             <div className="space-y-1.5">
               <Label htmlFor="t-phone">{t('common.phone')}</Label>
               <Input id="t-phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="t-wa">WhatsApp number</Label>
+              <Input
+                id="t-wa"
+                value={whatsappNumber}
+                onChange={(e) => setWhatsappNumber(e.target.value.replace(/[^0-9]/g, ''))}
+                placeholder="15551234567"
+                inputMode="numeric"
+              />
+              <p className="text-[10px] text-muted-foreground">Digits only, country code first. Used for cart checkout.</p>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="t-wa-pre">Order message intro</Label>
+              <Input
+                id="t-wa-pre"
+                value={whatsappPrefill}
+                onChange={(e) => setWhatsappPrefill(e.target.value)}
+                placeholder="Hi! I'd like to order:"
+              />
+              <p className="text-[10px] text-muted-foreground">First line of the WhatsApp order message.</p>
             </div>
           </div>
           <div className="space-y-1.5">

@@ -39,6 +39,8 @@ model Tenant {
   domain          String? // custom domain (placeholder)
   email           String
   phone           String?
+  whatsappNumber  String? // E.164 without +, e.g. 15551234567 — used for cart checkout
+  whatsappPrefill String? // optional custom intro line for the order message
   description     String?
   descriptionAr   String?
   descriptionHe   String?

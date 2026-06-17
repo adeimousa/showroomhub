@@ -4,11 +4,12 @@ import { useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useI18n } from '@/hooks/use-i18n'
 import { DashboardShell, NavItem } from '@/components/dashboard-shell'
-import { Package, FolderTree, Images, Palette, ExternalLink } from 'lucide-react'
+import { Package, FolderTree, Images, Palette, ExternalLink, MessageCircle } from 'lucide-react'
 import { ProductsTab } from './products-tab'
 import { CategoriesTab } from './categories-tab'
 import { HeroSlidesTab } from './hero-slides-tab'
 import { ThemeTab } from './theme-tab'
+import { ContactTab } from './contact-tab'
 import { Button } from '@/components/ui/button'
 import { useQuery } from '@tanstack/react-query'
 
@@ -34,6 +35,7 @@ export function ClientAdminDashboard() {
     { key: 'categories',  label: t('nav.categories'),  icon: FolderTree },
     { key: 'heroSlides',  label: t('nav.heroSlides'),  icon: Images },
     { key: 'theme',       label: t('nav.theme'),       icon: Palette },
+    { key: 'contact',     label: t('nav.contact'),     icon: MessageCircle },
   ]
 
   const handleViewSite = () => {
@@ -68,6 +70,7 @@ export function ClientAdminDashboard() {
         {active === 'categories' && <CategoriesTab />}
         {active === 'heroSlides' && <HeroSlidesTab />}
         {active === 'theme'      && <ThemeTab />}
+        {active === 'contact'    && <ContactTab />}
       </div>
     </DashboardShell>
   )
