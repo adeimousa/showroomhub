@@ -836,10 +836,14 @@ function ProductCard({ p, loc, t, primary, accent, text, radius, onAddToCart, on
       onClick={() => onViewDetails?.(p)}
     >
       <div
-        className={`flex items-center justify-center text-6xl relative ${compact ? 'aspect-square' : varyingHeight != null ? heights[varyingHeight] : 'aspect-[4/3]'}`}
+        className={`flex items-center justify-center text-6xl relative ${compact ? 'aspect-square' : varyingHeight != null ? heights[varyingHeight] : 'aspect-[4/3]'} overflow-hidden`}
         style={{ background: `${primary}08` }}
       >
-        {p.image || '📦'}
+        {p.image ? (
+          <img src={p.image} alt={loc(p)} className="w-full h-full object-cover" />
+        ) : (
+          <div className="text-6xl">📦</div>
+        )}
         {discount > 0 && (
           <span
             className="absolute top-2 left-2 px-1.5 py-0.5 text-[10px] font-bold text-white"
@@ -905,8 +909,12 @@ function ProductRow({ p, loc, t, primary, accent, text, radius, onAddToCart, onV
       style={{ background: text + '06', borderRadius: radius, border: `1px solid ${text}10` }}
       onClick={() => onViewDetails?.(p)}
     >
-      <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-lg flex items-center justify-center text-3xl shrink-0 relative group/img" style={{ background: `${primary}08` }}>
-        {p.image || '📦'}
+      <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-lg flex items-center justify-center text-3xl shrink-0 relative group/img overflow-hidden" style={{ background: `${primary}08` }}>
+        {p.image ? (
+          <img src={p.image} alt={loc(p)} className="w-full h-full object-cover" />
+        ) : (
+          <div className="text-3xl">📦</div>
+        )}
         <button
           onClick={(e) => { e.stopPropagation(); onViewDetails?.(p) }}
           className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity rounded-lg"

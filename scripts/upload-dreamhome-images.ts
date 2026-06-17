@@ -1,5 +1,5 @@
 /**
- * Download images from dreamhomeil.com and upload to Vercel Blob
+ * Download images from dreamhomeil.com and upload to Vercel Blob with PUBLIC access
  * Then update products with the new Blob URLs
  */
 import { PrismaClient } from '@prisma/client'
@@ -65,7 +65,7 @@ async function uploadToBlob(localPath: string): Promise<string> {
   }
 
   const { stdout, stderr } = await execAsync(
-    `vercel blob put "${localPath}" --access=private --add-random-suffix --rw-token="${rwToken}"`
+    `vercel blob put "${localPath}" --access=public --add-random-suffix --rw-token="${rwToken}"`
   )
 
   // The URL is in stderr, not stdout
@@ -123,10 +123,10 @@ async function main() {
       console.log(`  📥 Downloading from dreamhomeil.com...`)
       await downloadImage(item.imageUrl, tempPath)
 
-      // Upload to Vercel Blob
-      console.log(`  📤 Uploading to Vercel Blob...`)
+      // Upload to Vercel Blob with PUBLIC access
+      console.log(`  📤 Uploading to Vercel Blob with public access...`)
       const blobUrl = await uploadToBlob(tempPath)
-      console.log(`  ✅ Uploaded: ${blobUrl}`)
+      console.log(`  ✅ Uploaded (public): ${blobUrl}`)
 
       // Update product
       await db.product.update({

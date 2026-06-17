@@ -236,9 +236,17 @@ export function ProductDetailLayout({
         {/* Left — image */}
         <div className="relative aspect-square md:aspect-[4/5] flex items-center justify-center rounded-2xl overflow-hidden"
              style={{ background: `linear-gradient(135deg, var(--sf-primary, #0f766e)15, var(--sf-accent, #f59e0b)25)` }}>
-          <div className="text-[12rem] md:text-[16rem] leading-none select-none">
-            {product.image || '📦'}
-          </div>
+          {product.image ? (
+            <img
+              src={product.image}
+              alt={loc(product)}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="text-[12rem] md:text-[16rem] leading-none select-none">
+              📦
+            </div>
+          )}
           {/* Badges */}
           <div className="absolute top-4 left-4 flex flex-col gap-1.5">
             {discount > 0 && (

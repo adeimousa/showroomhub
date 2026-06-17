@@ -135,8 +135,12 @@ export function CartDrawer({ tenant }: Props) {
             <div className="p-3 space-y-2">
               {items.map((item) => (
                 <div key={item.id} className="flex items-center gap-3 p-2 rounded-lg border border-slate-100 hover:bg-slate-50">
-                  <div className="h-12 w-12 rounded-md bg-slate-100 flex items-center justify-center text-2xl shrink-0">
-                    {item.image || '📦'}
+                  <div className="h-12 w-12 rounded-md bg-slate-100 flex items-center justify-center text-2xl shrink-0 overflow-hidden">
+                    {item.image ? (
+                      <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="text-2xl">📦</div>
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-medium line-clamp-1">{item.name}</div>
