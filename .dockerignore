@@ -1,0 +1,51 @@
+# Version control
+.git
+.gitignore
+
+# Dependencies (rebuilt inside Docker)
+node_modules
+
+# Build artifacts
+.next
+out
+build
+
+# Sandbox / dev-only files
+download
+upload
+prev_chat.json
+skills
+.zscripts
+.z-ai-config
+.claude
+
+# Logs
+*.log
+dev.log
+dev.out.log
+server.log
+
+# Env files (use .env.example as template; real secrets via runtime env)
+.env
+.env.local
+.env*.local
+
+# Database (will be created at runtime)
+db
+*.db
+*.db-journal
+
+# IDE
+.vscode
+.idea
+.DS_Store
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Docs (not needed in image)
+DEPLOY.md
+README.md
+worklog.md

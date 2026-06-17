@@ -1,0 +1,58 @@
+# ============================================================
+# ShowroomHub — Docker Compose
+# One-command production deploy with persistent SQLite volume.
+#
+# Usage:
+#   1. Copy .env.example to .env and edit values
+#   2. docker compose up -d --build
+#   3. Visit http://localhost:3000 (or your server's IP)
+#
+# To use Postgres instead of SQLite:
+#   1. Uncomment the `postgres` service below
+#   2. Set DATABASE_URL=postgresql://showroomhub:password@postgres:5432/showroomhub
+#   3. docker compose up -d --build
+# ============================================================
+
+services:
+  showroomhub:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      # Required — generate with: openssl rand -base64 32
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:-change-me-in-production}
+      # Set to your public URL in production (e.g. https://showroomhub.com)
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
+      # SQLite path inside the container (matches Dockerfile default)
+      DATABASE_URL: ${DATABASE_URL:-file:/app/db/custom.db}
+    volumes:
+      # Persist the SQLite DB across container restarts
+      - showroomhub-data:/app/db
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # ---- Optional: Postgres for production-grade multi-instance ----
+  # Uncomment if you want Postgres instead of SQLite.
+  # postgres:
+  #   image: postgres:16-alpine
+  #   environment:
+  #     POSTGRES_USER: showroomhub
+  #     POSTGRES_PASSWORD: change-me-in-production
+  #     POSTGRES_DB: showroomhub
+  #   volumes:
+  #     - postgres-data:/var/lib/postgresql/data
+  #   restart: unless-stopped
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U showroomhub"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+
+volumes:
+  showroomhub-data:
+  # postgres-data:
