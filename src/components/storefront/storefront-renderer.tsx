@@ -14,8 +14,8 @@
  *     JSX branch so every layout looks visibly different.
  */
 
-import { useState } from 'react'
-import { Search, ShoppingCart, Heart, Menu, X, Phone, Mail, MapPin, Facebook, Instagram, Twitter, Star, ChevronRight, Eye } from 'lucide-react'
+import { useState, useRef, useMemo } from 'react'
+import { Search, ShoppingCart, Heart, Menu, X, Phone, Mail, MapPin, Facebook, Instagram, Twitter, Star, ChevronRight, Eye, ArrowLeft } from 'lucide-react'
 
 type TranslateFn = (key: string, fallback?: string, vars?: Record<string, string | number>) => string
 
@@ -68,6 +68,81 @@ export function StorefrontRenderer({ tenant, layout, lang, loc, t, isRTL, cartCo
   const slide = activeSlides[0]
   const cats = tenant.categories
 
+  // ------- Filtering & search state -------
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
+  const productsSectionRef = useRef<HTMLDivElement>(null)
+  const topRef = useRef<HTMLDivElement>(null)
+
+  // Filtered products: when a category is selected OR a search query is active,
+  // we show a single "results" section instead of the featured + all split.
+  const filteredProducts = useMemo(() => {
+    let list = tenant.products
+    if (selectedCategoryId) {
+      list = list.filter((p: any) => p.category?.id === selectedCategoryId)
+    }
+    const q = searchQuery.trim().toLowerCase()
+    if (q) {
+      list = list.filter((p: any) => {
+        const en = (p.name || '').toLowerCase()
+        const ar = (p.nameAr || '').toLowerCase()
+        const he = (p.nameHe || '').toLowerCase()
+        const descEn = (p.description || '').toLowerCase()
+        const descAr = (p.descriptionAr || '').toLowerCase()
+        const descHe = (p.descriptionHe || '').toLowerCase()
+        const sku = (p.sku || '').toLowerCase()
+        return en.includes(q) || ar.includes(q) || he.includes(q)
+          || descEn.includes(q) || descAr.includes(q) || descHe.includes(q)
+          || sku.includes(q)
+      })
+    }
+    return list
+  }, [tenant.products, selectedCategoryId, searchQuery])
+
+  const isFiltering = !!selectedCategoryId || !!searchQuery.trim()
+  const selectedCategory = selectedCategoryId ? cats.find((c: any) => c.id === selectedCategoryId) : null
+
+  // ------- Scroll helpers -------
+  const scrollToProducts = () => {
+    if (typeof document !== 'undefined') {
+      const el = document.getElementById('storefront-products-section')
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }
+  }
+  const scrollToTop = () => {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+  const scrollToFooter = () => {
+    if (typeof document !== 'undefined') {
+      const el = document.getElementById('storefront-footer')
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }
+  }
+
+  // ------- Category / search handlers -------
+  const handleSelectCategory = (catId: string | null) => {
+    setSelectedCategoryId(catId)
+    // Clear search when switching categories (avoid double-filter confusion)
+    if (catId) setSearchQuery('')
+    // Scroll to products so the user sees the filter take effect
+    setTimeout(scrollToProducts, 50)
+  }
+  const handleSearch = (q: string) => {
+    setSearchQuery(q)
+    // Clear category when searching (search across everything)
+    if (q && selectedCategoryId) setSelectedCategoryId(null)
+  }
+  const handleClearFilter = () => {
+    setSelectedCategoryId(null)
+    setSearchQuery('')
+  }
+
   // Navigate to the full product page when a card is clicked.
   // Uses URL-based routing so the page can be shared / bookmarked.
   const handleViewDetails = (p: any) => {
@@ -77,7 +152,7 @@ export function StorefrontRenderer({ tenant, layout, lang, loc, t, isRTL, cartCo
   }
 
   return (
-    <div style={cssVars} dir={isRTL ? 'rtl' : 'ltr'}>
+    <div style={cssVars} dir={isRTL ? 'rtl' : 'ltr'} ref={topRef}>
       <Header
         variant={layout.headerStyle}
         tenantName={name}
@@ -92,6 +167,13 @@ export function StorefrontRenderer({ tenant, layout, lang, loc, t, isRTL, cartCo
         bg={bgColor}
         radius={radius}
         fontHead={fontVar(fontHeading)}
+        selectedCategoryId={selectedCategoryId}
+        searchQuery={searchQuery}
+        onSelectCategory={handleSelectCategory}
+        onSearch={handleSearch}
+        onHome={scrollToTop}
+        onAbout={scrollToFooter}
+        onContact={scrollToFooter}
       />
 
       <Hero
@@ -107,43 +189,134 @@ export function StorefrontRenderer({ tenant, layout, lang, loc, t, isRTL, cartCo
         fontHead={fontVar(fontHeading)}
         anim={anim}
         isRTL={isRTL}
+        onCtaClick={scrollToProducts}
       />
 
       {/* Categories strip */}
-      <CategoriesStrip cats={cats} loc={loc} t={t} primary={primary} accent={accent} radius={radius} />
-
-      {/* Featured section */}
-      {featured.length > 0 && (
-        <Section
-          title={t('store.featured')}
-          accent={accent}
-          fontHead={fontVar(fontHeading)}
-        >
-          <ProductGrid
-            variant={layout.productGrid}
-            products={featured}
-            loc={loc}
-            t={t}
-            primary={primary}
-            accent={accent}
-            text={textColor}
-            bg={bgColor}
-            radius={radius}
-            onAddToCart={onAddToCart}
-            onViewDetails={handleViewDetails}
-          />
-        </Section>
-      )}
-
-      {/* All products */}
-      <Section
-        title={t('store.allProducts')}
+      <CategoriesStrip
+        cats={cats}
+        loc={loc}
+        t={t}
+        primary={primary}
         accent={accent}
-        fontHead={fontVar(fontHeading)}
-      >
-        <ProductGrid
-          variant={layout.productGrid}
-          products={all}
+        radius={radius}
+        selectedCategoryId={selectedCategoryId}
+        onSelectCategory={handleSelectCategory}
+      />
+
+      {/* Products section — has stable id so we can smooth-scroll to it */}
+      <div id="storefront-products-section">
+        {isFiltering ? (
+          // ------- Filtered view (search OR category selected) -------
+          <Section
+            title={
+              searchQuery.trim()
+                ? t('store.searchResults', undefined, { query: searchQuery.trim() })
+                : selectedCategory
+                ? t('store.showingCategory', undefined, { category: loc(selectedCategory) })
+                : t('store.allProducts')
+            }
+            accent={accent}
+            fontHead={fontVar(fontHeading)}
+            subtitle={t('store.resultsCount', undefined, { n: filteredProducts.length })}
+            action={
+              <button
+                onClick={handleClearFilter}
+                className="text-xs font-medium inline-flex items-center gap-1 px-3 py-1.5 rounded-md border hover:bg-slate-50"
+                style={{ borderColor: `${primary}30`, color: primary }}
+              >
+                <ArrowLeft className="h-3 w-3" style={{ transform: isRTL ? 'scaleX(-1)' : '' }} />
+                {t('store.clearFilter')}
+              </button>
+            }
+          >
+            {filteredProducts.length === 0 ? (
+              <div className="text-center py-16">
+                <div className="text-5xl mb-3 opacity-40">🔍</div>
+                <p className="text-sm text-muted-foreground">
+                  {searchQuery.trim() ? t('store.noProductsMatch') : t('store.noProductsInCategory')}
+                </p>
+                <button
+                  onClick={handleClearFilter}
+                  className="mt-3 text-xs font-medium underline"
+                  style={{ color: primary }}
+                >
+                  {t('store.clearFilter')}
+                </button>
+              </div>
+            ) : (
+              <ProductGrid
+                variant={layout.productGrid}
+                products={filteredProducts}
+                loc={loc}
+                t={t}
+                primary={primary}
+                accent={accent}
+                text={textColor}
+                bg={bgColor}
+                radius={radius}
+                onAddToCart={onAddToCart}
+                onViewDetails={handleViewDetails}
+              />
+            )}
+          </Section>
+        ) : (
+          // ------- Default view: featured + all -------
+          <>
+            {/* Featured section */}
+            {featured.length > 0 && (
+              <Section
+                title={t('store.featured')}
+                accent={accent}
+                fontHead={fontVar(fontHeading)}
+              >
+                <ProductGrid
+                  variant={layout.productGrid}
+                  products={featured}
+                  loc={loc}
+                  t={t}
+                  primary={primary}
+                  accent={accent}
+                  text={textColor}
+                  bg={bgColor}
+                  radius={radius}
+                  onAddToCart={onAddToCart}
+                  onViewDetails={handleViewDetails}
+                />
+              </Section>
+            )}
+
+            {/* All products */}
+            <Section
+              title={t('store.allProducts')}
+              accent={accent}
+              fontHead={fontVar(fontHeading)}
+            >
+              <ProductGrid
+                variant={layout.productGrid}
+                products={all}
+                loc={loc}
+                t={t}
+                primary={primary}
+                accent={accent}
+                text={textColor}
+                bg={bgColor}
+                radius={radius}
+                onAddToCart={onAddToCart}
+                onViewDetails={handleViewDetails}
+              />
+            </Section>
+          </>
+        )}
+      </div>
+
+      <div id="storefront-footer">
+        <Footer
+          variant={layout.footerStyle}
+          tenantName={name}
+          desc={desc}
+          email={tenant.email}
+          phone={tenant.phone}
           loc={loc}
           t={t}
           primary={primary}
@@ -151,27 +324,14 @@ export function StorefrontRenderer({ tenant, layout, lang, loc, t, isRTL, cartCo
           text={textColor}
           bg={bgColor}
           radius={radius}
-          onAddToCart={onAddToCart}
-          onViewDetails={handleViewDetails}
+          fontHead={fontVar(fontHeading)}
+          cats={cats}
+          onSelectCategory={handleSelectCategory}
+          onAbout={scrollToFooter}
+          onContact={scrollToFooter}
+          onHome={scrollToTop}
         />
-      </Section>
-
-      <Footer
-        variant={layout.footerStyle}
-        tenantName={name}
-        desc={desc}
-        email={tenant.email}
-        phone={tenant.phone}
-        loc={loc}
-        t={t}
-        primary={primary}
-        accent={accent}
-        text={textColor}
-        bg={bgColor}
-        radius={radius}
-        fontHead={fontVar(fontHeading)}
-        cats={cats}
-      />
+      </div>
     </div>
   )
 }
@@ -200,36 +360,126 @@ function CartButton({ count, onOpen, accent, primary, light, label }: { count: n
   )
 }
 
-function Header({ variant, tenantName, cats, loc, t, cartCount, onOpenCart, primary, accent, text, bg, radius, fontHead }: any) {
+// Reusable search input — used across all 3 header variants
+function SearchBox({ value, onChange, onClear, light, placeholder }: {
+  value: string
+  onChange: (v: string) => void
+  onClear?: () => void
+  light?: boolean
+  placeholder: string
+}) {
+  return (
+    <div className="relative">
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        autoFocus
+        className={`text-xs px-2 py-1 rounded-md border outline-none ${
+          light ? 'bg-white/15 text-white placeholder-white/60 border-white/30' : 'bg-white text-slate-900 border-slate-200'
+        }`}
+        style={{ width: 140 }}
+      />
+      {value && (
+        <button
+          onClick={onClear}
+          className="absolute right-1 top-1/2 -translate-y-1/2"
+          aria-label="Clear search"
+        >
+          <X className={`h-3 w-3 ${light ? 'text-white/70' : 'text-slate-400'}`} />
+        </button>
+      )}
+    </div>
+  )
+}
+
+// Search toggle button — expands the input when clicked
+function SearchToggle({ active, onClick, light, primary, label }: {
+  active: boolean
+  onClick: () => void
+  light?: boolean
+  primary: string
+  label: string
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="p-1 rounded-md hover:bg-white/10 transition-colors"
+      aria-label={label}
+    >
+      <Search className="h-4 w-4" style={{ color: light ? '#fff' : primary }} />
+    </button>
+  )
+}
+
+function Header(props: any) {
+  const {
+    variant, tenantName, cats, loc, t, cartCount, onOpenCart,
+    primary, accent, text, bg, radius, fontHead,
+    selectedCategoryId, searchQuery, onSelectCategory, onSearch,
+    onHome, onAbout, onContact,
+  } = props
   const [open, setOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
+
+  // Helper for nav link className — highlights the active category
+  const navLinkClass = (isActive: boolean) =>
+    `cursor-pointer hover:opacity-100 transition-opacity ${isActive ? 'opacity-100 font-semibold' : 'opacity-90'}`
+
+  // Handle category click from header nav
+  const handleCatClick = (c: any) => (e: React.MouseEvent) => {
+    e.preventDefault()
+    onSelectCategory?.(selectedCategoryId === c.id ? null : c.id)
+    setOpen(false)
+  }
+
+  // Reusable search widget — toggles between icon and input
+  const searchWidget = (light = false) => searchOpen
+    ? <SearchBox value={searchQuery} onChange={(v) => onSearch?.(v)} onClear={() => { onSearch?.(''); setSearchOpen(false) }} light={light} placeholder={t('store.searchPlaceholder')} />
+    : <SearchToggle active={searchOpen} onClick={() => { setSearchOpen(!searchOpen); if (searchOpen) onSearch?.('') }} light={light} primary={primary} label={t('store.searchPlaceholder')} />
 
   if (variant === 'minimal-bar') {
     return (
-      <header style={{ background: primary, color: '#fff' }} className="px-4 sm:px-8 py-3 flex items-center justify-between sticky top-0 z-40">
-        <div className="flex items-center gap-6">
-          <div className="font-bold text-lg" style={{ fontFamily: fontHead }}>{tenantName}</div>
-          <nav className="hidden md:flex gap-5 text-sm">
-            <a href="#" className="opacity-90 hover:opacity-100">{t('store.home')}</a>
-            {cats.slice(0, 4).map((c: any) => (
-              <a key={c.id} href="#" className="opacity-90 hover:opacity-100">{loc(c)}</a>
-            ))}
-            <a href="#" className="opacity-90 hover:opacity-100">{t('store.about')}</a>
-          </nav>
-        </div>
-        <div className="flex items-center gap-3">
-          <Search className="h-4 w-4 opacity-90" />
-          <Heart className="h-4 w-4 opacity-90 hidden sm:inline" />
-          <CartButton count={cartCount} onOpen={onOpenCart} accent={accent} primary={primary} light label={t('cart.title')} />
-          <button className="md:hidden" onClick={() => setOpen(!open)}>
-            {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-          </button>
+      <header style={{ background: primary, color: '#fff' }} className="px-4 sm:px-8 py-3 sticky top-8 z-40">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-6 min-w-0">
+            <button
+              onClick={() => { onHome?.(); setOpen(false) }}
+              className="font-bold text-lg shrink-0"
+              style={{ fontFamily: fontHead }}
+            >
+              {tenantName}
+            </button>
+            <nav className="hidden md:flex gap-5 text-sm items-center">
+              <button onClick={() => { onHome?.() }} className={navLinkClass(null, !selectedCategoryId)}>{t('store.home')}</button>
+              {cats.slice(0, 4).map((c: any) => (
+                <button
+                  key={c.id}
+                  onClick={handleCatClick(c)}
+                  className={navLinkClass(c.id, selectedCategoryId === c.id)}
+                >
+                  {loc(c)}
+                </button>
+              ))}
+              <button onClick={() => { onAbout?.() }} className="opacity-90 hover:opacity-100">{t('store.about')}</button>
+            </nav>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            {searchWidget(true)}
+            <CartButton count={cartCount} onOpen={onOpenCart} accent={accent} primary={primary} light label={t('cart.title')} />
+            <button className="md:hidden" onClick={() => setOpen(!open)}>
+              {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+            </button>
+          </div>
         </div>
         {open && (
-          <div className="absolute top-full left-0 right-0 md:hidden p-4 flex flex-col gap-3" style={{ background: primary }}>
-            <a href="#" onClick={() => setOpen(false)}>{t('store.home')}</a>
+          <div className="md:hidden mt-3 pt-3 border-t border-white/20 flex flex-col gap-3 text-sm">
+            <button onClick={() => { onHome?.(); setOpen(false) }} className="text-left">{t('store.home')}</button>
             {cats.map((c: any) => (
-              <a key={c.id} href="#" onClick={() => setOpen(false)}>{loc(c)}</a>
+              <button key={c.id} onClick={handleCatClick(c)} className="text-left">{loc(c)}</button>
             ))}
+            <button onClick={() => { onAbout?.(); setOpen(false) }} className="text-left">{t('store.about')}</button>
           </div>
         )}
       </header>
@@ -238,25 +488,35 @@ function Header({ variant, tenantName, cats, loc, t, cartCount, onOpenCart, prim
 
   if (variant === 'split-nav') {
     return (
-      <header style={{ background: bg, color: text, borderBottom: `1px solid ${text}15` }} className="px-4 sm:px-8 py-4 sticky top-0 z-40">
+      <header style={{ background: bg, color: text, borderBottom: `1px solid ${text}15` }} className="px-4 sm:px-8 py-4 sticky top-8 z-40">
         <div className="grid grid-cols-3 items-center max-w-7xl mx-auto">
-          <nav className="flex gap-4 text-sm">
-            <a href="#" className="hover:opacity-70 hidden sm:inline">{t('store.home')}</a>
+          <nav className="flex gap-4 text-sm items-center">
+            <button onClick={() => { onHome?.() }} className={`hover:opacity-70 hidden sm:inline ${!selectedCategoryId ? 'font-semibold' : ''}`}>{t('store.home')}</button>
             {cats.slice(0, 2).map((c: any) => (
-              <a key={c.id} href="#" className="hover:opacity-70 hidden sm:inline">{loc(c)}</a>
+              <button
+                key={c.id}
+                onClick={handleCatClick(c)}
+                className={`hover:opacity-70 hidden sm:inline ${selectedCategoryId === c.id ? 'font-semibold' : ''}`}
+                style={selectedCategoryId === c.id ? { color: primary } : undefined}
+              >
+                {loc(c)}
+              </button>
             ))}
             <button className="sm:hidden" onClick={() => setOpen(!open)}>{open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}</button>
           </nav>
-          <div className="text-center font-bold text-lg" style={{ fontFamily: fontHead, color: primary }}>{tenantName}</div>
-          <div className="flex items-center gap-3 justify-end text-sm">
-            <Search className="h-4 w-4" style={{ color: primary }} />
+          <button onClick={() => onHome?.()} className="text-center font-bold text-lg" style={{ fontFamily: fontHead, color: primary }}>{tenantName}</button>
+          <div className="flex items-center gap-2 justify-end text-sm">
+            {searchWidget()}
             <CartButton count={cartCount} onOpen={onOpenCart} accent={accent} primary={primary} label={t('cart.title')} />
           </div>
         </div>
         {open && (
-          <div className="sm:hidden mt-3 flex flex-col gap-2">
-            <a href="#">{t('store.home')}</a>
-            {cats.map((c: any) => <a key={c.id} href="#">{loc(c)}</a>)}
+          <div className="sm:hidden mt-3 pt-3 border-t flex flex-col gap-2" style={{ borderColor: `${text}15` }}>
+            <button onClick={() => { onHome?.(); setOpen(false) }} className="text-left">{t('store.home')}</button>
+            {cats.map((c: any) => (
+              <button key={c.id} onClick={handleCatClick(c)} className="text-left">{loc(c)}</button>
+            ))}
+            <button onClick={() => { onAbout?.(); setOpen(false) }} className="text-left">{t('store.about')}</button>
           </div>
         )}
       </header>
@@ -265,18 +525,27 @@ function Header({ variant, tenantName, cats, loc, t, cartCount, onOpenCart, prim
 
   if (variant === 'centered-logo') {
     return (
-      <header style={{ background: bg, color: text, borderBottom: `1px solid ${text}10` }} className="px-4 sm:px-8 py-5 sticky top-0 z-40">
+      <header style={{ background: bg, color: text, borderBottom: `1px solid ${text}10` }} className="px-4 sm:px-8 py-5 sticky top-8 z-40">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center font-bold text-2xl mb-3" style={{ fontFamily: fontHead, color: primary }}>{tenantName}</div>
-          <nav className="flex items-center justify-center gap-6 text-sm">
-            <a href="#" className="hover:opacity-70">{t('store.home')}</a>
+          <button onClick={() => onHome?.()} className="block mx-auto text-center font-bold text-2xl mb-3" style={{ fontFamily: fontHead, color: primary }}>
+            {tenantName}
+          </button>
+          <nav className="flex items-center justify-center gap-4 sm:gap-6 text-sm flex-wrap">
+            <button onClick={() => onHome?.()} className={`hover:opacity-70 ${!selectedCategoryId ? 'font-semibold' : ''}`}>{t('store.home')}</button>
             {cats.slice(0, 4).map((c: any) => (
-              <a key={c.id} href="#" className="hover:opacity-70 hidden sm:inline">{loc(c)}</a>
+              <button
+                key={c.id}
+                onClick={handleCatClick(c)}
+                className={`hover:opacity-70 hidden sm:inline ${selectedCategoryId === c.id ? 'font-semibold' : ''}`}
+                style={selectedCategoryId === c.id ? { color: primary } : undefined}
+              >
+                {loc(c)}
+              </button>
             ))}
-            <a href="#" className="hover:opacity-70">{t('store.about')}</a>
-            <a href="#" className="hover:opacity-70 hidden sm:inline">{t('store.contact')}</a>
+            <button onClick={() => onAbout?.()} className="hover:opacity-70">{t('store.about')}</button>
+            <button onClick={() => onContact?.()} className="hover:opacity-70 hidden sm:inline">{t('store.contact')}</button>
             <div className="flex items-center gap-2">
-              <Search className="h-4 w-4" style={{ color: primary }} />
+              {searchWidget()}
               <CartButton count={cartCount} onOpen={onOpenCart} accent={accent} primary={primary} label={t('cart.title')} />
             </div>
           </nav>
@@ -293,7 +562,7 @@ function Header({ variant, tenantName, cats, loc, t, cartCount, onOpenCart, prim
 // HERO VARIANTS
 // ============================================================
 
-function Hero({ variant, slide, loc, t, primary, accent, text, bg, radius, fontHead, anim, isRTL }: any) {
+function Hero({ variant, slide, loc, t, primary, accent, text, bg, radius, fontHead, anim, isRTL, onCtaClick }: any) {
   if (!slide) return null
 
   const animClass = anim === 'fade' ? 'opacity-0 animate-[fadeIn_0.6s_ease-out_forwards]'
@@ -314,6 +583,7 @@ function Hero({ variant, slide, loc, t, primary, accent, text, bg, radius, fontH
               <p className="text-base lg:text-lg mb-6 opacity-70 max-w-md">{loc(slide, 'subtitle')}</p>
             )}
             <button
+              onClick={onCtaClick}
               className="inline-flex items-center gap-2 px-6 py-3 text-white text-sm font-medium hover:opacity-90"
               style={{ background: primary, borderRadius: radius }}
             >
@@ -347,6 +617,7 @@ function Hero({ variant, slide, loc, t, primary, accent, text, bg, radius, fontH
             <p className="text-base lg:text-xl mb-8 opacity-80">{loc(slide, 'subtitle')}</p>
           )}
           <button
+            onClick={onCtaClick}
             className="inline-flex items-center gap-2 px-8 py-4 text-sm font-medium hover:opacity-90"
             style={{ background: accent, color: '#fff', borderRadius: radius }}
           >
@@ -399,7 +670,7 @@ function Hero({ variant, slide, loc, t, primary, accent, text, bg, radius, fontH
             <div className="text-5xl mb-3">{slide.image || '🛋️'}</div>
             <h2 className="text-2xl lg:text-3xl font-bold mb-2" style={{ fontFamily: fontHead }}>{loc(slide, 'title')}</h2>
             {slide.subtitle && <p className="text-sm opacity-80">{loc(slide, 'subtitle')}</p>}
-            <button className="mt-4 self-start px-4 py-2 text-xs font-medium bg-white/20 hover:bg-white/30" style={{ borderRadius: radius }}>
+            <button onClick={onCtaClick} className="mt-4 self-start px-4 py-2 text-xs font-medium bg-white/20 hover:bg-white/30" style={{ borderRadius: radius }}>
               {slide.ctaText || t('store.shopNow')}
             </button>
           </div>
@@ -429,23 +700,45 @@ function Hero({ variant, slide, loc, t, primary, accent, text, bg, radius, fontH
 // CATEGORIES STRIP
 // ============================================================
 
-function CategoriesStrip({ cats, loc, t, primary, accent, radius }: any) {
+function CategoriesStrip({ cats, loc, t, primary, accent, radius, selectedCategoryId, onSelectCategory }: any) {
   if (cats.length === 0) return null
   return (
     <section className="px-4 sm:px-8 py-6 border-y" style={{ borderColor: `${primary}15` }}>
       <div className="max-w-7xl mx-auto flex flex-wrap gap-3 justify-center">
-        {cats.map((c: any) => (
-          <a
-            key={c.id}
-            href="#"
-            className="flex items-center gap-2 px-4 py-2 text-sm hover:scale-105 transition-transform"
-            style={{ background: `${primary}08`, borderRadius: radius, color: primary }}
-          >
-            <span className="text-lg">{c.icon}</span>
-            <span className="font-medium">{loc(c)}</span>
-            <span className="text-xs opacity-60">({c._count?.products ?? 0})</span>
-          </a>
-        ))}
+        {/* "All" pill — clears the category filter */}
+        <button
+          onClick={() => onSelectCategory?.(null)}
+          className="flex items-center gap-2 px-4 py-2 text-sm hover:scale-105 transition-transform font-medium"
+          style={{
+            borderRadius: radius,
+            background: selectedCategoryId === null || !selectedCategoryId ? primary : `${primary}08`,
+            color: selectedCategoryId === null || !selectedCategoryId ? '#fff' : primary,
+            border: `1px solid ${primary}30`,
+          }}
+        >
+          <span className="text-base">✨</span>
+          <span>{t('store.allCategories')}</span>
+        </button>
+        {cats.map((c: any) => {
+          const isActive = selectedCategoryId === c.id
+          return (
+            <button
+              key={c.id}
+              onClick={() => onSelectCategory?.(isActive ? null : c.id)}
+              className="flex items-center gap-2 px-4 py-2 text-sm hover:scale-105 transition-transform"
+              style={{
+                background: isActive ? primary : `${primary}08`,
+                color: isActive ? '#fff' : primary,
+                borderRadius: radius,
+                border: `1px solid ${isActive ? primary : 'transparent'}`,
+              }}
+            >
+              <span className="text-lg">{c.icon}</span>
+              <span className="font-medium">{loc(c)}</span>
+              <span className="text-xs opacity-70">({c._count?.products ?? 0})</span>
+            </button>
+          )
+        })}
       </div>
     </section>
   )
@@ -455,16 +748,22 @@ function CategoriesStrip({ cats, loc, t, primary, accent, radius }: any) {
 // SECTION
 // ============================================================
 
-function Section({ title, accent, fontHead, children }: any) {
+function Section({ title, accent, fontHead, subtitle, action, children }: any) {
   return (
     <section className="px-4 sm:px-8 py-10">
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl lg:text-3xl font-bold" style={{ fontFamily: fontHead }}>
-            {title}
-          </h2>
-          <div className="h-1 w-12" style={{ background: accent }} />
+        <div className="flex items-center justify-between mb-2 flex-wrap gap-3">
+          <div>
+            <h2 className="text-2xl lg:text-3xl font-bold" style={{ fontFamily: fontHead }}>
+              {title}
+            </h2>
+            {subtitle && (
+              <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
+            )}
+          </div>
+          {action ? action : <div className="h-1 w-12" style={{ background: accent }} />}
         </div>
+        <div className="mb-6" />
         {children}
       </div>
     </section>
@@ -657,18 +956,32 @@ function ProductRow({ p, loc, t, primary, accent, text, radius, onAddToCart, onV
 // FOOTER VARIANTS
 // ============================================================
 
-function Footer({ variant, tenantName, desc, email, phone, loc, t, primary, accent, text, bg, radius, fontHead, cats }: any) {
+// Shared social icons (decorative — would link to social profiles in a real app)
+function Socials() {
+  return (
+    <div className="flex gap-3">
+      <Facebook className="h-4 w-4 opacity-70 hover:opacity-100 cursor-pointer" />
+      <Instagram className="h-4 w-4 opacity-70 hover:opacity-100 cursor-pointer" />
+      <Twitter className="h-4 w-4 opacity-70 hover:opacity-100 cursor-pointer" />
+    </div>
+  )
+}
+
+function Footer(props: any) {
+  const {
+    variant, tenantName, desc, email, phone, loc, t,
+    primary, accent, text, bg, radius, fontHead, cats,
+    onSelectCategory, onAbout, onContact, onHome,
+  } = props
+  const year = new Date().getFullYear()
+
   if (variant === 'footer-minimal') {
     return (
       <footer className="px-4 sm:px-8 py-8 mt-12" style={{ background: primary, color: '#fff' }}>
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="font-bold" style={{ fontFamily: fontHead }}>{tenantName}</div>
-          <div className="text-xs opacity-70">© {new Date().getFullYear()} · {t('brand.tagline')}</div>
-          <div className="flex gap-3">
-            <Facebook className="h-4 w-4 opacity-70 hover:opacity-100 cursor-pointer" />
-            <Instagram className="h-4 w-4 opacity-70 hover:opacity-100 cursor-pointer" />
-            <Twitter className="h-4 w-4 opacity-70 hover:opacity-100 cursor-pointer" />
-          </div>
+          <button onClick={onHome} className="font-bold hover:opacity-80" style={{ fontFamily: fontHead }}>{tenantName}</button>
+          <div className="text-xs opacity-70">© {year} · {t('brand.tagline')}</div>
+          <Socials />
         </div>
       </footer>
     )
@@ -679,41 +992,53 @@ function Footer({ variant, tenantName, desc, email, phone, loc, t, primary, acce
       <footer className="px-4 sm:px-8 py-12 mt-12" style={{ background: text, color: bg }}>
         <div className="max-w-7xl mx-auto grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
           <div>
-            <div className="font-bold text-lg mb-2" style={{ fontFamily: fontHead, color: accent }}>{tenantName}</div>
+            <button onClick={onHome} className="font-bold text-lg mb-2 block text-left hover:opacity-80" style={{ fontFamily: fontHead, color: accent }}>{tenantName}</button>
             {desc && <p className="text-sm opacity-70">{desc}</p>}
             <div className="flex gap-2 mt-3">
-              <Facebook className="h-4 w-4 opacity-70 hover:opacity-100 cursor-pointer" />
-              <Instagram className="h-4 w-4 opacity-70 hover:opacity-100 cursor-pointer" />
-              <Twitter className="h-4 w-4 opacity-70 hover:opacity-100 cursor-pointer" />
+              <Socials />
             </div>
           </div>
           <div>
             <div className="font-bold text-sm mb-3 opacity-90">{t('store.categories')}</div>
             <ul className="space-y-1 text-sm opacity-70">
               {cats.slice(0, 5).map((c: any) => (
-                <li key={c.id}><a href="#" className="hover:opacity-100">{loc(c)}</a></li>
+                <li key={c.id}>
+                  <button onClick={() => onSelectCategory?.(c.id)} className="hover:opacity-100 text-left">{loc(c)}</button>
+                </li>
               ))}
             </ul>
           </div>
           <div>
             <div className="font-bold text-sm mb-3 opacity-90">{t('store.about')}</div>
             <ul className="space-y-1 text-sm opacity-70">
-              <li><a href="#" className="hover:opacity-100">Our Story</a></li>
-              <li><a href="#" className="hover:opacity-100">Craftsmanship</a></li>
-              <li><a href="#" className="hover:opacity-100">Sustainability</a></li>
-              <li><a href="#" className="hover:opacity-100">Careers</a></li>
+              <li><button onClick={onAbout} className="hover:opacity-100 text-left">Our Story</button></li>
+              <li><button onClick={onAbout} className="hover:opacity-100 text-left">Craftsmanship</button></li>
+              <li><button onClick={onAbout} className="hover:opacity-100 text-left">Sustainability</button></li>
+              <li><button onClick={onAbout} className="hover:opacity-100 text-left">Careers</button></li>
             </ul>
           </div>
           <div>
             <div className="font-bold text-sm mb-3 opacity-90">{t('store.contact')}</div>
             <ul className="space-y-1 text-sm opacity-70">
-              {email && <li className="flex items-center gap-2"><Mail className="h-3.5 w-3.5" /> {email}</li>}
-              {phone && <li className="flex items-center gap-2"><Phone className="h-3.5 w-3.5" /> {phone}</li>}
+              {email && (
+                <li>
+                  <a href={`mailto:${email}`} className="flex items-center gap-2 hover:opacity-100">
+                    <Mail className="h-3.5 w-3.5" /> {email}
+                  </a>
+                </li>
+              )}
+              {phone && (
+                <li>
+                  <a href={`tel:${phone}`} className="flex items-center gap-2 hover:opacity-100">
+                    <Phone className="h-3.5 w-3.5" /> {phone}
+                  </a>
+                </li>
+              )}
             </ul>
           </div>
         </div>
         <div className="max-w-7xl mx-auto mt-8 pt-4 border-t border-white/20 text-xs opacity-60 text-center">
-          © {new Date().getFullYear()} {tenantName} · All rights reserved
+          © {year} {tenantName} · All rights reserved
         </div>
       </footer>
     )
@@ -723,20 +1048,27 @@ function Footer({ variant, tenantName, desc, email, phone, loc, t, primary, acce
     return (
       <footer className="px-4 sm:px-8 py-10 mt-12 text-center" style={{ background: `${primary}08`, color: text }}>
         <div className="max-w-3xl mx-auto">
-          <div className="font-bold text-xl mb-2" style={{ fontFamily: fontHead, color: primary }}>{tenantName}</div>
+          <button onClick={onHome} className="font-bold text-xl mb-2 hover:opacity-80" style={{ fontFamily: fontHead, color: primary }}>{tenantName}</button>
           {desc && <p className="text-sm opacity-70 mb-4">{desc}</p>}
           {email && (
             <div className="flex items-center justify-center gap-2 text-sm opacity-80 mb-3">
-              <Mail className="h-3.5 w-3.5" /> {email}
-              {phone && <><span className="mx-2">·</span><Phone className="h-3.5 w-3.5" /> {phone}</>}
+              <a href={`mailto:${email}`} className="flex items-center gap-1 hover:opacity-100">
+                <Mail className="h-3.5 w-3.5" /> {email}
+              </a>
+              {phone && (
+                <>
+                  <span className="mx-2">·</span>
+                  <a href={`tel:${phone}`} className="flex items-center gap-1 hover:opacity-100">
+                    <Phone className="h-3.5 w-3.5" /> {phone}
+                  </a>
+                </>
+              )}
             </div>
           )}
           <div className="flex justify-center gap-3 mb-4">
-            <Facebook className="h-4 w-4 opacity-70 hover:opacity-100 cursor-pointer" />
-            <Instagram className="h-4 w-4 opacity-70 hover:opacity-100 cursor-pointer" />
-            <Twitter className="h-4 w-4 opacity-70 hover:opacity-100 cursor-pointer" />
+            <Socials />
           </div>
-          <div className="text-xs opacity-60">© {new Date().getFullYear()} {tenantName}</div>
+          <div className="text-xs opacity-60">© {year} {tenantName}</div>
         </div>
       </footer>
     )
