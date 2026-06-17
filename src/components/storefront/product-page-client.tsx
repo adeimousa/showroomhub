@@ -27,6 +27,22 @@ export function ProductPageClient({ tenant, product }: { tenant: any; product: a
       .slice(0, 5)
   }, [product, tenant.products])
 
+  // Helper to generate product URL - handles both preview mode and custom domain mode
+  const getProductUrl = (productId: string) => {
+    if (typeof window === 'undefined') return `/product/${productId}`
+
+    const params = new URLSearchParams(window.location.search)
+    const isPreviewMode = params.has('view') && params.has('slug')
+
+    if (isPreviewMode) {
+      // Preview mode: use ?view=product&slug=...&productId=...
+      return `/?view=product&slug=${encodeURIComponent(tenant.slug)}&productId=${encodeURIComponent(productId)}`
+    } else {
+      // Custom domain mode: use /product/<id>
+      return `/product/${productId}`
+    }
+  }
+
   if (!layout) {
     return (
       <div className="min-h-screen bg-slate-100" dir={isRTL ? 'rtl' : 'ltr'}>
@@ -39,7 +55,7 @@ export function ProductPageClient({ tenant, product }: { tenant: any; product: a
           tenant={tenant}
           lang={lang}
           related={related}
-          onSelectRelated={(p) => { window.location.href = `/product/${p.id}` }}
+          onSelectRelated={(p) => { window.location.href = getProductUrl(p.id) }}
         />
         <CartDrawer tenant={tenant} />
       </div>
@@ -71,7 +87,7 @@ export function ProductPageClient({ tenant, product }: { tenant: any; product: a
         tenant={tenant}
         lang={lang}
         related={related}
-        onSelectRelated={(p) => { window.location.href = `/product/${p.id}` }}
+        onSelectRelated={(p) => { window.location.href = getProductUrl(p.id) }}
       />
 
       <CartDrawer tenant={tenant} />

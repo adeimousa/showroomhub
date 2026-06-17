@@ -70,3 +70,4 @@ worklog.md
 .zscripts/
 .z-ai-config
 .claude
+.env*
