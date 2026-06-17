@@ -15,14 +15,17 @@
  */
 
 import { useState } from 'react'
-import { Search, ShoppingCart, Heart, Menu, X, Phone, Mail, MapPin, Facebook, Instagram, Twitter, Star, ChevronRight } from 'lucide-react'
+import { Search, ShoppingCart, Heart, Menu, X, Phone, Mail, MapPin, Facebook, Instagram, Twitter, Star, ChevronRight, Eye } from 'lucide-react'
+import { ProductDetailsDialog } from './product-details-dialog'
+
+type TranslateFn = (key: string, fallback?: string, vars?: Record<string, string | number>) => string
 
 type Props = {
   tenant: any
   layout: any
   lang: 'en' | 'ar' | 'he'
   loc: (obj: any, field?: string) => string
-  t: (key: string, fallback?: string) => string
+  t: TranslateFn
   isRTL: boolean
   cartCount: number
   onAddToCart: (product: any) => void
@@ -65,6 +68,26 @@ export function StorefrontRenderer({ tenant, layout, lang, loc, t, isRTL, cartCo
   const activeSlides = tenant.heroSlides.filter((s: any) => s.active).sort((a: any, b: any) => a.order - b.order)
   const slide = activeSlides[0]
   const cats = tenant.categories
+
+  // Product details dialog state
+  const [openProduct, setOpenProduct] = useState<any | null>(null)
+
+  // Compute related products: same category, excluding the open product
+  const relatedProducts = openProduct
+    ? tenant.products
+        .filter((p: any) => p.id !== openProduct.id && p.category?.id === openProduct.category?.id)
+        .slice(0, 5)
+    : []
+
+  const handleViewDetails = (p: any) => setOpenProduct(p)
+  const handleSelectRelated = (p: any) => {
+    setOpenProduct(p)
+    // Scroll to top of dialog
+    if (typeof document !== 'undefined') {
+      const dialog = document.querySelector('[role="dialog"]')
+      if (dialog) dialog.scrollTop = 0
+    }
+  }
 
   return (
     <div style={cssVars} dir={isRTL ? 'rtl' : 'ltr'}>
@@ -120,6 +143,7 @@ export function StorefrontRenderer({ tenant, layout, lang, loc, t, isRTL, cartCo
             bg={bgColor}
             radius={radius}
             onAddToCart={onAddToCart}
+            onViewDetails={handleViewDetails}
           />
         </Section>
       )}
@@ -141,6 +165,7 @@ export function StorefrontRenderer({ tenant, layout, lang, loc, t, isRTL, cartCo
           bg={bgColor}
           radius={radius}
           onAddToCart={onAddToCart}
+          onViewDetails={handleViewDetails}
         />
       </Section>
 
@@ -159,6 +184,22 @@ export function StorefrontRenderer({ tenant, layout, lang, loc, t, isRTL, cartCo
         radius={radius}
         fontHead={fontVar(fontHeading)}
         cats={cats}
+      />
+
+      {/* Product details dialog */}
+      <ProductDetailsDialog
+        product={openProduct}
+        open={!!openProduct}
+        onOpenChange={(o) => !o && setOpenProduct(null)}
+        tenant={{
+          name: tenant.name,
+          slug: tenant.slug,
+          whatsappNumber: tenant.whatsappNumber,
+          whatsappPrefill: tenant.whatsappPrefill,
+        }}
+        loc={loc}
+        related={relatedProducts}
+        onSelectRelated={handleSelectRelated}
       />
     </div>
   )
@@ -463,7 +504,7 @@ function Section({ title, accent, fontHead, children }: any) {
 // PRODUCT GRID VARIANTS
 // ============================================================
 
-function ProductGrid({ variant, products, loc, t, primary, accent, text, bg, radius, onAddToCart }: any) {
+function ProductGrid({ variant, products, loc, t, primary, accent, text, bg, radius, onAddToCart, onViewDetails }: any) {
   if (products.length === 0) {
     return <div className="text-center py-12 text-muted-foreground">{t('common.noResults')}</div>
   }
@@ -472,7 +513,7 @@ function ProductGrid({ variant, products, loc, t, primary, accent, text, bg, rad
     return (
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {products.map((p: any) => (
-          <ProductCard key={p.id} p={p} loc={loc} t={t} primary={primary} accent={accent} text={text} radius={radius} onAddToCart={onAddToCart} />
+          <ProductCard key={p.id} p={p} loc={loc} t={t} primary={primary} accent={accent} text={text} radius={radius} onAddToCart={onAddToCart} onViewDetails={onViewDetails} />
         ))}
       </div>
     )
@@ -482,7 +523,7 @@ function ProductGrid({ variant, products, loc, t, primary, accent, text, bg, rad
     return (
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
         {products.map((p: any) => (
-          <ProductCard key={p.id} p={p} loc={loc} t={t} primary={primary} accent={accent} text={text} radius={radius} onAddToCart={onAddToCart} compact />
+          <ProductCard key={p.id} p={p} loc={loc} t={t} primary={primary} accent={accent} text={text} radius={radius} onAddToCart={onAddToCart} onViewDetails={onViewDetails} compact />
         ))}
       </div>
     )
@@ -493,7 +534,7 @@ function ProductGrid({ variant, products, loc, t, primary, accent, text, bg, rad
       <div className="columns-2 lg:columns-3 gap-4 [&>*]:mb-4">
         {products.map((p: any, i: number) => (
           <div key={p.id} className="break-inside-avoid">
-            <ProductCard p={p} loc={loc} t={t} primary={primary} accent={accent} text={text} radius={radius} onAddToCart={onAddToCart} varyingHeight={i % 3} />
+            <ProductCard p={p} loc={loc} t={t} primary={primary} accent={accent} text={text} radius={radius} onAddToCart={onAddToCart} onViewDetails={onViewDetails} varyingHeight={i % 3} />
           </div>
         ))}
       </div>
@@ -504,7 +545,7 @@ function ProductGrid({ variant, products, loc, t, primary, accent, text, bg, rad
     return (
       <div className="space-y-2">
         {products.map((p: any) => (
-          <ProductRow key={p.id} p={p} loc={loc} t={t} primary={primary} accent={accent} text={text} radius={radius} onAddToCart={onAddToCart} />
+          <ProductRow key={p.id} p={p} loc={loc} t={t} primary={primary} accent={accent} text={text} radius={radius} onAddToCart={onAddToCart} onViewDetails={onViewDetails} />
         ))}
       </div>
     )
@@ -513,15 +554,16 @@ function ProductGrid({ variant, products, loc, t, primary, accent, text, bg, rad
   return null
 }
 
-function ProductCard({ p, loc, t, primary, accent, text, radius, onAddToCart, compact, varyingHeight }: any) {
+function ProductCard({ p, loc, t, primary, accent, text, radius, onAddToCart, onViewDetails, compact, varyingHeight }: any) {
   const discount = p.compareAt && p.compareAt > p.price
     ? Math.round((1 - p.price / p.compareAt) * 100)
     : 0
   const heights = ['min-h-[180px]', 'min-h-[240px]', 'min-h-[300px]']
   return (
     <div
-      className="group overflow-hidden hover:shadow-lg transition-shadow"
+      className="group overflow-hidden hover:shadow-lg transition-shadow cursor-pointer relative"
       style={{ background: text + '06', borderRadius: radius, border: `1px solid ${text}10` }}
+      onClick={() => onViewDetails?.(p)}
     >
       <div
         className={`flex items-center justify-center text-6xl relative ${compact ? 'aspect-square' : varyingHeight != null ? heights[varyingHeight] : 'aspect-[4/3]'}`}
@@ -541,6 +583,20 @@ function ProductCard({ p, loc, t, primary, accent, text, radius, onAddToCart, co
             <Star className="h-3 w-3 fill-white text-white" />
           </span>
         )}
+        {/* Quick view hover button */}
+        <button
+          onClick={(e) => { e.stopPropagation(); onViewDetails?.(p) }}
+          className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity"
+          aria-label={t('product.quickView')}
+        >
+          <span
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white"
+            style={{ background: primary, borderRadius: radius / 2 }}
+          >
+            <Eye className="h-3.5 w-3.5" />
+            {t('product.quickView')}
+          </span>
+        </button>
       </div>
       <div className={compact ? 'p-2' : 'p-3'}>
         <div className="text-[10px] opacity-60 mb-0.5">{p.category ? `${p.category.icon} ${loc(p.category)}` : ''}</div>
@@ -556,7 +612,7 @@ function ProductCard({ p, loc, t, primary, accent, text, radius, onAddToCart, co
             )}
           </div>
           <button
-            onClick={() => onAddToCart(p)}
+            onClick={(e) => { e.stopPropagation(); onAddToCart(p) }}
             disabled={p.stock <= 0}
             className="px-2 py-1 text-[10px] font-medium text-white disabled:opacity-40 hover:opacity-90"
             style={{ background: primary, borderRadius: radius / 2 }}
@@ -569,17 +625,25 @@ function ProductCard({ p, loc, t, primary, accent, text, radius, onAddToCart, co
   )
 }
 
-function ProductRow({ p, loc, t, primary, accent, text, radius, onAddToCart }: any) {
+function ProductRow({ p, loc, t, primary, accent, text, radius, onAddToCart, onViewDetails }: any) {
   const discount = p.compareAt && p.compareAt > p.price
     ? Math.round((1 - p.price / p.compareAt) * 100)
     : 0
   return (
     <div
-      className="flex items-center gap-4 p-3 hover:shadow-md transition-shadow"
+      className="flex items-center gap-4 p-3 hover:shadow-md transition-shadow cursor-pointer"
       style={{ background: text + '06', borderRadius: radius, border: `1px solid ${text}10` }}
+      onClick={() => onViewDetails?.(p)}
     >
-      <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-lg flex items-center justify-center text-3xl shrink-0" style={{ background: `${primary}08` }}>
+      <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-lg flex items-center justify-center text-3xl shrink-0 relative group/img" style={{ background: `${primary}08` }}>
         {p.image || '📦'}
+        <button
+          onClick={(e) => { e.stopPropagation(); onViewDetails?.(p) }}
+          className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity rounded-lg"
+          aria-label={t('product.quickView')}
+        >
+          <Eye className="h-4 w-4 text-white" />
+        </button>
       </div>
       <div className="flex-1 min-w-0">
         <div className="text-[10px] opacity-60">{p.category ? `${p.category.icon} ${loc(p.category)}` : ''}</div>
@@ -590,18 +654,29 @@ function ProductRow({ p, loc, t, primary, accent, text, radius, onAddToCart }: a
           {discount > 0 && <span className="text-xs line-through opacity-50">${p.compareAt.toLocaleString()}</span>}
         </div>
       </div>
-      <div className="text-right shrink-0">
+      <div className="text-right shrink-0 flex flex-col items-end gap-1">
         {discount > 0 && (
-          <div className="text-[10px] font-bold mb-1" style={{ color: accent }}>-{discount}% {t('store.off')}</div>
+          <div className="text-[10px] font-bold" style={{ color: accent }}>-{discount}% {t('store.off')}</div>
         )}
-        <button
-          onClick={() => onAddToCart(p)}
-          disabled={p.stock <= 0}
-          className="px-3 py-1.5 text-xs font-medium text-white disabled:opacity-40 hover:opacity-90"
-          style={{ background: primary, borderRadius: radius / 2 }}
-        >
-          {p.stock > 0 ? t('store.addToCart') : t('store.outOfStock')}
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={(e) => { e.stopPropagation(); onViewDetails?.(p) }}
+            className="px-2 py-1.5 text-[10px] font-medium border hover:bg-slate-50 transition-colors"
+            style={{ borderColor: `${primary}30`, color: primary, borderRadius: radius / 2 }}
+            aria-label={t('product.viewDetails')}
+            title={t('product.viewDetails')}
+          >
+            <Eye className="h-3.5 w-3.5" />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); onAddToCart(p) }}
+            disabled={p.stock <= 0}
+            className="px-3 py-1.5 text-xs font-medium text-white disabled:opacity-40 hover:opacity-90"
+            style={{ background: primary, borderRadius: radius / 2 }}
+          >
+            {p.stock > 0 ? t('store.addToCart') : t('store.outOfStock')}
+          </button>
+        </div>
       </div>
     </div>
   )

@@ -266,6 +266,35 @@ const en: Dict = {
   'cart.summary': 'Order summary',
   'cart.each': 'each',
 
+  // Product details
+  'product.details': 'Product details',
+  'product.sku': 'SKU',
+  'product.stock': 'Stock',
+  'product.inStock': 'In stock',
+  'product.lowStock': 'Only {n} left',
+  'product.outOfStock': 'Out of stock',
+  'product.category': 'Category',
+  'product.quantity': 'Quantity',
+  'product.addToCart': 'Add to cart',
+  'product.buyNow': 'Buy now',
+  'product.orderViaWhatsapp': 'Order via WhatsApp',
+  'product.viewDetails': 'View details',
+  'product.quickView': 'Quick view',
+  'product.description': 'Description',
+  'product.noDescription': 'No description available.',
+  'product.relatedProducts': 'You may also like',
+  'product.added': 'Added to cart',
+  'product.buyingNow': 'Opening WhatsApp…',
+  'product.singleOrderSent': 'Opening WhatsApp for this item',
+  'product.singleOrderMsg': 'Send this item directly to the store via WhatsApp without adding it to your cart.',
+  'product.cartOrderMsg': 'Adds this item to your cart and immediately opens WhatsApp with the full order.',
+  'product.price': 'Price',
+  'product.youSave': 'You save',
+  'product.off': 'OFF',
+  'product.share': 'Share',
+  'product.shareCopied': 'Link copied to clipboard',
+  'product.notAvailable': 'This product is not available for purchase.',
+
   // Contact tab (client admin)
   'contact.title': 'Contact & Orders',
   'contact.subtitle': 'Configure how customers reach you from the storefront',
@@ -531,6 +560,35 @@ const ar: Dict = {
   'cart.summary': 'ملخص الطلب',
   'cart.each': 'للقطعة',
 
+  // Product details
+  'product.details': 'تفاصيل المنتج',
+  'product.sku': 'رمز المنتج',
+  'product.stock': 'المخزون',
+  'product.inStock': 'متوفر',
+  'product.lowStock': 'متبقي {n} فقط',
+  'product.outOfStock': 'نفد المخزون',
+  'product.category': 'الفئة',
+  'product.quantity': 'الكمية',
+  'product.addToCart': 'أضف للسلة',
+  'product.buyNow': 'اشترِ الآن',
+  'product.orderViaWhatsapp': 'اطلب عبر واتساب',
+  'product.viewDetails': 'عرض التفاصيل',
+  'product.quickView': 'نظرة سريعة',
+  'product.description': 'الوصف',
+  'product.noDescription': 'لا يوجد وصف متاح.',
+  'product.relatedProducts': 'قد يعجبك أيضاً',
+  'product.added': 'تمت الإضافة إلى السلة',
+  'product.buyingNow': 'جارٍ فتح واتساب…',
+  'product.singleOrderSent': 'جارٍ فتح واتساب لهذا المنتج',
+  'product.singleOrderMsg': 'أرسل هذا المنتج مباشرة إلى المتجر عبر واتساب دون إضافته إلى سلتك.',
+  'product.cartOrderMsg': 'يضيف هذا المنتج إلى سلتك ويفتح واتساب فوراً مع الطلب الكامل.',
+  'product.price': 'السعر',
+  'product.youSave': 'توفّر',
+  'product.off': 'خصم',
+  'product.share': 'مشاركة',
+  'product.shareCopied': 'تم نسخ الرابط',
+  'product.notAvailable': 'هذا المنتج غير متاح للشراء.',
+
   // Contact tab (client admin)
   'contact.title': 'التواصل والطلبات',
   'contact.subtitle': 'اضبط كيفية تواصل العملاء معك من المتجر',
@@ -795,6 +853,35 @@ const he: Dict = {
   'cart.summary': 'סיכום הזמנה',
   'cart.each': 'ליחידה',
 
+  // Product details
+  'product.details': 'פרטי מוצר',
+  'product.sku': 'מק"ט',
+  'product.stock': 'מלאי',
+  'product.inStock': 'במלאי',
+  'product.lowStock': 'נותרו {n} בלבד',
+  'product.outOfStock': 'אזל במלאי',
+  'product.category': 'קטגוריה',
+  'product.quantity': 'כמות',
+  'product.addToCart': 'הוסף לסל',
+  'product.buyNow': 'קנה עכשיו',
+  'product.orderViaWhatsapp': 'הזמן בוואטסאפ',
+  'product.viewDetails': 'צפה בפרטים',
+  'product.quickView': 'הצצה מהירה',
+  'product.description': 'תיאור',
+  'product.noDescription': 'אין תיאור זמין.',
+  'product.relatedProducts': 'אולי יעניין אותך גם',
+  'product.added': 'נוסף לסל',
+  'product.buyingNow': 'פותח וואטסאפ…',
+  'product.singleOrderSent': 'פותח וואטסאפ לפריט זה',
+  'product.singleOrderMsg': 'שלח את הפריט הזה ישירות לחנות בוואטסאפ בלי להוסיף לסל.',
+  'product.cartOrderMsg': 'מוסיף את הפריט לסל ופותח מיד וואטסאפ עם ההזמנה המלאה.',
+  'product.price': 'מחיר',
+  'product.youSave': 'חוסך',
+  'product.off': 'הנחה',
+  'product.share': 'שתף',
+  'product.shareCopied': 'הקישור הועתק',
+  'product.notAvailable': 'מוצר זה אינו זמין לרכישה.',
+
   // Contact tab (client admin)
   'contact.title': 'יצירת קשר והזמנות',
   'contact.subtitle': 'הגדר כיצד לקוחות יוצרים איתך קשר מהחנות',
@@ -822,6 +909,12 @@ const he: Dict = {
 
 export const dictionaries: Record<Lang, Dict> = { en, ar, he }
 
-export function translate(lang: Lang, key: string, fallback?: string): string {
-  return dictionaries[lang]?.[key] ?? dictionaries.en[key] ?? fallback ?? key
+export function translate(lang: Lang, key: string, fallback?: string, vars?: Record<string, string | number>): string {
+  let s = dictionaries[lang]?.[key] ?? dictionaries.en[key] ?? fallback ?? key
+  if (vars) {
+    for (const [k, v] of Object.entries(vars)) {
+      s = s.replace(new RegExp(`\\{${k}\\}`, 'g'), String(v))
+    }
+  }
+  return s
 }

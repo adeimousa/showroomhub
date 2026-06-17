@@ -46,7 +46,7 @@ export function useI18n() {
   }, [lang])
 
   const t = useCallback(
-    (key: string, fallback?: string) => translate(lang, key, fallback),
+    (key: string, fallback?: string, vars?: Record<string, string | number>) => translate(lang, key, fallback, vars),
     [lang]
   )
 
