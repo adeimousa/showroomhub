@@ -35,8 +35,10 @@ export function CartDrawer({ tenant }: Props) {
   // Reset sent state when cart contents change after a send
   useEffect(() => {
     if (sent && sendCount > 0 && items.length === 0) {
-      setSent(false)
-      setSendCount(0)
+      queueMicrotask(() => {
+        setSent(false)
+        setSendCount(0)
+      })
     }
   }, [items, sent, sendCount])
 

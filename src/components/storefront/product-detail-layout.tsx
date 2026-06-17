@@ -71,7 +71,7 @@ export function ProductDetailLayout({
 
   // Reset qty when product changes
   useEffect(() => {
-    setQty(1)
+    queueMicrotask(() => setQty(1))
   }, [product.id])
 
   const loc = (obj: any, field: string = 'name') => locHelper(obj, field, lang)
