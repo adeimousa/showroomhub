@@ -29,6 +29,7 @@ const CLIENT_ADMIN_FIELDS = new Set([
 const SUPER_ADMIN_ONLY_FIELDS = new Set([
   'name', 'nameAr', 'nameHe', 'slug', 'domain', 'customDomains',
   'status', 'plan', 'layoutId',
+  'ownerName', 'ownerEmail', 'ownerPhone', 'validUntil',
 ])
 
 export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
@@ -67,6 +68,11 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
     if (existing && existing.id !== id) {
       return NextResponse.json({ error: 'Slug already taken' }, { status: 409 })
     }
+  }
+
+  // Convert validUntil to Date if present
+  if (allowed.validUntil) {
+    allowed.validUntil = new Date(allowed.validUntil)
   }
 
   try {

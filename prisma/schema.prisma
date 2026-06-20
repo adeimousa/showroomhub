@@ -42,6 +42,10 @@ model Tenant {
   phone           String?
   whatsappNumber  String? // E.164 without +, e.g. 15551234567 — used for cart checkout
   whatsappPrefill String? // optional custom intro line for the order message
+  ownerName       String? // tenant owner name
+  ownerEmail      String? // tenant owner email
+  ownerPhone      String? // tenant owner phone
+  validUntil      DateTime? // subscription expiry date
   description     String?
   descriptionAr   String?
   descriptionHe   String?

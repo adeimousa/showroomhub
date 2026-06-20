@@ -39,6 +39,10 @@ type Tenant = {
   phone: string | null
   whatsappNumber: string | null
   whatsappPrefill: string | null
+  ownerName: string | null
+  ownerEmail: string | null
+  ownerPhone: string | null
+  validUntil: string | null
   customDomains: string | null
   description: string | null
   descriptionAr: string | null
@@ -187,9 +191,11 @@ export function TenantsTab() {
               <thead className="bg-slate-50 border-b border-slate-200">
                 <tr className="text-left text-xs text-muted-foreground">
                   <th className="px-4 py-3 font-medium">{t('common.name')}</th>
+                  <th className="px-4 py-3 font-medium hidden lg:table-cell">Owner</th>
                   <th className="px-4 py-3 font-medium">{t('common.status')}</th>
                   <th className="px-4 py-3 font-medium">{t('common.plan')}</th>
-                  <th className="px-4 py-3 font-medium">{t('common.layout')}</th>
+                  <th className="px-4 py-3 font-medium hidden xl:table-cell">Valid Until</th>
+                  <th className="px-4 py-3 font-medium hidden 2xl:table-cell">{t('common.layout')}</th>
                   <th className="px-4 py-3 font-medium hidden md:table-cell">{t('common.created')}</th>
                   <th className="px-4 py-3 font-medium text-right">{t('common.actions')}</th>
                 </tr>
@@ -198,12 +204,12 @@ export function TenantsTab() {
                 {tenantsQ.isLoading ? (
                   Array.from({ length: 4 }).map((_, i) => (
                     <tr key={i} className="border-b border-slate-100">
-                      <td colSpan={6} className="px-4 py-3"><Skeleton className="h-8" /></td>
+                      <td colSpan={8} className="px-4 py-3"><Skeleton className="h-8" /></td>
                     </tr>
                   ))
                 ) : filtered.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
+                    <td colSpan={8} className="px-4 py-12 text-center text-muted-foreground">
                       <Building2 className="h-8 w-8 mx-auto mb-2 opacity-40" />
                       {t('tenants.empty')}
                     </td>
@@ -222,6 +228,18 @@ export function TenantsTab() {
                           </div>
                         </div>
                       </td>
+                      <td className="px-4 py-3 hidden lg:table-cell">
+                        {tn.ownerName ? (
+                          <div className="flex flex-col">
+                            <span className="text-xs font-medium truncate max-w-[150px]">{tn.ownerName}</span>
+                            {tn.ownerEmail && (
+                              <span className="text-[10px] text-muted-foreground truncate max-w-[150px]">{tn.ownerEmail}</span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        )}
+                      </td>
                       <td className="px-4 py-3">
                         <Badge
                           variant="outline"
@@ -238,7 +256,34 @@ export function TenantsTab() {
                       <td className="px-4 py-3">
                         <Badge variant="secondary" className="text-[10px]">{tn.plan}</Badge>
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3 hidden xl:table-cell">
+                        {tn.validUntil ? (
+                          (() => {
+                            const validDate = new Date(tn.validUntil)
+                            const today = new Date()
+                            const daysUntilExpiry = Math.floor((validDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+                            const isExpired = daysUntilExpiry < 0
+                            const isExpiringSoon = daysUntilExpiry >= 0 && daysUntilExpiry <= 30
+
+                            return (
+                              <div className="flex flex-col">
+                                <span className={cn(
+                                  "text-xs font-medium",
+                                  isExpired && "text-rose-600",
+                                  isExpiringSoon && "text-amber-600"
+                                )}>
+                                  {fmtDate(tn.validUntil)}
+                                </span>
+                                {isExpired && <span className="text-[10px] text-rose-600">Expired</span>}
+                                {isExpiringSoon && !isExpired && <span className="text-[10px] text-amber-600">{daysUntilExpiry} days left</span>}
+                              </div>
+                            )
+                          })()
+                        ) : (
+                          <span className="text-xs text-muted-foreground">Not set</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 hidden xl:table-cell">
                         {tn.layout ? (
                           <div className="flex flex-col">
                             <span className="text-xs font-medium truncate max-w-[160px]">{tn.layout.name}</span>
@@ -397,6 +442,14 @@ function TenantFormDialog({
   const [phone, setPhone] = useState(initial?.phone || '')
   const [whatsappNumber, setWhatsappNumber] = useState(initial?.whatsappNumber || '')
   const [whatsappPrefill, setWhatsappPrefill] = useState(initial?.whatsappPrefill || '')
+  const [ownerName, setOwnerName] = useState(initial?.ownerName || '')
+  const [ownerEmail, setOwnerEmail] = useState(initial?.ownerEmail || '')
+  const [ownerPhone, setOwnerPhone] = useState(initial?.ownerPhone || '')
+  const [validUntil, setValidUntil] = useState(() => {
+    if (!initial?.validUntil) return ''
+    // Convert ISO string to YYYY-MM-DD for input[type="date"]
+    return new Date(initial.validUntil).toISOString().split('T')[0]
+  })
   const [customDomains, setCustomDomains] = useState(() => {
     try {
       return (JSON.parse(initial?.customDomains || '[]') as string[]).join('\n')
@@ -433,6 +486,10 @@ function TenantFormDialog({
       phone: phone || undefined,
       whatsappNumber: whatsappNumber || undefined,
       whatsappPrefill: whatsappPrefill || undefined,
+      ownerName: ownerName || undefined,
+      ownerEmail: ownerEmail || undefined,
+      ownerPhone: ownerPhone || undefined,
+      validUntil: validUntil ? new Date(validUntil).toISOString() : undefined,
       customDomains: JSON.stringify(
         customDomains
           .split('\n')
@@ -506,6 +563,73 @@ function TenantFormDialog({
                 placeholder="Hi! I'd like to order:"
               />
               <p className="text-[10px] text-muted-foreground">First line of the WhatsApp order message.</p>
+            </div>
+          </div>
+          {/* Tenant Owner Information */}
+          <div className="space-y-3 p-3 rounded-lg bg-slate-50 border border-slate-200">
+            <div className="font-medium text-sm">Tenant Owner Information</div>
+            <div className="space-y-1.5">
+              <Label htmlFor="t-owner-name">Owner Name</Label>
+              <Input
+                id="t-owner-name"
+                value={ownerName}
+                onChange={(e) => setOwnerName(e.target.value)}
+                placeholder="John Doe"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="t-owner-email">Owner Email</Label>
+                <Input
+                  id="t-owner-email"
+                  type="email"
+                  value={ownerEmail}
+                  onChange={(e) => setOwnerEmail(e.target.value)}
+                  placeholder="owner@example.com"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="t-owner-phone">Owner Phone</Label>
+                <Input
+                  id="t-owner-phone"
+                  value={ownerPhone}
+                  onChange={(e) => setOwnerPhone(e.target.value)}
+                  placeholder="+1234567890"
+                />
+              </div>
+            </div>
+          </div>
+          {/* Subscription Validity */}
+          <div className="space-y-3 p-3 rounded-lg bg-amber-50 border border-amber-200">
+            <div className="font-medium text-sm">Subscription Validity</div>
+            <div className="space-y-1.5">
+              <Label htmlFor="t-valid-until">Valid Until</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="t-valid-until"
+                  type="date"
+                  value={validUntil}
+                  onChange={(e) => setValidUntil(e.target.value)}
+                  className="flex-1"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    const baseDate = validUntil ? new Date(validUntil) : new Date()
+                    const newDate = new Date(baseDate)
+                    newDate.setFullYear(newDate.getFullYear() + 1)
+                    setValidUntil(newDate.toISOString().split('T')[0])
+                  }}
+                  className="shrink-0 gap-1.5"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  +1 Year
+                </Button>
+              </div>
+              <p className="text-[10px] text-muted-foreground">
+                Set the subscription expiry date. Use "+1 Year" to extend from the current valid date (or today if not set).
+              </p>
             </div>
           </div>
           {/* Custom domains — one per line */}
