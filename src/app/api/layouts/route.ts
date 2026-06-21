@@ -44,6 +44,11 @@ export async function POST(req: NextRequest) {
         fontBody: body.fontBody,
         borderRadius: Number(body.borderRadius ?? 8),
         animation: body.animation || 'fade',
+        cardStyle: body.cardStyle || 'shadow',
+        spacing: body.spacing || 'normal',
+        imageStyle: body.imageStyle || 'rounded',
+        buttonStyle: body.buttonStyle || 'solid',
+        navPosition: body.navPosition || 'top',
       },
     })
     return NextResponse.json({ layout }, { status: 201 })

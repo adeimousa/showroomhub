@@ -79,10 +79,10 @@ model Layout {
   description String
   premium     Boolean  @default(false)
   // Style tokens used by the renderer
-  headerStyle   String // e.g. "minimal-bar", "centered-logo", "split-nav"
-  heroStyle     String // e.g. "split-image", "full-bleed", "carousel", "grid-cells"
-  productGrid   String // e.g. "3-col-cards", "4-col-tight", "masonry", "list-rows"
-  footerStyle   String // e.g. "footer-minimal", "footer-mega", "footer-center"
+  headerStyle   String // e.g. "minimal-bar", "centered-logo", "split-nav", "sticky-glass"
+  heroStyle     String // e.g. "split-image", "full-bleed", "carousel", "grid-cells", "video-bg"
+  productGrid   String // e.g. "3-col-cards", "4-col-tight", "masonry", "list-rows", "slider", "bento"
+  footerStyle   String // e.g. "footer-minimal", "footer-mega", "footer-center", "footer-split"
   primaryColor  String
   accentColor   String
   bgColor       String
@@ -91,6 +91,12 @@ model Layout {
   fontBody      String
   borderRadius  Int      @default(8) // px
   animation     String   @default("fade") // fade | slide | zoom | none
+  // Additional visual variety
+  cardStyle     String   @default("shadow") // flat | shadow | border | outlined | glass
+  spacing       String   @default("normal") // compact | normal | spacious | minimal
+  imageStyle    String   @default("rounded") // square | rounded | circle | sharp
+  buttonStyle   String   @default("solid") // solid | outline | ghost | pill
+  navPosition   String   @default("top") // top | side | sticky
   createdAt     DateTime @default(now())
 
   tenants Tenant[]
@@ -106,7 +112,7 @@ model Category {
   name      String
   nameAr    String?
   nameHe    String?
-  icon      String? // emoji or lucide name
+  image     String? // category image URL
   createdAt DateTime @default(now())
 
   tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
@@ -127,7 +133,8 @@ model Product {
   compareAt   Float? // original price for discount display
   sku         String?
   stock       Int      @default(0)
-  image       String? // URL or emoji placeholder
+  image       String? // URL or emoji placeholder (legacy, kept for backward compat)
+  images      String   @default("[]") // JSON array of image URLs
   featured    Boolean  @default(false)
   status      String   @default("ACTIVE") // ACTIVE | DRAFT | ARCHIVED
   createdAt   DateTime @default(now())

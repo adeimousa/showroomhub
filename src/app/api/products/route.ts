@@ -52,6 +52,7 @@ export async function POST(req: NextRequest) {
         sku: body.sku || null,
         stock: Number(body.stock ?? 0),
         image: body.image || '📦',
+        images: body.images || '[]',
         featured: !!body.featured,
         status: body.status || 'ACTIVE',
       },

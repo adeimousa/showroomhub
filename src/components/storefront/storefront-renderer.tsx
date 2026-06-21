@@ -42,8 +42,35 @@ export function StorefrontRenderer({ tenant, layout, lang, loc, t, isRTL, cartCo
   const radius      = layout.borderRadius
   const anim        = layout.animation
 
+  // New style properties
+  const cardStyle    = layout.cardStyle    || 'shadow'
+  const spacing      = layout.spacing      || 'normal'
+  const imageStyle   = layout.imageStyle   || 'rounded'
+  const buttonStyle  = layout.buttonStyle  || 'solid'
+  const navPosition  = layout.navPosition  || 'top'
+
   // Helper: convert a font name to a CSS var, e.g. "Space Grotesk" -> "var(--font-space-grotesk)"
   const fontVar = (name: string) => `var(--font-${name.toLowerCase().replace(/\s/g, '-')})`
+
+  // Helper: get spacing class based on spacing mode
+  const getSpacingClass = () => {
+    switch (spacing) {
+      case 'compact': return 'py-6'
+      case 'spacious': return 'py-14'
+      case 'minimal': return 'py-4'
+      default: return 'py-10'
+    }
+  }
+
+  // Helper: get grid gap based on spacing mode
+  const getGridGap = () => {
+    switch (spacing) {
+      case 'compact': return 'gap-2'
+      case 'spacious': return 'gap-6'
+      case 'minimal': return 'gap-1'
+      default: return 'gap-4'
+    }
+  }
 
   const cssVars: React.CSSProperties = {
     // @ts-expect-error custom props
@@ -255,6 +282,11 @@ export function StorefrontRenderer({ tenant, layout, lang, loc, t, isRTL, cartCo
                 text={textColor}
                 bg={bgColor}
                 radius={radius}
+                cardStyle={cardStyle}
+                spacing={spacing}
+                imageStyle={imageStyle}
+                buttonStyle={buttonStyle}
+                gridGap={getGridGap()}
                 onAddToCart={onAddToCart}
                 onViewDetails={handleViewDetails}
               />
@@ -269,6 +301,7 @@ export function StorefrontRenderer({ tenant, layout, lang, loc, t, isRTL, cartCo
                 title={t('store.featured')}
                 accent={accent}
                 fontHead={fontVar(fontHeading)}
+                spacingClass={getSpacingClass()}
               >
                 <ProductGrid
                   variant={layout.productGrid}
@@ -280,6 +313,11 @@ export function StorefrontRenderer({ tenant, layout, lang, loc, t, isRTL, cartCo
                   text={textColor}
                   bg={bgColor}
                   radius={radius}
+                  cardStyle={cardStyle}
+                  spacing={spacing}
+                  imageStyle={imageStyle}
+                  buttonStyle={buttonStyle}
+                  gridGap={getGridGap()}
                   onAddToCart={onAddToCart}
                   onViewDetails={handleViewDetails}
                 />
@@ -291,6 +329,7 @@ export function StorefrontRenderer({ tenant, layout, lang, loc, t, isRTL, cartCo
               title={t('store.allProducts')}
               accent={accent}
               fontHead={fontVar(fontHeading)}
+              spacingClass={getSpacingClass()}
             >
               <ProductGrid
                 variant={layout.productGrid}
@@ -302,6 +341,11 @@ export function StorefrontRenderer({ tenant, layout, lang, loc, t, isRTL, cartCo
                 text={textColor}
                 bg={bgColor}
                 radius={radius}
+                cardStyle={cardStyle}
+                spacing={spacing}
+                imageStyle={imageStyle}
+                buttonStyle={buttonStyle}
+                gridGap={getGridGap()}
                 onAddToCart={onAddToCart}
                 onViewDetails={handleViewDetails}
               />
@@ -733,7 +777,6 @@ function CategoriesStrip({ cats, loc, t, primary, accent, radius, selectedCatego
                 border: `1px solid ${isActive ? primary : 'transparent'}`,
               }}
             >
-              <span className="text-lg">{c.icon}</span>
               <span className="font-medium">{loc(c)}</span>
               <span className="text-xs opacity-70">({c._count?.products ?? 0})</span>
             </button>
@@ -748,9 +791,9 @@ function CategoriesStrip({ cats, loc, t, primary, accent, radius, selectedCatego
 // SECTION
 // ============================================================
 
-function Section({ title, accent, fontHead, subtitle, action, children }: any) {
+function Section({ title, accent, fontHead, subtitle, action, spacingClass, children }: any) {
   return (
-    <section className="px-4 sm:px-8 py-10">
+    <section className={`px-4 sm:px-8 ${spacingClass || 'py-10'}`}>
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-2 flex-wrap gap-3">
           <div>
@@ -774,16 +817,18 @@ function Section({ title, accent, fontHead, subtitle, action, children }: any) {
 // PRODUCT GRID VARIANTS
 // ============================================================
 
-function ProductGrid({ variant, products, loc, t, primary, accent, text, bg, radius, onAddToCart, onViewDetails }: any) {
+function ProductGrid({ variant, products, loc, t, primary, accent, text, bg, radius, cardStyle, spacing, imageStyle, buttonStyle, gridGap, onAddToCart, onViewDetails }: any) {
   if (products.length === 0) {
     return <div className="text-center py-12 text-muted-foreground">{t('common.noResults')}</div>
   }
 
+  const cardProps = { loc, t, primary, accent, text, radius, cardStyle, imageStyle, buttonStyle, onAddToCart, onViewDetails }
+
   if (variant === '3-col-cards') {
     return (
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className={`grid sm:grid-cols-2 lg:grid-cols-3 ${gridGap}`}>
         {products.map((p: any) => (
-          <ProductCard key={p.id} p={p} loc={loc} t={t} primary={primary} accent={accent} text={text} radius={radius} onAddToCart={onAddToCart} onViewDetails={onViewDetails} />
+          <ProductCard key={p.id} p={p} {...cardProps} />
         ))}
       </div>
     )
@@ -791,9 +836,9 @@ function ProductGrid({ variant, products, loc, t, primary, accent, text, bg, rad
 
   if (variant === '4-col-tight') {
     return (
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+      <div className={`grid grid-cols-2 lg:grid-cols-4 ${gridGap}`}>
         {products.map((p: any) => (
-          <ProductCard key={p.id} p={p} loc={loc} t={t} primary={primary} accent={accent} text={text} radius={radius} onAddToCart={onAddToCart} onViewDetails={onViewDetails} compact />
+          <ProductCard key={p.id} p={p} {...cardProps} compact />
         ))}
       </div>
     )
@@ -801,10 +846,10 @@ function ProductGrid({ variant, products, loc, t, primary, accent, text, bg, rad
 
   if (variant === 'masonry') {
     return (
-      <div className="columns-2 lg:columns-3 gap-4 [&>*]:mb-4">
+      <div className={`columns-2 lg:columns-3 ${gridGap} [&>*]:mb-4`}>
         {products.map((p: any, i: number) => (
           <div key={p.id} className="break-inside-avoid">
-            <ProductCard p={p} loc={loc} t={t} primary={primary} accent={accent} text={text} radius={radius} onAddToCart={onAddToCart} onViewDetails={onViewDetails} varyingHeight={i % 3} />
+            <ProductCard p={p} {...cardProps} varyingHeight={i % 3} />
           </div>
         ))}
       </div>
@@ -815,8 +860,38 @@ function ProductGrid({ variant, products, loc, t, primary, accent, text, bg, rad
     return (
       <div className="space-y-2">
         {products.map((p: any) => (
-          <ProductRow key={p.id} p={p} loc={loc} t={t} primary={primary} accent={accent} text={text} radius={radius} onAddToCart={onAddToCart} onViewDetails={onViewDetails} />
+          <ProductRow key={p.id} p={p} {...cardProps} />
         ))}
+      </div>
+    )
+  }
+
+  // New grid variants
+  if (variant === 'slider') {
+    return (
+      <div className="overflow-x-auto pb-4">
+        <div className="flex gap-4 min-w-max">
+          {products.map((p: any) => (
+            <div key={p.id} className="w-72 shrink-0">
+              <ProductCard p={p} {...cardProps} />
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  if (variant === 'bento') {
+    return (
+      <div className={`grid grid-cols-2 lg:grid-cols-4 auto-rows-[200px] ${gridGap}`}>
+        {products.map((p: any, i: number) => {
+          const span = i === 0 ? 'lg:col-span-2 lg:row-span-2' : ''
+          return (
+            <div key={p.id} className={span}>
+              <ProductCard p={p} {...cardProps} bento />
+            </div>
+          )
+        })}
       </div>
     )
   }
@@ -824,23 +899,80 @@ function ProductGrid({ variant, products, loc, t, primary, accent, text, bg, rad
   return null
 }
 
-function ProductCard({ p, loc, t, primary, accent, text, radius, onAddToCart, onViewDetails, compact, varyingHeight }: any) {
+function ProductCard({ p, loc, t, primary, accent, text, radius, cardStyle, imageStyle, buttonStyle, onAddToCart, onViewDetails, compact, varyingHeight, bento }: any) {
   const discount = p.compareAt && p.compareAt > p.price
     ? Math.round((1 - p.price / p.compareAt) * 100)
     : 0
   const heights = ['min-h-[180px]', 'min-h-[240px]', 'min-h-[300px]']
+
+  // Card style variants
+  const getCardClass = () => {
+    switch (cardStyle) {
+      case 'flat':
+        return 'hover:opacity-90 transition-opacity'
+      case 'shadow':
+        return 'hover:shadow-lg transition-shadow shadow-sm'
+      case 'border':
+        return 'hover:border-opacity-100 transition-all'
+      case 'outlined':
+        return 'hover:shadow-md transition-shadow'
+      case 'glass':
+        return 'backdrop-blur-sm hover:shadow-xl transition-all'
+      default:
+        return 'hover:shadow-lg transition-shadow'
+    }
+  }
+
+  const getCardStyle = () => {
+    switch (cardStyle) {
+      case 'flat':
+        return { background: `${text}05`, border: 'none' }
+      case 'shadow':
+        return { background: text + '06', border: `1px solid ${text}08` }
+      case 'border':
+        return { background: 'transparent', border: `2px solid ${primary}30`, borderOpacity: 0.6 }
+      case 'outlined':
+        return { background: 'transparent', border: `1px solid ${text}20` }
+      case 'glass':
+        return { background: `${primary}08`, border: `1px solid ${primary}15`, backdropFilter: 'blur(8px)' }
+      default:
+        return { background: text + '06', border: `1px solid ${text}10` }
+    }
+  }
+
+  // Image style variants
+  const getImageRadius = () => {
+    switch (imageStyle) {
+      case 'square':
+        return 0
+      case 'rounded':
+        return radius
+      case 'circle':
+        return '50%'
+      case 'sharp':
+        return 2
+      default:
+        return radius
+    }
+  }
+
   return (
     <div
-      className="group overflow-hidden hover:shadow-lg transition-shadow cursor-pointer relative"
-      style={{ background: text + '06', borderRadius: radius, border: `1px solid ${text}10` }}
+      className={`group overflow-hidden cursor-pointer relative ${getCardClass()} ${bento ? 'h-full' : ''}`}
+      style={{ ...getCardStyle(), borderRadius: radius }}
       onClick={() => onViewDetails?.(p)}
     >
       <div
-        className={`flex items-center justify-center text-6xl relative ${compact ? 'aspect-square' : varyingHeight != null ? heights[varyingHeight] : 'aspect-[4/3]'} overflow-hidden`}
+        className={`flex items-center justify-center text-6xl relative ${compact ? 'aspect-square' : bento ? 'h-full' : varyingHeight != null ? heights[varyingHeight] : 'aspect-[4/3]'} overflow-hidden`}
         style={{ background: `${primary}08` }}
       >
         {p.image ? (
-          <img src={p.image} alt={loc(p)} className="w-full h-full object-cover" />
+          <img
+            src={p.image}
+            alt={loc(p)}
+            className="w-full h-full object-cover"
+            style={{ borderRadius: getImageRadius() }}
+          />
         ) : (
           <div className="text-6xl">📦</div>
         )}
@@ -873,7 +1005,7 @@ function ProductCard({ p, loc, t, primary, accent, text, radius, onAddToCart, on
         </button>
       </div>
       <div className={compact ? 'p-2' : 'p-3'}>
-        <div className="text-[10px] opacity-60 mb-0.5">{p.category ? `${p.category.icon} ${loc(p.category)}` : ''}</div>
+        <div className="text-[10px] opacity-60 mb-0.5">{p.category ? loc(p.category) : ''}</div>
         <div className={`font-medium line-clamp-1 ${compact ? 'text-xs' : 'text-sm'}`}>{loc(p)}</div>
         {!compact && loc(p, 'description') && (
           <div className="text-xs opacity-60 line-clamp-2 mt-1">{loc(p, 'description')}</div>
@@ -888,8 +1020,17 @@ function ProductCard({ p, loc, t, primary, accent, text, radius, onAddToCart, on
           <button
             onClick={(e) => { e.stopPropagation(); onAddToCart(p) }}
             disabled={p.stock <= 0}
-            className="px-2 py-1 text-[10px] font-medium text-white disabled:opacity-40 hover:opacity-90"
-            style={{ background: primary, borderRadius: radius / 2 }}
+            className={`px-2 py-1 text-[10px] font-medium disabled:opacity-40 hover:opacity-90 ${
+              buttonStyle === 'outline' ? 'border-2' :
+              buttonStyle === 'ghost' ? '' :
+              ''
+            }`}
+            style={{
+              background: buttonStyle === 'solid' ? primary : buttonStyle === 'ghost' ? 'transparent' : 'transparent',
+              color: buttonStyle === 'solid' ? '#fff' : primary,
+              border: buttonStyle === 'outline' ? `2px solid ${primary}` : buttonStyle === 'ghost' ? 'none' : undefined,
+              borderRadius: buttonStyle === 'pill' ? 999 : radius / 2,
+            }}
           >
             {p.stock > 0 ? t('store.addToCart') : t('store.outOfStock')}
           </button>
@@ -899,19 +1040,76 @@ function ProductCard({ p, loc, t, primary, accent, text, radius, onAddToCart, on
   )
 }
 
-function ProductRow({ p, loc, t, primary, accent, text, radius, onAddToCart, onViewDetails }: any) {
+function ProductRow({ p, loc, t, primary, accent, text, radius, cardStyle, imageStyle, buttonStyle, onAddToCart, onViewDetails }: any) {
   const discount = p.compareAt && p.compareAt > p.price
     ? Math.round((1 - p.price / p.compareAt) * 100)
     : 0
+
+  // Card style variants (same as ProductCard)
+  const getCardClass = () => {
+    switch (cardStyle) {
+      case 'flat':
+        return 'hover:opacity-90 transition-opacity'
+      case 'shadow':
+        return 'hover:shadow-md transition-shadow shadow-sm'
+      case 'border':
+        return 'hover:border-opacity-100 transition-all'
+      case 'outlined':
+        return 'hover:shadow-md transition-shadow'
+      case 'glass':
+        return 'backdrop-blur-sm hover:shadow-lg transition-all'
+      default:
+        return 'hover:shadow-md transition-shadow'
+    }
+  }
+
+  const getCardStyle = () => {
+    switch (cardStyle) {
+      case 'flat':
+        return { background: `${text}05`, border: 'none' }
+      case 'shadow':
+        return { background: text + '06', border: `1px solid ${text}08` }
+      case 'border':
+        return { background: 'transparent', border: `2px solid ${primary}30` }
+      case 'outlined':
+        return { background: 'transparent', border: `1px solid ${text}20` }
+      case 'glass':
+        return { background: `${primary}08`, border: `1px solid ${primary}15`, backdropFilter: 'blur(8px)' }
+      default:
+        return { background: text + '06', border: `1px solid ${text}10` }
+    }
+  }
+
+  // Image style variants
+  const getImageRadius = () => {
+    switch (imageStyle) {
+      case 'square':
+        return 0
+      case 'rounded':
+        return radius / 2
+      case 'circle':
+        return '50%'
+      case 'sharp':
+        return 2
+      default:
+        return radius / 2
+    }
+  }
+
   return (
     <div
-      className="flex items-center gap-4 p-3 hover:shadow-md transition-shadow cursor-pointer"
-      style={{ background: text + '06', borderRadius: radius, border: `1px solid ${text}10` }}
+      className={`flex items-center gap-4 p-3 cursor-pointer ${getCardClass()}`}
+      style={{ ...getCardStyle(), borderRadius: radius }}
       onClick={() => onViewDetails?.(p)}
     >
-      <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-lg flex items-center justify-center text-3xl shrink-0 relative group/img overflow-hidden" style={{ background: `${primary}08` }}>
+      <div className="h-16 w-16 sm:h-20 sm:w-20 flex items-center justify-center text-3xl shrink-0 relative group/img overflow-hidden" style={{ background: `${primary}08`, borderRadius: getImageRadius() }}>
         {p.image ? (
-          <img src={p.image} alt={loc(p)} className="w-full h-full object-cover" />
+          <img
+            src={p.image}
+            alt={loc(p)}
+            className="w-full h-full object-cover"
+            style={{ borderRadius: getImageRadius() }}
+          />
         ) : (
           <div className="text-3xl">📦</div>
         )}
@@ -924,7 +1122,7 @@ function ProductRow({ p, loc, t, primary, accent, text, radius, onAddToCart, onV
         </button>
       </div>
       <div className="flex-1 min-w-0">
-        <div className="text-[10px] opacity-60">{p.category ? `${p.category.icon} ${loc(p.category)}` : ''}</div>
+        <div className="text-[10px] opacity-60">{p.category ? loc(p.category) : ''}</div>
         <div className="font-medium line-clamp-1">{loc(p)}</div>
         {loc(p, 'description') && <div className="text-xs opacity-60 line-clamp-1 hidden sm:block">{loc(p, 'description')}</div>}
         <div className="flex items-center gap-2 mt-0.5">
@@ -949,8 +1147,13 @@ function ProductRow({ p, loc, t, primary, accent, text, radius, onAddToCart, onV
           <button
             onClick={(e) => { e.stopPropagation(); onAddToCart(p) }}
             disabled={p.stock <= 0}
-            className="px-3 py-1.5 text-xs font-medium text-white disabled:opacity-40 hover:opacity-90"
-            style={{ background: primary, borderRadius: radius / 2 }}
+            className="px-3 py-1.5 text-xs font-medium disabled:opacity-40 hover:opacity-90"
+            style={{
+              background: buttonStyle === 'solid' ? primary : buttonStyle === 'ghost' ? 'transparent' : 'transparent',
+              color: buttonStyle === 'solid' ? '#fff' : primary,
+              border: buttonStyle === 'outline' ? `2px solid ${primary}` : buttonStyle === 'ghost' ? 'none' : undefined,
+              borderRadius: buttonStyle === 'pill' ? 999 : radius / 2,
+            }}
           >
             {p.stock > 0 ? t('store.addToCart') : t('store.outOfStock')}
           </button>

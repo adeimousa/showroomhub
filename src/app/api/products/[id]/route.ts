@@ -2,6 +2,24 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { requireAnyAdmin } from '@/lib/session'
 
+export async function GET(_req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
+  const { user, fail } = await requireAnyAdmin()
+  if (fail) return fail
+
+  const { id } = await ctx.params
+  const product = await db.product.findUnique({
+    where: { id },
+    include: { category: true },
+  })
+
+  if (!product) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  if (user!.role !== 'SUPER_ADMIN' && product.tenantId !== user!.tenantId) {
+    return NextResponse.json({ error: 'Not your product' }, { status: 403 })
+  }
+
+  return NextResponse.json({ product })
+}
+
 export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   const { user, fail } = await requireAnyAdmin()
   if (fail) return fail
@@ -17,7 +35,7 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
   }
 
   const allowed: Record<string, any> = {}
-  const fields = ['name','nameAr','nameHe','description','descriptionAr','descriptionHe','price','compareAt','sku','stock','image','featured','status','categoryId']
+  const fields = ['name','nameAr','nameHe','description','descriptionAr','descriptionHe','price','compareAt','sku','stock','image','images','featured','status','categoryId']
   for (const f of fields) {
     if (body[f] !== undefined) {
       if (['price','compareAt','stock'].includes(f)) {

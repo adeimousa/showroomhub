@@ -11,13 +11,9 @@
  * can enter content in all 3 languages at once.
  */
 
-import { useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { ChevronDown, ChevronUp, Languages } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 type Lang = 'en' | 'ar' | 'he'
@@ -50,39 +46,18 @@ type Props = {
 export function MultiLanguageInput({
   label, field, values, onChange, multiline, rows = 2, required, placeholder, hint,
 }: Props) {
-  // AR and HE sections start collapsed if both are empty
-  const [expanded, setExpanded] = useState(!(values.ar || values.he))
-
   const handleEN = (v: string) => onChange({ ...values, en: v })
   const handleAR = (v: string) => onChange({ ...values, ar: v })
   const handleHE = (v: string) => onChange({ ...values, he: v })
 
-  const langsFilled = (['ar', 'he'] as Lang[]).filter((l) => values[l]?.trim()).length
-
   return (
     <div className="space-y-1.5">
-      <div className="flex items-center justify-between">
-        <Label className="text-sm font-medium">
-          {label} {required && <span className="text-rose-500">*</span>}
-        </Label>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => setExpanded(!expanded)}
-          className="h-6 px-2 text-[10px] gap-1 text-muted-foreground"
-        >
-          <Languages className="h-3 w-3" />
-          {expanded ? 'Hide' : 'Show'} translations
-          {langsFilled > 0 && !expanded && (
-            <Badge variant="secondary" className="text-[9px] h-4 px-1">{langsFilled}/2</Badge>
-          )}
-          {expanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-        </Button>
-      </div>
+      <Label className="text-sm font-medium">
+        {label} {required && <span className="text-rose-500">*</span>}
+      </Label>
       {hint && <p className="text-[10px] text-muted-foreground -mt-1">{hint}</p>}
 
-      {/* English (always visible, required) */}
+      {/* English (required) */}
       <LangRow
         lang="en"
         value={values.en}
@@ -93,29 +68,27 @@ export function MultiLanguageInput({
         required={required}
       />
 
-      {/* Arabic + Hebrew (collapsible) */}
-      {expanded && (
-        <>
-          <LangRow
-            lang="ar"
-            value={values.ar}
-            onChange={handleAR}
-            multiline={multiline}
-            rows={rows}
-            placeholder={values.en || placeholder}
-            fallback={values.en}
-          />
-          <LangRow
-            lang="he"
-            value={values.he}
-            onChange={handleHE}
-            multiline={multiline}
-            rows={rows}
-            placeholder={values.en || placeholder}
-            fallback={values.en}
-          />
-        </>
-      )}
+      {/* Arabic */}
+      <LangRow
+        lang="ar"
+        value={values.ar}
+        onChange={handleAR}
+        multiline={multiline}
+        rows={rows}
+        placeholder={values.en || placeholder}
+        fallback={values.en}
+      />
+
+      {/* Hebrew */}
+      <LangRow
+        lang="he"
+        value={values.he}
+        onChange={handleHE}
+        multiline={multiline}
+        rows={rows}
+        placeholder={values.en || placeholder}
+        fallback={values.en}
+      />
     </div>
   )
 }

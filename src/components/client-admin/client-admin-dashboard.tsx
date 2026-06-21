@@ -40,7 +40,16 @@ export function ClientAdminDashboard() {
 
   const handleViewSite = () => {
     if (myTenant?.slug) {
-      window.open(`/?view=site&slug=${encodeURIComponent(myTenant.slug)}`, '_blank')
+      // Use the preview URL with slug for development/testing
+      const url = new URL(window.location.href)
+      const host = url.searchParams.get('host')
+      if (host) {
+        // If we have a host param, use it to view the live site
+        window.open(`/?host=${encodeURIComponent(host)}`, '_blank')
+      } else {
+        // Fallback to slug-based preview
+        window.open(`/?view=site&slug=${encodeURIComponent(myTenant.slug)}`, '_blank')
+      }
     }
   }
 

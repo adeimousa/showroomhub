@@ -225,7 +225,7 @@ export function ProductDetailLayout({
         <span>/</span>
         {product.category && (
           <>
-            <span>{product.category.icon} {loc(product.category)}</span>
+            <span>{loc(product.category)}</span>
             <span>/</span>
           </>
         )}
@@ -276,7 +276,7 @@ export function ProductDetailLayout({
           {/* Category + status */}
           <div className="flex items-center justify-between mb-2">
             <div className="text-xs text-muted-foreground">
-              {product.category ? `${product.category.icon} ${loc(product.category)}` : t('common.none')}
+              {product.category ? loc(product.category) : t('common.none')}
             </div>
             <Badge
               variant="outline"

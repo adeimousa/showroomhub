@@ -1,22 +1,15 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useI18n } from '@/hooks/use-i18n'
 import { toast } from 'sonner'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { MultiLanguageInput } from '@/components/admin/multi-language-input'
-import { ImageUpload } from '@/components/admin/image-upload'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Switch } from '@/components/ui/switch'
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
-} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
@@ -29,7 +22,7 @@ import {
 import { Plus, Search, MoreVertical, Pencil, Trash2, Star, Package, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-type Category = { id: string; name: string; icon: string | null }
+type Category = { id: string; name: string; image: string | null }
 type Product = {
   id: string
   name: string
@@ -50,17 +43,27 @@ type Product = {
 }
 
 const STATUSES = ['ACTIVE', 'DRAFT', 'ARCHIVED']
-const EMOJI_CHOICES = ['🛋️', '🪑', '💺', '🛏️', '📚', '🪨', '🧶', '🪵', '🚪', '💡', '🏺', '🗄️', '📦', '🪟', '🛁', '🍽️']
 
 export function ProductsTab() {
   const { t, lang } = useI18n()
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const qc = useQueryClient()
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('ALL')
   const [categoryFilter, setCategoryFilter] = useState('ALL')
-  const [createOpen, setCreateOpen] = useState(false)
-  const [editProduct, setEditProduct] = useState<Product | null>(null)
   const [deleteProduct, setDeleteProduct] = useState<Product | null>(null)
+
+  // Helper to preserve search params (like ?host=)
+  const getEditUrl = (productId: string) => {
+    const params = new URLSearchParams(searchParams.toString())
+    return `/admin/products/${productId}/edit${params.toString() ? `?${params.toString()}` : ''}`
+  }
+
+  const getNewUrl = () => {
+    const params = new URLSearchParams(searchParams.toString())
+    return `/admin/products/new${params.toString() ? `?${params.toString()}` : ''}`
+  }
 
   const productsQ = useQuery<{ products: Product[] }>({
     queryKey: ['products'],
@@ -89,21 +92,6 @@ export function ProductsTab() {
     return matchesSearch && matchesStatus && matchesCat
   })
 
-  const createMut = useMutation({
-    mutationFn: async (data: any) => {
-      const r = await fetch('/api/products', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
-      const j = await r.json()
-      if (!r.ok) throw new Error(j.error || 'failed')
-      return j
-    },
-    onSuccess: () => {
-      toast.success(t('products.created'))
-      qc.invalidateQueries({ queryKey: ['products'] })
-      setCreateOpen(false)
-    },
-    onError: (e: any) => toast.error(e.message || t('toast.error')),
-  })
-
   const updateMut = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: any }) => {
       const r = await fetch(`/api/products/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
@@ -114,7 +102,6 @@ export function ProductsTab() {
     onSuccess: () => {
       toast.success(t('products.updated'))
       qc.invalidateQueries({ queryKey: ['products'] })
-      setEditProduct(null)
     },
     onError: (e: any) => toast.error(e.message || t('toast.error')),
   })
@@ -146,7 +133,7 @@ export function ProductsTab() {
           <h1 className="text-2xl font-bold tracking-tight">{t('products.title')}</h1>
           <p className="text-sm text-muted-foreground">{products.length} {t('nav.products').toLowerCase()}</p>
         </div>
-        <Button onClick={() => setCreateOpen(true)} className="gap-1.5 bg-emerald-600 hover:bg-emerald-700">
+        <Button onClick={() => router.push(getNewUrl())} className="gap-1.5 bg-emerald-600 hover:bg-emerald-700">
           <Plus className="h-4 w-4" />
           {t('products.add')}
         </Button>
@@ -164,7 +151,7 @@ export function ProductsTab() {
             <SelectItem value="ALL">{t('common.all')}</SelectItem>
             {categories.map((c) => (
               <SelectItem key={c.id} value={c.id}>
-                {c.icon} {c.name}
+                {c.name}
               </SelectItem>
             ))}
           </SelectContent>
@@ -194,7 +181,10 @@ export function ProductsTab() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
           {filtered.map((p) => (
             <Card key={p.id} className="border-slate-200 overflow-hidden group">
-              <div className="aspect-square bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center relative">
+              <div
+                className="aspect-square bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center relative cursor-pointer"
+                onClick={() => router.push(getEditUrl(p.id))}
+              >
                 {p.image ? (
                   <img src={p.image} alt={p.name} className="w-full h-full object-cover" />
                 ) : (
@@ -211,7 +201,7 @@ export function ProductsTab() {
                     {t('products.featured')}
                   </Badge>
                 )}
-                <div className="absolute bottom-2 right-2">
+                <div className="absolute bottom-2 right-2" onClick={(e) => e.stopPropagation()}>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="secondary" size="sm" className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -219,7 +209,7 @@ export function ProductsTab() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-44">
-                      <DropdownMenuItem onClick={() => setEditProduct(p)}>
+                      <DropdownMenuItem onClick={() => router.push(getEditUrl(p.id))}>
                         <Pencil className="h-3.5 w-3.5" />
                         {t('common.edit')}
                       </DropdownMenuItem>
@@ -239,7 +229,7 @@ export function ProductsTab() {
               <CardContent className="p-3">
                 <div className="flex items-start justify-between gap-1 mb-0.5">
                   <div className="text-xs text-muted-foreground">
-                    {p.category ? `${p.category.icon} ${p.category.name}` : t('common.none')}
+                    {p.category ? p.category.name : t('common.none')}
                   </div>
                   <Badge variant="secondary" className="text-[9px]">{t(`products.status.${p.status}` as any)}</Badge>
                 </div>
@@ -261,27 +251,6 @@ export function ProductsTab() {
           ))}
         </div>
       )}
-
-      {/* Create / Edit dialog */}
-      <ProductFormDialog
-        key={`create-${createOpen}`}
-        open={createOpen}
-        onOpenChange={(o) => { if (!o) setCreateOpen(false) }}
-        categories={categories}
-        submitting={createMut.isPending}
-        onSubmit={(data) => createMut.mutate(data)}
-        title={t('products.add')}
-      />
-      <ProductFormDialog
-        key={`edit-${editProduct?.id ?? 'none'}`}
-        open={!!editProduct}
-        onOpenChange={(o) => { if (!o) setEditProduct(null) }}
-        categories={categories}
-        initial={editProduct || undefined}
-        submitting={updateMut.isPending}
-        onSubmit={(data) => editProduct && updateMut.mutate({ id: editProduct.id, data })}
-        title={t('products.edit')}
-      />
 
       {/* Delete confirm */}
       <AlertDialog open={!!deleteProduct} onOpenChange={(o) => !o && setDeleteProduct(null)}>
@@ -305,169 +274,5 @@ export function ProductsTab() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  )
-}
-
-// ----- Form dialog -----
-
-function ProductFormDialog({
-  open, onOpenChange, categories, initial, submitting, onSubmit, title,
-}: {
-  open: boolean
-  onOpenChange: (o: boolean) => void
-  categories: Category[]
-  initial?: Product
-  submitting: boolean
-  onSubmit: (data: any) => void
-  title: string
-}) {
-  const { t } = useI18n()
-  const [name, setName] = useState({
-    en: initial?.name || '',
-    ar: initial?.nameAr || '',
-    he: initial?.nameHe || '',
-  })
-  const [description, setDescription] = useState({
-    en: initial?.description || '',
-    ar: initial?.descriptionAr || '',
-    he: initial?.descriptionHe || '',
-  })
-  const [price, setPrice] = useState(initial ? String(initial.price) : '')
-  const [compareAt, setCompareAt] = useState(initial?.compareAt ? String(initial.compareAt) : '')
-  const [sku, setSku] = useState(initial?.sku || '')
-  const [stock, setStock] = useState(initial ? String(initial.stock) : '0')
-  const [image, setImage] = useState(initial?.image || '')
-  const [categoryId, setCategoryId] = useState<string>(initial?.category?.id || 'none')
-  const [featured, setFeatured] = useState(initial?.featured || false)
-  const [status, setStatus] = useState(initial?.status || 'ACTIVE')
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!name.en || !price) {
-      toast.error(t('common.required'))
-      return
-    }
-    onSubmit({
-      name: name.en,
-      nameAr: name.ar || undefined,
-      nameHe: name.he || undefined,
-      description: description.en || undefined,
-      descriptionAr: description.ar || undefined,
-      descriptionHe: description.he || undefined,
-      price: Number(price),
-      compareAt: compareAt ? Number(compareAt) : null,
-      sku: sku || undefined,
-      stock: Number(stock || 0),
-      image,
-      categoryId: categoryId === 'none' ? null : categoryId,
-      featured,
-      status,
-    })
-  }
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{t('brand.tagline')}</DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Image upload */}
-          <ImageUpload
-            value={image}
-            onChange={setImage}
-            label={t('common.image')}
-            aspectRatio="1/1"
-          />
-
-          <MultiLanguageInput
-            label={t('common.name')}
-            field="name"
-            values={name}
-            onChange={setName}
-            required
-            placeholder="e.g. Velvet Lounge Sofa"
-          />
-
-          <MultiLanguageInput
-            label={t('common.description')}
-            field="description"
-            values={description}
-            onChange={setDescription}
-            multiline
-            rows={3}
-            placeholder="Materials, dimensions, story behind the piece…"
-          />
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="p-price">{t('common.price')} *</Label>
-              <Input id="p-price" type="number" min="0" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)} required />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="p-compare">{t('products.compareAt')}</Label>
-              <Input id="p-compare" type="number" min="0" step="0.01" value={compareAt} onChange={(e) => setCompareAt(e.target.value)} />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="p-sku">{t('common.sku')}</Label>
-              <Input id="p-sku" value={sku} onChange={(e) => setSku(e.target.value)} />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="p-stock">{t('common.stock')}</Label>
-              <Input id="p-stock" type="number" min="0" value={stock} onChange={(e) => setStock(e.target.value)} />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label>{t('common.category')}</Label>
-              <Select value={categoryId} onValueChange={setCategoryId}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">{t('common.none')}</SelectItem>
-                  {categories.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>{c.icon} {c.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5">
-              <Label>{t('common.status')}</Label>
-              <Select value={status} onValueChange={setStatus}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {STATUSES.map((s) => <SelectItem key={s} value={s}>{t(`products.status.${s}` as any)}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50">
-            <div>
-              <Label htmlFor="p-featured" className="text-sm font-medium flex items-center gap-1">
-                <Star className="h-3.5 w-3.5" />
-                {t('products.featured')}
-              </Label>
-              <p className="text-xs text-muted-foreground">Show on storefront home</p>
-            </div>
-            <Switch id="p-featured" checked={featured} onCheckedChange={setFeatured} />
-          </div>
-
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
-              {t('common.cancel')}
-            </Button>
-            <Button type="submit" disabled={submitting} className="bg-emerald-600 hover:bg-emerald-700">
-              {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-              {initial ? t('common.save') : t('common.create')}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
   )
 }

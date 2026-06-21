@@ -1,0 +1,2417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FurnitureHub - Layout Comparison</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f5f5;
+      padding: 2rem;
+      line-height: 1.6;
+    }
+    .header {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+    .subtitle { color: #666; font-size: 1.1rem; }
+    .category-section {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .category-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 3px solid #0f766e;
+    }
+    .layouts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+    .layout-card {
+      border: 2px solid #e5e5e5;
+      border-radius: 8px;
+      padding: 1.5rem;
+      background: #fafafa;
+      transition: all 0.2s;
+    }
+    .layout-card:hover {
+      border-color: #0f766e;
+      box-shadow: 0 4px 12px rgba(15, 118, 110, 0.15);
+    }
+    .layout-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 1rem;
+    }
+    .layout-name {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #111;
+    }
+    .premium-badge {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: white;
+      font-size: 0.7rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+    .layout-desc {
+      color: #555;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #e5e5e5;
+    }
+    .color-palette {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .color-swatch {
+      height: 40px;
+      border-radius: 6px;
+      border: 2px solid white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      position: relative;
+    }
+    .color-swatch:hover::after {
+      content: attr(data-label);
+      position: absolute;
+      bottom: -24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #111;
+      color: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      white-space: nowrap;
+      z-index: 10;
+    }
+    .style-details {
+      display: grid;
+      gap: 0.5rem;
+    }
+    .style-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      padding: 0.25rem 0;
+    }
+    .style-label {
+      color: #666;
+      font-weight: 500;
+    }
+    .style-value {
+      color: #111;
+      font-weight: 600;
+      text-align: right;
+    }
+    .fonts {
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid #e5e5e5;
+    }
+    .font-preview {
+      margin: 0.5rem 0;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #0f766e;
+    }
+    .stat-label {
+      color: #666;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🏠 FurnitureHub Layout Comparison</h1>
+    <p class="subtitle">30 unique furniture store layouts across 5 categories</p>
+  </div>
+
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-value">31</div>
+      <div class="stat-label">Total Layouts</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">16</div>
+      <div class="stat-label">Premium Layouts</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">5</div>
+      <div class="stat-label">Categories</div>
+    </div>
+  </div>
+
+  
+      <div class="category-section">
+        <h2 class="category-title">MODERN (7)</h2>
+        <div class="layouts-grid">
+          
+            <div class="layout-card">
+              <div class="layout-header">
+                <div class="layout-name">Fresh Bloom</div>
+                
+              </div>
+              <div class="layout-desc">Pastel yellow, leafy green, bento-grid layout. Playful modern furniture.</div>
+
+              <div class="color-palette">
+                <div class="color-swatch" style="background-color: #15803d" data-label="Primary"></div>
+                <div class="color-swatch" style="background-color: #fb7185" data-label="Accent"></div>
+                <div class="color-swatch" style="background-color: #fefce8" data-label="BG"></div>
+                <div class="color-swatch" style="background-color: #1c1917" data-label="Text"></div>
+              </div>
+
+              <div class="style-details">
+                <div class="style-row">
+                  <span class="style-label">Header:</span>
+                  <span class="style-value">Centered Logo</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Hero:</span>
+                  <span class="style-value">Split Image Layout</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Products:</span>
+                  <span class="style-value">Bento Grid</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Footer:</span>
+                  <span class="style-value">Minimal Footer</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Cards:</span>
+                  <span class="style-value">Shadow Cards</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Spacing:</span>
+                  <span class="style-value">Spacious Layout</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Images:</span>
+                  <span class="style-value">Rounded Images</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Buttons:</span>
+                  <span class="style-value">Pill Buttons</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Navigation:</span>
+                  <span class="style-value">Top Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Border Radius:</span>
+                  <span class="style-value">20px</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Animation:</span>
+                  <span class="style-value">Fade Animation</span>
+                </div>
+              </div>
+
+              <div class="fonts">
+                <div class="font-preview" style="font-family: 'Plus Jakarta Sans', serif; font-weight: bold; font-size: 1.1rem;">
+                  Plus Jakarta Sans
+                </div>
+                <div class="font-preview" style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.9rem; color: #666;">
+                  Plus Jakarta Sans
+                </div>
+              </div>
+            </div>
+          
+            <div class="layout-card">
+              <div class="layout-header">
+                <div class="layout-name">Metro Edge</div>
+                <div class="premium-badge">PREMIUM</div>
+              </div>
+              <div class="layout-desc">Bold typography with horizontal product sliders. High-end urban furniture.</div>
+
+              <div class="color-palette">
+                <div class="color-swatch" style="background-color: #18181b" data-label="Primary"></div>
+                <div class="color-swatch" style="background-color: #f97316" data-label="Accent"></div>
+                <div class="color-swatch" style="background-color: #ffffff" data-label="BG"></div>
+                <div class="color-swatch" style="background-color: #18181b" data-label="Text"></div>
+              </div>
+
+              <div class="style-details">
+                <div class="style-row">
+                  <span class="style-label">Header:</span>
+                  <span class="style-value">Minimal Top Bar</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Hero:</span>
+                  <span class="style-value">Video Background</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Products:</span>
+                  <span class="style-value">Horizontal Slider</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Footer:</span>
+                  <span class="style-value">Mega Footer</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Cards:</span>
+                  <span class="style-value">Outlined Cards</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Spacing:</span>
+                  <span class="style-value">Compact Spacing</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Images:</span>
+                  <span class="style-value">Rounded Images</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Buttons:</span>
+                  <span class="style-value">Solid Buttons</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Navigation:</span>
+                  <span class="style-value">Sticky Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Border Radius:</span>
+                  <span class="style-value">4px</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Animation:</span>
+                  <span class="style-value">Slide Animation</span>
+                </div>
+              </div>
+
+              <div class="fonts">
+                <div class="font-preview" style="font-family: 'Space Grotesk', serif; font-weight: bold; font-size: 1.1rem;">
+                  Space Grotesk
+                </div>
+                <div class="font-preview" style="font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #666;">
+                  Inter
+                </div>
+              </div>
+            </div>
+          
+            <div class="layout-card">
+              <div class="layout-header">
+                <div class="layout-name">Modern Edge</div>
+                <div class="premium-badge">PREMIUM</div>
+              </div>
+              <div class="layout-desc">Bold typography meets a high-density product grid. Built for catalog-heavy stores.</div>
+
+              <div class="color-palette">
+                <div class="color-swatch" style="background-color: #18181b" data-label="Primary"></div>
+                <div class="color-swatch" style="background-color: #f97316" data-label="Accent"></div>
+                <div class="color-swatch" style="background-color: #fafafa" data-label="BG"></div>
+                <div class="color-swatch" style="background-color: #18181b" data-label="Text"></div>
+              </div>
+
+              <div class="style-details">
+                <div class="style-row">
+                  <span class="style-label">Header:</span>
+                  <span class="style-value">Split Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Hero:</span>
+                  <span class="style-value">Full Bleed Hero</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Products:</span>
+                  <span class="style-value">4 Column Tight</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Footer:</span>
+                  <span class="style-value">Mega Footer</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Cards:</span>
+                  <span class="style-value">Shadow Cards</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Spacing:</span>
+                  <span class="style-value">Normal Spacing</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Images:</span>
+                  <span class="style-value">Rounded Images</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Buttons:</span>
+                  <span class="style-value">Solid Buttons</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Navigation:</span>
+                  <span class="style-value">Top Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Border Radius:</span>
+                  <span class="style-value">4px</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Animation:</span>
+                  <span class="style-value">Slide Animation</span>
+                </div>
+              </div>
+
+              <div class="fonts">
+                <div class="font-preview" style="font-family: 'Space Grotesk', serif; font-weight: bold; font-size: 1.1rem;">
+                  Space Grotesk
+                </div>
+                <div class="font-preview" style="font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #666;">
+                  Inter
+                </div>
+              </div>
+            </div>
+          
+            <div class="layout-card">
+              <div class="layout-header">
+                <div class="layout-name">Modern Minimal</div>
+                
+              </div>
+              <div class="layout-desc">Clean lines, generous whitespace, subtle motion. Perfect for Scandinavian furniture brands.</div>
+
+              <div class="color-palette">
+                <div class="color-swatch" style="background-color: #0f172a" data-label="Primary"></div>
+                <div class="color-swatch" style="background-color: #6366f1" data-label="Accent"></div>
+                <div class="color-swatch" style="background-color: #ffffff" data-label="BG"></div>
+                <div class="color-swatch" style="background-color: #0f172a" data-label="Text"></div>
+              </div>
+
+              <div class="style-details">
+                <div class="style-row">
+                  <span class="style-label">Header:</span>
+                  <span class="style-value">Minimal Top Bar</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Hero:</span>
+                  <span class="style-value">Split Image Layout</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Products:</span>
+                  <span class="style-value">3 Column Cards</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Footer:</span>
+                  <span class="style-value">Minimal Footer</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Cards:</span>
+                  <span class="style-value">Shadow Cards</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Spacing:</span>
+                  <span class="style-value">Normal Spacing</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Images:</span>
+                  <span class="style-value">Rounded Images</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Buttons:</span>
+                  <span class="style-value">Solid Buttons</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Navigation:</span>
+                  <span class="style-value">Top Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Border Radius:</span>
+                  <span class="style-value">8px</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Animation:</span>
+                  <span class="style-value">Fade Animation</span>
+                </div>
+              </div>
+
+              <div class="fonts">
+                <div class="font-preview" style="font-family: 'Inter', serif; font-weight: bold; font-size: 1.1rem;">
+                  Inter
+                </div>
+                <div class="font-preview" style="font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #666;">
+                  Inter
+                </div>
+              </div>
+            </div>
+          
+            <div class="layout-card">
+              <div class="layout-header">
+                <div class="layout-name">Nordic Breeze</div>
+                
+              </div>
+              <div class="layout-desc">Soft beige, sage green, rounded everything. Hygge-focused furniture stores.</div>
+
+              <div class="color-palette">
+                <div class="color-swatch" style="background-color: #3f6212" data-label="Primary"></div>
+                <div class="color-swatch" style="background-color: #e7e5e4" data-label="Accent"></div>
+                <div class="color-swatch" style="background-color: #f7f6f3" data-label="BG"></div>
+                <div class="color-swatch" style="background-color: #1c1917" data-label="Text"></div>
+              </div>
+
+              <div class="style-details">
+                <div class="style-row">
+                  <span class="style-label">Header:</span>
+                  <span class="style-value">Centered Logo</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Hero:</span>
+                  <span class="style-value">Image Carousel</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Products:</span>
+                  <span class="style-value">3 Column Cards</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Footer:</span>
+                  <span class="style-value">Centered Footer</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Cards:</span>
+                  <span class="style-value">Flat Cards</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Spacing:</span>
+                  <span class="style-value">Spacious Layout</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Images:</span>
+                  <span class="style-value">Circular Images</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Buttons:</span>
+                  <span class="style-value">Pill Buttons</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Navigation:</span>
+                  <span class="style-value">Top Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Border Radius:</span>
+                  <span class="style-value">16px</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Animation:</span>
+                  <span class="style-value">Fade Animation</span>
+                </div>
+              </div>
+
+              <div class="fonts">
+                <div class="font-preview" style="font-family: 'DM Sans', serif; font-weight: bold; font-size: 1.1rem;">
+                  DM Sans
+                </div>
+                <div class="font-preview" style="font-family: 'DM Sans', sans-serif; font-size: 0.9rem; color: #666;">
+                  DM Sans
+                </div>
+              </div>
+            </div>
+          
+            <div class="layout-card">
+              <div class="layout-header">
+                <div class="layout-name">Tech Forward</div>
+                <div class="premium-badge">PREMIUM</div>
+              </div>
+              <div class="layout-desc">Dark theme with neon accents. Smart furniture & tech-enabled home goods.</div>
+
+              <div class="color-palette">
+                <div class="color-swatch" style="background-color: #020617" data-label="Primary"></div>
+                <div class="color-swatch" style="background-color: #22d3ee" data-label="Accent"></div>
+                <div class="color-swatch" style="background-color: #0f172a" data-label="BG"></div>
+                <div class="color-swatch" style="background-color: #e2e8f0" data-label="Text"></div>
+              </div>
+
+              <div class="style-details">
+                <div class="style-row">
+                  <span class="style-label">Header:</span>
+                  <span class="style-value">Split Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Hero:</span>
+                  <span class="style-value">Grid Cells</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Products:</span>
+                  <span class="style-value">4 Column Tight</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Footer:</span>
+                  <span class="style-value">Mega Footer</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Cards:</span>
+                  <span class="style-value">Glass Morphism</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Spacing:</span>
+                  <span class="style-value">Minimal Spacing</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Images:</span>
+                  <span class="style-value">Square Images</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Buttons:</span>
+                  <span class="style-value">Ghost Buttons</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Navigation:</span>
+                  <span class="style-value">Side Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Border Radius:</span>
+                  <span class="style-value">0px</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Animation:</span>
+                  <span class="style-value">Zoom Animation</span>
+                </div>
+              </div>
+
+              <div class="fonts">
+                <div class="font-preview" style="font-family: 'JetBrains Mono', serif; font-weight: bold; font-size: 1.1rem;">
+                  JetBrains Mono
+                </div>
+                <div class="font-preview" style="font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #666;">
+                  Inter
+                </div>
+              </div>
+            </div>
+          
+            <div class="layout-card">
+              <div class="layout-header">
+                <div class="layout-name">Urban Loft</div>
+                
+              </div>
+              <div class="layout-desc">Industrial vibes with exposed edges. For urban furniture & loft-style collections.</div>
+
+              <div class="color-palette">
+                <div class="color-swatch" style="background-color: #1c1917" data-label="Primary"></div>
+                <div class="color-swatch" style="background-color: #dc2626" data-label="Accent"></div>
+                <div class="color-swatch" style="background-color: #fafafa" data-label="BG"></div>
+                <div class="color-swatch" style="background-color: #1c1917" data-label="Text"></div>
+              </div>
+
+              <div class="style-details">
+                <div class="style-row">
+                  <span class="style-label">Header:</span>
+                  <span class="style-value">Sticky Glass Effect</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Hero:</span>
+                  <span class="style-value">Full Bleed Hero</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Products:</span>
+                  <span class="style-value">Masonry Grid</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Footer:</span>
+                  <span class="style-value">Split Footer</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Cards:</span>
+                  <span class="style-value">Border Cards</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Spacing:</span>
+                  <span class="style-value">Compact Spacing</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Images:</span>
+                  <span class="style-value">Sharp Edges</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Buttons:</span>
+                  <span class="style-value">Outline Buttons</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Navigation:</span>
+                  <span class="style-value">Sticky Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Border Radius:</span>
+                  <span class="style-value">2px</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Animation:</span>
+                  <span class="style-value">Slide Animation</span>
+                </div>
+              </div>
+
+              <div class="fonts">
+                <div class="font-preview" style="font-family: 'Archivo', serif; font-weight: bold; font-size: 1.1rem;">
+                  Archivo
+                </div>
+                <div class="font-preview" style="font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #666;">
+                  Inter
+                </div>
+              </div>
+            </div>
+          
+        </div>
+      </div>
+    
+      <div class="category-section">
+        <h2 class="category-title">LUXURY (6)</h2>
+        <div class="layouts-grid">
+          
+            <div class="layout-card">
+              <div class="layout-header">
+                <div class="layout-name">Diamond Collection</div>
+                <div class="premium-badge">PREMIUM</div>
+              </div>
+              <div class="layout-desc">Ice-blue accents over B&W. Crystal-clear luxury furniture.</div>
+
+              <div class="color-palette">
+                <div class="color-swatch" style="background-color: #0f172a" data-label="Primary"></div>
+                <div class="color-swatch" style="background-color: #67e8f9" data-label="Accent"></div>
+                <div class="color-swatch" style="background-color: #ffffff" data-label="BG"></div>
+                <div class="color-swatch" style="background-color: #0f172a" data-label="Text"></div>
+              </div>
+
+              <div class="style-details">
+                <div class="style-row">
+                  <span class="style-label">Header:</span>
+                  <span class="style-value">Sticky Glass Effect</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Hero:</span>
+                  <span class="style-value">Video Background</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Products:</span>
+                  <span class="style-value">Horizontal Slider</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Footer:</span>
+                  <span class="style-value">Mega Footer</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Cards:</span>
+                  <span class="style-value">Glass Morphism</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Spacing:</span>
+                  <span class="style-value">Normal Spacing</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Images:</span>
+                  <span class="style-value">Circular Images</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Buttons:</span>
+                  <span class="style-value">Pill Buttons</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Navigation:</span>
+                  <span class="style-value">Sticky Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Border Radius:</span>
+                  <span class="style-value">8px</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Animation:</span>
+                  <span class="style-value">Zoom Animation</span>
+                </div>
+              </div>
+
+              <div class="fonts">
+                <div class="font-preview" style="font-family: 'Playfair Display', serif; font-weight: bold; font-size: 1.1rem;">
+                  Playfair Display
+                </div>
+                <div class="font-preview" style="font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #666;">
+                  Inter
+                </div>
+              </div>
+            </div>
+          
+            <div class="layout-card">
+              <div class="layout-header">
+                <div class="layout-name">Marble & Gold</div>
+                <div class="premium-badge">PREMIUM</div>
+              </div>
+              <div class="layout-desc">Cream marble with brushed gold. Luxury showroom aesthetic.</div>
+
+              <div class="color-palette">
+                <div class="color-swatch" style="background-color: #1c1917" data-label="Primary"></div>
+                <div class="color-swatch" style="background-color: #c4a253" data-label="Accent"></div>
+                <div class="color-swatch" style="background-color: #f5f3ef" data-label="BG"></div>
+                <div class="color-swatch" style="background-color: #1c1917" data-label="Text"></div>
+              </div>
+
+              <div class="style-details">
+                <div class="style-row">
+                  <span class="style-label">Header:</span>
+                  <span class="style-value">Centered Logo</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Hero:</span>
+                  <span class="style-value">Split Image Layout</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Products:</span>
+                  <span class="style-value">3 Column Cards</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Footer:</span>
+                  <span class="style-value">Mega Footer</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Cards:</span>
+                  <span class="style-value">Outlined Cards</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Spacing:</span>
+                  <span class="style-value">Spacious Layout</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Images:</span>
+                  <span class="style-value">Sharp Edges</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Buttons:</span>
+                  <span class="style-value">Outline Buttons</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Navigation:</span>
+                  <span class="style-value">Top Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Border Radius:</span>
+                  <span class="style-value">0px</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Animation:</span>
+                  <span class="style-value">Fade Animation</span>
+                </div>
+              </div>
+
+              <div class="fonts">
+                <div class="font-preview" style="font-family: 'Playfair Display', serif; font-weight: bold; font-size: 1.1rem;">
+                  Playfair Display
+                </div>
+                <div class="font-preview" style="font-family: 'Lato', sans-serif; font-size: 0.9rem; color: #666;">
+                  Lato
+                </div>
+              </div>
+            </div>
+          
+            <div class="layout-card">
+              <div class="layout-header">
+                <div class="layout-name">Platinum Suite</div>
+                <div class="premium-badge">PREMIUM</div>
+              </div>
+              <div class="layout-desc">Platinum-grey minimalism. Exclusive designer furniture boutique.</div>
+
+              <div class="color-palette">
+                <div class="color-swatch" style="background-color: #334155" data-label="Primary"></div>
+                <div class="color-swatch" style="background-color: #94a3b8" data-label="Accent"></div>
+                <div class="color-swatch" style="background-color: #f1f5f9" data-label="BG"></div>
+                <div class="color-swatch" style="background-color: #0f172a" data-label="Text"></div>
+              </div>
+
+              <div class="style-details">
+                <div class="style-row">
+                  <span class="style-label">Header:</span>
+                  <span class="style-value">Split Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Hero:</span>
+                  <span class="style-value">Grid Cells</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Products:</span>
+                  <span class="style-value">4 Column Tight</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Footer:</span>
+                  <span class="style-value">Split Footer</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Cards:</span>
+                  <span class="style-value">Shadow Cards</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Spacing:</span>
+                  <span class="style-value">Minimal Spacing</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Images:</span>
+                  <span class="style-value">Square Images</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Buttons:</span>
+                  <span class="style-value">Ghost Buttons</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Navigation:</span>
+                  <span class="style-value">Sticky Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Border Radius:</span>
+                  <span class="style-value">2px</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Animation:</span>
+                  <span class="style-value">Slide Animation</span>
+                </div>
+              </div>
+
+              <div class="fonts">
+                <div class="font-preview" style="font-family: 'Cormorant Garamond', serif; font-weight: bold; font-size: 1.1rem;">
+                  Cormorant Garamond
+                </div>
+                <div class="font-preview" style="font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #666;">
+                  Inter
+                </div>
+              </div>
+            </div>
+          
+            <div class="layout-card">
+              <div class="layout-header">
+                <div class="layout-name">Royal Elegance</div>
+                <div class="premium-badge">PREMIUM</div>
+              </div>
+              <div class="layout-desc">Midnight backdrop with gold accents. Heirloom furniture & luxury antiques.</div>
+
+              <div class="color-palette">
+                <div class="color-swatch" style="background-color: #4c1d95" data-label="Primary"></div>
+                <div class="color-swatch" style="background-color: #d4af37" data-label="Accent"></div>
+                <div class="color-swatch" style="background-color: #0c0a09" data-label="BG"></div>
+                <div class="color-swatch" style="background-color: #fafaf9" data-label="Text"></div>
+              </div>
+
+              <div class="style-details">
+                <div class="style-row">
+                  <span class="style-label">Header:</span>
+                  <span class="style-value">Centered Logo</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Hero:</span>
+                  <span class="style-value">Full Bleed Hero</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Products:</span>
+                  <span class="style-value">List Rows</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Footer:</span>
+                  <span class="style-value">Mega Footer</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Cards:</span>
+                  <span class="style-value">Border Cards</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Spacing:</span>
+                  <span class="style-value">Spacious Layout</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Images:</span>
+                  <span class="style-value">Square Images</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Buttons:</span>
+                  <span class="style-value">Outline Buttons</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Navigation:</span>
+                  <span class="style-value">Top Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Border Radius:</span>
+                  <span class="style-value">0px</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Animation:</span>
+                  <span class="style-value">Fade Animation</span>
+                </div>
+              </div>
+
+              <div class="fonts">
+                <div class="font-preview" style="font-family: 'Playfair Display', serif; font-weight: bold; font-size: 1.1rem;">
+                  Playfair Display
+                </div>
+                <div class="font-preview" style="font-family: 'Cormorant Garamond', sans-serif; font-size: 0.9rem; color: #666;">
+                  Cormorant Garamond
+                </div>
+              </div>
+            </div>
+          
+            <div class="layout-card">
+              <div class="layout-header">
+                <div class="layout-name">Timeless Classic</div>
+                
+              </div>
+              <div class="layout-desc">Warm sepia tones with serif elegance. Heritage furniture stores.</div>
+
+              <div class="color-palette">
+                <div class="color-swatch" style="background-color: #451a03" data-label="Primary"></div>
+                <div class="color-swatch" style="background-color: #a16207" data-label="Accent"></div>
+                <div class="color-swatch" style="background-color: #faf6f0" data-label="BG"></div>
+                <div class="color-swatch" style="background-color: #451a03" data-label="Text"></div>
+              </div>
+
+              <div class="style-details">
+                <div class="style-row">
+                  <span class="style-label">Header:</span>
+                  <span class="style-value">Minimal Top Bar</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Hero:</span>
+                  <span class="style-value">Full Bleed Hero</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Products:</span>
+                  <span class="style-value">3 Column Cards</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Footer:</span>
+                  <span class="style-value">Centered Footer</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Cards:</span>
+                  <span class="style-value">Border Cards</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Spacing:</span>
+                  <span class="style-value">Spacious Layout</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Images:</span>
+                  <span class="style-value">Rounded Images</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Buttons:</span>
+                  <span class="style-value">Outline Buttons</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Navigation:</span>
+                  <span class="style-value">Top Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Border Radius:</span>
+                  <span class="style-value">6px</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Animation:</span>
+                  <span class="style-value">Fade Animation</span>
+                </div>
+              </div>
+
+              <div class="fonts">
+                <div class="font-preview" style="font-family: 'Playfair Display', serif; font-weight: bold; font-size: 1.1rem;">
+                  Playfair Display
+                </div>
+                <div class="font-preview" style="font-family: 'Lora', sans-serif; font-size: 0.9rem; color: #666;">
+                  Lora
+                </div>
+              </div>
+            </div>
+          
+            <div class="layout-card">
+              <div class="layout-header">
+                <div class="layout-name">Velvet Night</div>
+                <div class="premium-badge">PREMIUM</div>
+              </div>
+              <div class="layout-desc">Deep plum with violet shimmer. Romantic evening furniture collections.</div>
+
+              <div class="color-palette">
+                <div class="color-swatch" style="background-color: #581c87" data-label="Primary"></div>
+                <div class="color-swatch" style="background-color: #e879f9" data-label="Accent"></div>
+                <div class="color-swatch" style="background-color: #1e1b29" data-label="BG"></div>
+                <div class="color-swatch" style="background-color: #f5e9ff" data-label="Text"></div>
+              </div>
+
+              <div class="style-details">
+                <div class="style-row">
+                  <span class="style-label">Header:</span>
+                  <span class="style-value">Split Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Hero:</span>
+                  <span class="style-value">Image Carousel</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Products:</span>
+                  <span class="style-value">List Rows</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Footer:</span>
+                  <span class="style-value">Centered Footer</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Cards:</span>
+                  <span class="style-value">Glass Morphism</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Spacing:</span>
+                  <span class="style-value">Normal Spacing</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Images:</span>
+                  <span class="style-value">Rounded Images</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Buttons:</span>
+                  <span class="style-value">Solid Buttons</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Navigation:</span>
+                  <span class="style-value">Top Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Border Radius:</span>
+                  <span class="style-value">12px</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Animation:</span>
+                  <span class="style-value">Zoom Animation</span>
+                </div>
+              </div>
+
+              <div class="fonts">
+                <div class="font-preview" style="font-family: 'Cormorant Garamond', serif; font-weight: bold; font-size: 1.1rem;">
+                  Cormorant Garamond
+                </div>
+                <div class="font-preview" style="font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #666;">
+                  Inter
+                </div>
+              </div>
+            </div>
+          
+        </div>
+      </div>
+    
+      <div class="category-section">
+        <h2 class="category-title">MINIMAL (6)</h2>
+        <div class="layouts-grid">
+          
+            <div class="layout-card">
+              <div class="layout-header">
+                <div class="layout-name">Breathing Space</div>
+                
+              </div>
+              <div class="layout-desc">Extra-large spacing with single teal accent. Breathable furniture catalog.</div>
+
+              <div class="color-palette">
+                <div class="color-swatch" style="background-color: #0f766e" data-label="Primary"></div>
+                <div class="color-swatch" style="background-color: #0f766e" data-label="Accent"></div>
+                <div class="color-swatch" style="background-color: #ffffff" data-label="BG"></div>
+                <div class="color-swatch" style="background-color: #0f172a" data-label="Text"></div>
+              </div>
+
+              <div class="style-details">
+                <div class="style-row">
+                  <span class="style-label">Header:</span>
+                  <span class="style-value">Centered Logo</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Hero:</span>
+                  <span class="style-value">Full Bleed Hero</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Products:</span>
+                  <span class="style-value">List Rows</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Footer:</span>
+                  <span class="style-value">Centered Footer</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Cards:</span>
+                  <span class="style-value">Shadow Cards</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Spacing:</span>
+                  <span class="style-value">Spacious Layout</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Images:</span>
+                  <span class="style-value">Rounded Images</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Buttons:</span>
+                  <span class="style-value">Pill Buttons</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Navigation:</span>
+                  <span class="style-value">Top Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Border Radius:</span>
+                  <span class="style-value">20px</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Animation:</span>
+                  <span class="style-value">Fade Animation</span>
+                </div>
+              </div>
+
+              <div class="fonts">
+                <div class="font-preview" style="font-family: 'Fraunces', serif; font-weight: bold; font-size: 1.1rem;">
+                  Fraunces
+                </div>
+                <div class="font-preview" style="font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #666;">
+                  Inter
+                </div>
+              </div>
+            </div>
+          
+            <div class="layout-card">
+              <div class="layout-header">
+                <div class="layout-name">Mono Chrome</div>
+                
+              </div>
+              <div class="layout-desc">Pure grayscale. Sophisticated neutral furniture collections.</div>
+
+              <div class="color-palette">
+                <div class="color-swatch" style="background-color: #1f2937" data-label="Primary"></div>
+                <div class="color-swatch" style="background-color: #6b7280" data-label="Accent"></div>
+                <div class="color-swatch" style="background-color: #f9fafb" data-label="BG"></div>
+                <div class="color-swatch" style="background-color: #1f2937" data-label="Text"></div>
+              </div>
+
+              <div class="style-details">
+                <div class="style-row">
+                  <span class="style-label">Header:</span>
+                  <span class="style-value">Minimal Top Bar</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Hero:</span>
+                  <span class="style-value">Split Image Layout</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Products:</span>
+                  <span class="style-value">4 Column Tight</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Footer:</span>
+                  <span class="style-value">Minimal Footer</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Cards:</span>
+                  <span class="style-value">Border Cards</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Spacing:</span>
+                  <span class="style-value">Compact Spacing</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Images:</span>
+                  <span class="style-value">Rounded Images</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Buttons:</span>
+                  <span class="style-value">Ghost Buttons</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Navigation:</span>
+                  <span class="style-value">Sticky Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Border Radius:</span>
+                  <span class="style-value">4px</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Animation:</span>
+                  <span class="style-value">Fade Animation</span>
+                </div>
+              </div>
+
+              <div class="fonts">
+                <div class="font-preview" style="font-family: 'Inter', serif; font-weight: bold; font-size: 1.1rem;">
+                  Inter
+                </div>
+                <div class="font-preview" style="font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #666;">
+                  Inter
+                </div>
+              </div>
+            </div>
+          
+            <div class="layout-card">
+              <div class="layout-header">
+                <div class="layout-name">Outline</div>
+                <div class="premium-badge">PREMIUM</div>
+              </div>
+              <div class="layout-desc">Everything outlined, no fills. Architectural furniture showcase.</div>
+
+              <div class="color-palette">
+                <div class="color-swatch" style="background-color: #000000" data-label="Primary"></div>
+                <div class="color-swatch" style="background-color: #000000" data-label="Accent"></div>
+                <div class="color-swatch" style="background-color: #ffffff" data-label="BG"></div>
+                <div class="color-swatch" style="background-color: #000000" data-label="Text"></div>
+              </div>
+
+              <div class="style-details">
+                <div class="style-row">
+                  <span class="style-label">Header:</span>
+                  <span class="style-value">Split Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Hero:</span>
+                  <span class="style-value">Grid Cells</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Products:</span>
+                  <span class="style-value">Masonry Grid</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Footer:</span>
+                  <span class="style-value">Minimal Footer</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Cards:</span>
+                  <span class="style-value">Outlined Cards</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Spacing:</span>
+                  <span class="style-value">Normal Spacing</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Images:</span>
+                  <span class="style-value">Square Images</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Buttons:</span>
+                  <span class="style-value">Outline Buttons</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Navigation:</span>
+                  <span class="style-value">Top Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Border Radius:</span>
+                  <span class="style-value">0px</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Animation:</span>
+                  <span class="style-value">No Animation</span>
+                </div>
+              </div>
+
+              <div class="fonts">
+                <div class="font-preview" style="font-family: 'Inter', serif; font-weight: bold; font-size: 1.1rem;">
+                  Inter
+                </div>
+                <div class="font-preview" style="font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #666;">
+                  Inter
+                </div>
+              </div>
+            </div>
+          
+            <div class="layout-card">
+              <div class="layout-header">
+                <div class="layout-name">Pure White</div>
+                
+              </div>
+              <div class="layout-desc">Pure black on white. The ultimate less-is-more furniture catalog.</div>
+
+              <div class="color-palette">
+                <div class="color-swatch" style="background-color: #000000" data-label="Primary"></div>
+                <div class="color-swatch" style="background-color: #000000" data-label="Accent"></div>
+                <div class="color-swatch" style="background-color: #ffffff" data-label="BG"></div>
+                <div class="color-swatch" style="background-color: #000000" data-label="Text"></div>
+              </div>
+
+              <div class="style-details">
+                <div class="style-row">
+                  <span class="style-label">Header:</span>
+                  <span class="style-value">Minimal Top Bar</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Hero:</span>
+                  <span class="style-value">Split Image Layout</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Products:</span>
+                  <span class="style-value">3 Column Cards</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Footer:</span>
+                  <span class="style-value">Minimal Footer</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Cards:</span>
+                  <span class="style-value">Flat Cards</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Spacing:</span>
+                  <span class="style-value">Spacious Layout</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Images:</span>
+                  <span class="style-value">Square Images</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Buttons:</span>
+                  <span class="style-value">Outline Buttons</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Navigation:</span>
+                  <span class="style-value">Top Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Border Radius:</span>
+                  <span class="style-value">0px</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Animation:</span>
+                  <span class="style-value">No Animation</span>
+                </div>
+              </div>
+
+              <div class="fonts">
+                <div class="font-preview" style="font-family: 'Inter', serif; font-weight: bold; font-size: 1.1rem;">
+                  Inter
+                </div>
+                <div class="font-preview" style="font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #666;">
+                  Inter
+                </div>
+              </div>
+            </div>
+          
+            <div class="layout-card">
+              <div class="layout-header">
+                <div class="layout-name">Swiss Style</div>
+                <div class="premium-badge">PREMIUM</div>
+              </div>
+              <div class="layout-desc">Red + black grid system. Brutally precise furniture catalog.</div>
+
+              <div class="color-palette">
+                <div class="color-swatch" style="background-color: #dc2626" data-label="Primary"></div>
+                <div class="color-swatch" style="background-color: #000000" data-label="Accent"></div>
+                <div class="color-swatch" style="background-color: #ffffff" data-label="BG"></div>
+                <div class="color-swatch" style="background-color: #000000" data-label="Text"></div>
+              </div>
+
+              <div class="style-details">
+                <div class="style-row">
+                  <span class="style-label">Header:</span>
+                  <span class="style-value">Split Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Hero:</span>
+                  <span class="style-value">Grid Cells</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Products:</span>
+                  <span class="style-value">Bento Grid</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Footer:</span>
+                  <span class="style-value">Mega Footer</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Cards:</span>
+                  <span class="style-value">Outlined Cards</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Spacing:</span>
+                  <span class="style-value">Minimal Spacing</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Images:</span>
+                  <span class="style-value">Sharp Edges</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Buttons:</span>
+                  <span class="style-value">Solid Buttons</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Navigation:</span>
+                  <span class="style-value">Side Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Border Radius:</span>
+                  <span class="style-value">0px</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Animation:</span>
+                  <span class="style-value">Slide Animation</span>
+                </div>
+              </div>
+
+              <div class="fonts">
+                <div class="font-preview" style="font-family: 'Space Grotesk', serif; font-weight: bold; font-size: 1.1rem;">
+                  Space Grotesk
+                </div>
+                <div class="font-preview" style="font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #666;">
+                  Inter
+                </div>
+              </div>
+            </div>
+          
+            <div class="layout-card">
+              <div class="layout-header">
+                <div class="layout-name">Zen Garden</div>
+                
+              </div>
+              <div class="layout-desc">Off-white stones with mossy green. Japanese-inspired furniture.</div>
+
+              <div class="color-palette">
+                <div class="color-swatch" style="background-color: #52525b" data-label="Primary"></div>
+                <div class="color-swatch" style="background-color: #84cc16" data-label="Accent"></div>
+                <div class="color-swatch" style="background-color: #fafaf7" data-label="BG"></div>
+                <div class="color-swatch" style="background-color: #27272a" data-label="Text"></div>
+              </div>
+
+              <div class="style-details">
+                <div class="style-row">
+                  <span class="style-label">Header:</span>
+                  <span class="style-value">Centered Logo</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Hero:</span>
+                  <span class="style-value">Image Carousel</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Products:</span>
+                  <span class="style-value">List Rows</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Footer:</span>
+                  <span class="style-value">Centered Footer</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Cards:</span>
+                  <span class="style-value">Shadow Cards</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Spacing:</span>
+                  <span class="style-value">Spacious Layout</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Images:</span>
+                  <span class="style-value">Circular Images</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Buttons:</span>
+                  <span class="style-value">Pill Buttons</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Navigation:</span>
+                  <span class="style-value">Top Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Border Radius:</span>
+                  <span class="style-value">16px</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Animation:</span>
+                  <span class="style-value">Fade Animation</span>
+                </div>
+              </div>
+
+              <div class="fonts">
+                <div class="font-preview" style="font-family: 'Noto Serif JP', serif; font-weight: bold; font-size: 1.1rem;">
+                  Noto Serif JP
+                </div>
+                <div class="font-preview" style="font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #666;">
+                  Inter
+                </div>
+              </div>
+            </div>
+          
+        </div>
+      </div>
+    
+      <div class="category-section">
+        <h2 class="category-title">CREATIVE (6)</h2>
+        <div class="layouts-grid">
+          
+            <div class="layout-card">
+              <div class="layout-header">
+                <div class="layout-name">Art Gallery</div>
+                <div class="premium-badge">PREMIUM</div>
+              </div>
+              <div class="layout-desc">Cream paper with orange accents. Treats furniture like exhibits.</div>
+
+              <div class="color-palette">
+                <div class="color-swatch" style="background-color: #1c1917" data-label="Primary"></div>
+                <div class="color-swatch" style="background-color: #ea580c" data-label="Accent"></div>
+                <div class="color-swatch" style="background-color: #fef3e2" data-label="BG"></div>
+                <div class="color-swatch" style="background-color: #1c1917" data-label="Text"></div>
+              </div>
+
+              <div class="style-details">
+                <div class="style-row">
+                  <span class="style-label">Header:</span>
+                  <span class="style-value">Centered Logo</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Hero:</span>
+                  <span class="style-value">Image Carousel</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Products:</span>
+                  <span class="style-value">List Rows</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Footer:</span>
+                  <span class="style-value">Centered Footer</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Cards:</span>
+                  <span class="style-value">Flat Cards</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Spacing:</span>
+                  <span class="style-value">Spacious Layout</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Images:</span>
+                  <span class="style-value">Square Images</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Buttons:</span>
+                  <span class="style-value">Outline Buttons</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Navigation:</span>
+                  <span class="style-value">Top Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Border Radius:</span>
+                  <span class="style-value">0px</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Animation:</span>
+                  <span class="style-value">Fade Animation</span>
+                </div>
+              </div>
+
+              <div class="fonts">
+                <div class="font-preview" style="font-family: 'Fraunces', serif; font-weight: bold; font-size: 1.1rem;">
+                  Fraunces
+                </div>
+                <div class="font-preview" style="font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #666;">
+                  Inter
+                </div>
+              </div>
+            </div>
+          
+            <div class="layout-card">
+              <div class="layout-header">
+                <div class="layout-name">Bold Statements</div>
+                <div class="premium-badge">PREMIUM</div>
+              </div>
+              <div class="layout-desc">Neon yellow over deep violet. Statement furniture pieces.</div>
+
+              <div class="color-palette">
+                <div class="color-swatch" style="background-color: #7c3aed" data-label="Primary"></div>
+                <div class="color-swatch" style="background-color: #facc15" data-label="Accent"></div>
+                <div class="color-swatch" style="background-color: #0b0b14" data-label="BG"></div>
+                <div class="color-swatch" style="background-color: #fafafa" data-label="Text"></div>
+              </div>
+
+              <div class="style-details">
+                <div class="style-row">
+                  <span class="style-label">Header:</span>
+                  <span class="style-value">Sticky Glass Effect</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Hero:</span>
+                  <span class="style-value">Video Background</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Products:</span>
+                  <span class="style-value">Masonry Grid</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Footer:</span>
+                  <span class="style-value">Mega Footer</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Cards:</span>
+                  <span class="style-value">Glass Morphism</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Spacing:</span>
+                  <span class="style-value">Compact Spacing</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Images:</span>
+                  <span class="style-value">Sharp Edges</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Buttons:</span>
+                  <span class="style-value">Solid Buttons</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Navigation:</span>
+                  <span class="style-value">Sticky Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Border Radius:</span>
+                  <span class="style-value">0px</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Animation:</span>
+                  <span class="style-value">Zoom Animation</span>
+                </div>
+              </div>
+
+              <div class="fonts">
+                <div class="font-preview" style="font-family: 'Archivo Black', serif; font-weight: bold; font-size: 1.1rem;">
+                  Archivo Black
+                </div>
+                <div class="font-preview" style="font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #666;">
+                  Inter
+                </div>
+              </div>
+            </div>
+          
+            <div class="layout-card">
+              <div class="layout-header">
+                <div class="layout-name">Brutalist</div>
+                
+              </div>
+              <div class="layout-desc">Concrete background with lime accents. Intentionally raw furniture.</div>
+
+              <div class="color-palette">
+                <div class="color-swatch" style="background-color: #000000" data-label="Primary"></div>
+                <div class="color-swatch" style="background-color: #84cc16" data-label="Accent"></div>
+                <div class="color-swatch" style="background-color: #d4d4d4" data-label="BG"></div>
+                <div class="color-swatch" style="background-color: #000000" data-label="Text"></div>
+              </div>
+
+              <div class="style-details">
+                <div class="style-row">
+                  <span class="style-label">Header:</span>
+                  <span class="style-value">Split Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Hero:</span>
+                  <span class="style-value">Split Image Layout</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Products:</span>
+                  <span class="style-value">4 Column Tight</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Footer:</span>
+                  <span class="style-value">Mega Footer</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Cards:</span>
+                  <span class="style-value">Outlined Cards</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Spacing:</span>
+                  <span class="style-value">Minimal Spacing</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Images:</span>
+                  <span class="style-value">Sharp Edges</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Buttons:</span>
+                  <span class="style-value">Outline Buttons</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Navigation:</span>
+                  <span class="style-value">Top Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Border Radius:</span>
+                  <span class="style-value">0px</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Animation:</span>
+                  <span class="style-value">No Animation</span>
+                </div>
+              </div>
+
+              <div class="fonts">
+                <div class="font-preview" style="font-family: 'Space Mono', serif; font-weight: bold; font-size: 1.1rem;">
+                  Space Mono
+                </div>
+                <div class="font-preview" style="font-family: 'Space Mono', sans-serif; font-size: 0.9rem; color: #666;">
+                  Space Mono
+                </div>
+              </div>
+            </div>
+          
+            <div class="layout-card">
+              <div class="layout-header">
+                <div class="layout-name">Collage</div>
+                <div class="premium-badge">PREMIUM</div>
+              </div>
+              <div class="layout-desc">Hand-written headings with scrapbook energy. Personal furniture curation.</div>
+
+              <div class="color-palette">
+                <div class="color-swatch" style="background-color: #c2410c" data-label="Primary"></div>
+                <div class="color-swatch" style="background-color: #0891b2" data-label="Accent"></div>
+                <div class="color-swatch" style="background-color: #fff8e7" data-label="BG"></div>
+                <div class="color-swatch" style="background-color: #1c1917" data-label="Text"></div>
+              </div>
+
+              <div class="style-details">
+                <div class="style-row">
+                  <span class="style-label">Header:</span>
+                  <span class="style-value">Centered Logo</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Hero:</span>
+                  <span class="style-value">Image Carousel</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Products:</span>
+                  <span class="style-value">Masonry Grid</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Footer:</span>
+                  <span class="style-value">Centered Footer</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Cards:</span>
+                  <span class="style-value">Shadow Cards</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Spacing:</span>
+                  <span class="style-value">Spacious Layout</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Images:</span>
+                  <span class="style-value">Rounded Images</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Buttons:</span>
+                  <span class="style-value">Pill Buttons</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Navigation:</span>
+                  <span class="style-value">Top Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Border Radius:</span>
+                  <span class="style-value">24px</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Animation:</span>
+                  <span class="style-value">Slide Animation</span>
+                </div>
+              </div>
+
+              <div class="fonts">
+                <div class="font-preview" style="font-family: 'Caveat', serif; font-weight: bold; font-size: 1.1rem;">
+                  Caveat
+                </div>
+                <div class="font-preview" style="font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #666;">
+                  Inter
+                </div>
+              </div>
+            </div>
+          
+            <div class="layout-card">
+              <div class="layout-header">
+                <div class="layout-name">Magazine Editorial</div>
+                <div class="premium-badge">PREMIUM</div>
+              </div>
+              <div class="layout-desc">Editorial columns with pink drop-caps. Magazine-style furniture catalog.</div>
+
+              <div class="color-palette">
+                <div class="color-swatch" style="background-color: #111827" data-label="Primary"></div>
+                <div class="color-swatch" style="background-color: #db2777" data-label="Accent"></div>
+                <div class="color-swatch" style="background-color: #ffffff" data-label="BG"></div>
+                <div class="color-swatch" style="background-color: #111827" data-label="Text"></div>
+              </div>
+
+              <div class="style-details">
+                <div class="style-row">
+                  <span class="style-label">Header:</span>
+                  <span class="style-value">Split Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Hero:</span>
+                  <span class="style-value">Grid Cells</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Products:</span>
+                  <span class="style-value">Bento Grid</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Footer:</span>
+                  <span class="style-value">Split Footer</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Cards:</span>
+                  <span class="style-value">Border Cards</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Spacing:</span>
+                  <span class="style-value">Normal Spacing</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Images:</span>
+                  <span class="style-value">Rounded Images</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Buttons:</span>
+                  <span class="style-value">Ghost Buttons</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Navigation:</span>
+                  <span class="style-value">Side Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Border Radius:</span>
+                  <span class="style-value">2px</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Animation:</span>
+                  <span class="style-value">Slide Animation</span>
+                </div>
+              </div>
+
+              <div class="fonts">
+                <div class="font-preview" style="font-family: 'Playfair Display', serif; font-weight: bold; font-size: 1.1rem;">
+                  Playfair Display
+                </div>
+                <div class="font-preview" style="font-family: 'Lora', sans-serif; font-size: 0.9rem; color: #666;">
+                  Lora
+                </div>
+              </div>
+            </div>
+          
+            <div class="layout-card">
+              <div class="layout-header">
+                <div class="layout-name">Retro Wave</div>
+                
+              </div>
+              <div class="layout-desc">80s synthwave aesthetic. Playful vintage furniture collections.</div>
+
+              <div class="color-palette">
+                <div class="color-swatch" style="background-color: #be185d" data-label="Primary"></div>
+                <div class="color-swatch" style="background-color: #0ea5e9" data-label="Accent"></div>
+                <div class="color-swatch" style="background-color: #0f172a" data-label="BG"></div>
+                <div class="color-swatch" style="background-color: #fbcfe8" data-label="Text"></div>
+              </div>
+
+              <div class="style-details">
+                <div class="style-row">
+                  <span class="style-label">Header:</span>
+                  <span class="style-value">Minimal Top Bar</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Hero:</span>
+                  <span class="style-value">Full Bleed Hero</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Products:</span>
+                  <span class="style-value">Horizontal Slider</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Footer:</span>
+                  <span class="style-value">Minimal Footer</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Cards:</span>
+                  <span class="style-value">Glass Morphism</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Spacing:</span>
+                  <span class="style-value">Compact Spacing</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Images:</span>
+                  <span class="style-value">Circular Images</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Buttons:</span>
+                  <span class="style-value">Pill Buttons</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Navigation:</span>
+                  <span class="style-value">Sticky Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Border Radius:</span>
+                  <span class="style-value">12px</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Animation:</span>
+                  <span class="style-value">Zoom Animation</span>
+                </div>
+              </div>
+
+              <div class="fonts">
+                <div class="font-preview" style="font-family: 'VT323', serif; font-weight: bold; font-size: 1.1rem;">
+                  VT323
+                </div>
+                <div class="font-preview" style="font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #666;">
+                  Inter
+                </div>
+              </div>
+            </div>
+          
+        </div>
+      </div>
+    
+      <div class="category-section">
+        <h2 class="category-title">CLASSIC (6)</h2>
+        <div class="layouts-grid">
+          
+            <div class="layout-card">
+              <div class="layout-header">
+                <div class="layout-name">Coastal Breeze</div>
+                
+              </div>
+              <div class="layout-desc">Sky-blue with sandy gold. Beach-house furniture catalog.</div>
+
+              <div class="color-palette">
+                <div class="color-swatch" style="background-color: #075985" data-label="Primary"></div>
+                <div class="color-swatch" style="background-color: #fbbf24" data-label="Accent"></div>
+                <div class="color-swatch" style="background-color: #eff6ff" data-label="BG"></div>
+                <div class="color-swatch" style="background-color: #0c4a6e" data-label="Text"></div>
+              </div>
+
+              <div class="style-details">
+                <div class="style-row">
+                  <span class="style-label">Header:</span>
+                  <span class="style-value">Minimal Top Bar</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Hero:</span>
+                  <span class="style-value">Full Bleed Hero</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Products:</span>
+                  <span class="style-value">3 Column Cards</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Footer:</span>
+                  <span class="style-value">Centered Footer</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Cards:</span>
+                  <span class="style-value">Flat Cards</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Spacing:</span>
+                  <span class="style-value">Normal Spacing</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Images:</span>
+                  <span class="style-value">Circular Images</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Buttons:</span>
+                  <span class="style-value">Pill Buttons</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Navigation:</span>
+                  <span class="style-value">Top Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Border Radius:</span>
+                  <span class="style-value">16px</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Animation:</span>
+                  <span class="style-value">Fade Animation</span>
+                </div>
+              </div>
+
+              <div class="fonts">
+                <div class="font-preview" style="font-family: 'Lora', serif; font-weight: bold; font-size: 1.1rem;">
+                  Lora
+                </div>
+                <div class="font-preview" style="font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #666;">
+                  Inter
+                </div>
+              </div>
+            </div>
+          
+            <div class="layout-card">
+              <div class="layout-header">
+                <div class="layout-name">English Garden</div>
+                
+              </div>
+              <div class="layout-desc">Garden green with rose accents. Botanical furniture collections.</div>
+
+              <div class="color-palette">
+                <div class="color-swatch" style="background-color: #14532d" data-label="Primary"></div>
+                <div class="color-swatch" style="background-color: #be185d" data-label="Accent"></div>
+                <div class="color-swatch" style="background-color: #f7faf3" data-label="BG"></div>
+                <div class="color-swatch" style="background-color: #14532d" data-label="Text"></div>
+              </div>
+
+              <div class="style-details">
+                <div class="style-row">
+                  <span class="style-label">Header:</span>
+                  <span class="style-value">Minimal Top Bar</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Hero:</span>
+                  <span class="style-value">Image Carousel</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Products:</span>
+                  <span class="style-value">Masonry Grid</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Footer:</span>
+                  <span class="style-value">Centered Footer</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Cards:</span>
+                  <span class="style-value">Border Cards</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Spacing:</span>
+                  <span class="style-value">Spacious Layout</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Images:</span>
+                  <span class="style-value">Rounded Images</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Buttons:</span>
+                  <span class="style-value">Pill Buttons</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Navigation:</span>
+                  <span class="style-value">Top Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Border Radius:</span>
+                  <span class="style-value">8px</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Animation:</span>
+                  <span class="style-value">Fade Animation</span>
+                </div>
+              </div>
+
+              <div class="fonts">
+                <div class="font-preview" style="font-family: 'Lora', serif; font-weight: bold; font-size: 1.1rem;">
+                  Lora
+                </div>
+                <div class="font-preview" style="font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #666;">
+                  Inter
+                </div>
+              </div>
+            </div>
+          
+            <div class="layout-card">
+              <div class="layout-header">
+                <div class="layout-name">Farmhouse Charm</div>
+                
+              </div>
+              <div class="layout-desc">Buttercream + barn red + leafy green. Country furniture store.</div>
+
+              <div class="color-palette">
+                <div class="color-swatch" style="background-color: #7c2d12" data-label="Primary"></div>
+                <div class="color-swatch" style="background-color: #65a30d" data-label="Accent"></div>
+                <div class="color-swatch" style="background-color: #fef9e7" data-label="BG"></div>
+                <div class="color-swatch" style="background-color: #1c1917" data-label="Text"></div>
+              </div>
+
+              <div class="style-details">
+                <div class="style-row">
+                  <span class="style-label">Header:</span>
+                  <span class="style-value">Centered Logo</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Hero:</span>
+                  <span class="style-value">Split Image Layout</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Products:</span>
+                  <span class="style-value">Bento Grid</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Footer:</span>
+                  <span class="style-value">Mega Footer</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Cards:</span>
+                  <span class="style-value">Shadow Cards</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Spacing:</span>
+                  <span class="style-value">Spacious Layout</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Images:</span>
+                  <span class="style-value">Rounded Images</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Buttons:</span>
+                  <span class="style-value">Solid Buttons</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Navigation:</span>
+                  <span class="style-value">Top Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Border Radius:</span>
+                  <span class="style-value">12px</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Animation:</span>
+                  <span class="style-value">Fade Animation</span>
+                </div>
+              </div>
+
+              <div class="fonts">
+                <div class="font-preview" style="font-family: 'Lora', serif; font-weight: bold; font-size: 1.1rem;">
+                  Lora
+                </div>
+                <div class="font-preview" style="font-family: 'Lora', sans-serif; font-size: 0.9rem; color: #666;">
+                  Lora
+                </div>
+              </div>
+            </div>
+          
+            <div class="layout-card">
+              <div class="layout-header">
+                <div class="layout-name">Heritage Oak</div>
+                
+              </div>
+              <div class="layout-desc">Warm oak tones with serif typography. Trustworthy wood furniture.</div>
+
+              <div class="color-palette">
+                <div class="color-swatch" style="background-color: #78350f" data-label="Primary"></div>
+                <div class="color-swatch" style="background-color: #a16207" data-label="Accent"></div>
+                <div class="color-swatch" style="background-color: #faf6ef" data-label="BG"></div>
+                <div class="color-swatch" style="background-color: #1c1917" data-label="Text"></div>
+              </div>
+
+              <div class="style-details">
+                <div class="style-row">
+                  <span class="style-label">Header:</span>
+                  <span class="style-value">Minimal Top Bar</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Hero:</span>
+                  <span class="style-value">Split Image Layout</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Products:</span>
+                  <span class="style-value">3 Column Cards</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Footer:</span>
+                  <span class="style-value">Mega Footer</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Cards:</span>
+                  <span class="style-value">Shadow Cards</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Spacing:</span>
+                  <span class="style-value">Normal Spacing</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Images:</span>
+                  <span class="style-value">Rounded Images</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Buttons:</span>
+                  <span class="style-value">Solid Buttons</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Navigation:</span>
+                  <span class="style-value">Top Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Border Radius:</span>
+                  <span class="style-value">6px</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Animation:</span>
+                  <span class="style-value">Fade Animation</span>
+                </div>
+              </div>
+
+              <div class="fonts">
+                <div class="font-preview" style="font-family: 'Merriweather', serif; font-weight: bold; font-size: 1.1rem;">
+                  Merriweather
+                </div>
+                <div class="font-preview" style="font-family: 'Lora', sans-serif; font-size: 0.9rem; color: #666;">
+                  Lora
+                </div>
+              </div>
+            </div>
+          
+            <div class="layout-card">
+              <div class="layout-header">
+                <div class="layout-name">Mediterranean Villa</div>
+                <div class="premium-badge">PREMIUM</div>
+              </div>
+              <div class="layout-desc">Terracotta + navy over stucco cream. Riviera-style furniture.</div>
+
+              <div class="color-palette">
+                <div class="color-swatch" style="background-color: #1e3a8a" data-label="Primary"></div>
+                <div class="color-swatch" style="background-color: #c2410c" data-label="Accent"></div>
+                <div class="color-swatch" style="background-color: #fef9f5" data-label="BG"></div>
+                <div class="color-swatch" style="background-color: #1c1917" data-label="Text"></div>
+              </div>
+
+              <div class="style-details">
+                <div class="style-row">
+                  <span class="style-label">Header:</span>
+                  <span class="style-value">Split Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Hero:</span>
+                  <span class="style-value">Grid Cells</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Products:</span>
+                  <span class="style-value">4 Column Tight</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Footer:</span>
+                  <span class="style-value">Split Footer</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Cards:</span>
+                  <span class="style-value">Outlined Cards</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Spacing:</span>
+                  <span class="style-value">Compact Spacing</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Images:</span>
+                  <span class="style-value">Sharp Edges</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Buttons:</span>
+                  <span class="style-value">Outline Buttons</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Navigation:</span>
+                  <span class="style-value">Sticky Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Border Radius:</span>
+                  <span class="style-value">8px</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Animation:</span>
+                  <span class="style-value">Slide Animation</span>
+                </div>
+              </div>
+
+              <div class="fonts">
+                <div class="font-preview" style="font-family: 'Playfair Display', serif; font-weight: bold; font-size: 1.1rem;">
+                  Playfair Display
+                </div>
+                <div class="font-preview" style="font-family: 'Lora', sans-serif; font-size: 0.9rem; color: #666;">
+                  Lora
+                </div>
+              </div>
+            </div>
+          
+            <div class="layout-card">
+              <div class="layout-header">
+                <div class="layout-name">Victorian Grace</div>
+                <div class="premium-badge">PREMIUM</div>
+              </div>
+              <div class="layout-desc">Aged paper with plum + brass. Antique furniture collections.</div>
+
+              <div class="color-palette">
+                <div class="color-swatch" style="background-color: #4a044e" data-label="Primary"></div>
+                <div class="color-swatch" style="background-color: #b45309" data-label="Accent"></div>
+                <div class="color-swatch" style="background-color: #fdf6e3" data-label="BG"></div>
+                <div class="color-swatch" style="background-color: #1c1917" data-label="Text"></div>
+              </div>
+
+              <div class="style-details">
+                <div class="style-row">
+                  <span class="style-label">Header:</span>
+                  <span class="style-value">Centered Logo</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Hero:</span>
+                  <span class="style-value">Image Carousel</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Products:</span>
+                  <span class="style-value">List Rows</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Footer:</span>
+                  <span class="style-value">Split Footer</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Cards:</span>
+                  <span class="style-value">Border Cards</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Spacing:</span>
+                  <span class="style-value">Spacious Layout</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Images:</span>
+                  <span class="style-value">Square Images</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Buttons:</span>
+                  <span class="style-value">Outline Buttons</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Navigation:</span>
+                  <span class="style-value">Top Navigation</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Border Radius:</span>
+                  <span class="style-value">4px</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Animation:</span>
+                  <span class="style-value">Fade Animation</span>
+                </div>
+              </div>
+
+              <div class="fonts">
+                <div class="font-preview" style="font-family: 'Cormorant Garamond', serif; font-weight: bold; font-size: 1.1rem;">
+                  Cormorant Garamond
+                </div>
+                <div class="font-preview" style="font-family: 'Lora', sans-serif; font-size: 0.9rem; color: #666;">
+                  Lora
+                </div>
+              </div>
+            </div>
+          
+        </div>
+      </div>
+    
+</body>
+</html>

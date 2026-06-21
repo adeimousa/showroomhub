@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
       name: body.name,
       nameAr: body.nameAr || null,
       nameHe: body.nameHe || null,
-      icon: body.icon || '📦',
+      image: body.image || null,
     },
   })
   return NextResponse.json({ category }, { status: 201 })

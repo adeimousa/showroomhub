@@ -2,6 +2,21 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { requireAnyAdmin } from '@/lib/session'
 
+export async function GET(_req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
+  const { user, fail } = await requireAnyAdmin()
+  if (fail) return fail
+
+  const { id } = await ctx.params
+  const category = await db.category.findUnique({ where: { id } })
+
+  if (!category) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  if (user!.role !== 'SUPER_ADMIN' && category.tenantId !== user!.tenantId) {
+    return NextResponse.json({ error: 'Not your category' }, { status: 403 })
+  }
+
+  return NextResponse.json({ category })
+}
+
 export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   const { user, fail } = await requireAnyAdmin()
   if (fail) return fail
@@ -16,7 +31,7 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
   }
 
   const allowed: Record<string, any> = {}
-  for (const f of ['name','nameAr','nameHe','icon']) {
+  for (const f of ['name','nameAr','nameHe','image']) {
     if (body[f] !== undefined) allowed[f] = body[f]
   }
   const category = await db.category.update({ where: { id }, data: allowed })
