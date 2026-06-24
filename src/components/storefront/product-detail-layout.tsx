@@ -20,6 +20,11 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
+} from '@/components/ui/dialog'
 import Image from 'next/image'
 import {
   ShoppingCart, MessageCircle, Loader2, Plus, Minus, Share, CheckCircle2, AlertCircle,
@@ -46,10 +51,13 @@ type Product = {
 }
 
 type Tenant = {
+  id: string
   name: string
   slug: string
   whatsappNumber: string | null
   whatsappPrefill: string | null
+  whatsappPrefillAr: string | null
+  whatsappPrefillHe: string | null
 }
 
 type Props = {
@@ -110,11 +118,41 @@ export function ProductDetailLayout({
       toast.error(t('cart.noWhatsapp'), { description: t('cart.noWhatsappMsg') })
       return
     }
+
     setSendingSingle(true)
+
     try {
+      // Create order in database
+      const orderResponse = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tenantId: tenant.id,
+          customerName: null,
+          customerPhone: null,
+          items: [{
+            productId: product.id,
+            name: loc(product),
+            sku: product.sku,
+            price: product.price,
+            qty,
+          }],
+          total: lineTotal,
+        }),
+      })
+
+      if (!orderResponse.ok) {
+        throw new Error('Failed to create order')
+      }
+
+      const { order } = await orderResponse.json()
+
+      // Send WhatsApp message with order link
       const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
       const message = buildSingleItemMessage({
         intro: tenant.whatsappPrefill,
+        introAr: tenant.whatsappPrefillAr,
+        introHe: tenant.whatsappPrefillHe,
         tenantName: tenant.name,
         item: {
           id: product.id,
@@ -127,16 +165,22 @@ export function ProductDetailLayout({
         lang,
         tenantSlug: tenant.slug,
         baseUrl,
+        orderId: order.id,
+        orderNumber: order.orderNumber,
       })
       const url = buildWhatsAppUrl(tenant.whatsappNumber!, message)
       window.open(url, '_blank')
+
       toast.success(t('product.singleOrderSent'), {
-        description: t('product.singleOrderMsg'),
+        description: `${t('product.singleOrderMsg')} (${order.orderNumber})`,
         duration: 5000,
       })
+
       onAfterAction?.()
     } catch (e: any) {
-      toast.error(t('toast.error'))
+      toast.error(t('toast.error'), {
+        description: e.message || t('cart.orderFailed'),
+      })
     } finally {
       setSendingSingle(false)
     }
@@ -147,12 +191,41 @@ export function ProductDetailLayout({
       toast.error(t('cart.noWhatsapp'), { description: t('cart.noWhatsappMsg') })
       return
     }
+
     setSendingBuyNow(true)
+
     try {
-      // Send only the current product via WhatsApp without adding to cart
+      // Create order in database
+      const orderResponse = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tenantId: tenant.id,
+          customerName: null,
+          customerPhone: null,
+          items: [{
+            productId: product.id,
+            name: loc(product),
+            sku: product.sku,
+            price: product.price,
+            qty,
+          }],
+          total: lineTotal,
+        }),
+      })
+
+      if (!orderResponse.ok) {
+        throw new Error('Failed to create order')
+      }
+
+      const { order } = await orderResponse.json()
+
+      // Send WhatsApp message with order link
       const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
       const message = buildSingleItemMessage({
         intro: tenant.whatsappPrefill,
+        introAr: tenant.whatsappPrefillAr,
+        introHe: tenant.whatsappPrefillHe,
         tenantName: tenant.name,
         item: {
           id: product.id,
@@ -165,16 +238,22 @@ export function ProductDetailLayout({
         lang,
         tenantSlug: tenant.slug,
         baseUrl,
+        orderId: order.id,
+        orderNumber: order.orderNumber,
       })
       const url = buildWhatsAppUrl(tenant.whatsappNumber!, message)
       window.open(url, '_blank')
+
       toast.success(t('product.singleOrderSent'), {
-        description: t('product.singleOrderMsg'),
+        description: `${t('product.singleOrderMsg')} (${order.orderNumber})`,
         duration: 5000,
       })
+
       onAfterAction?.()
     } catch (e: any) {
-      toast.error(t('toast.error'))
+      toast.error(t('toast.error'), {
+        description: e.message || t('cart.orderFailed'),
+      })
     } finally {
       setSendingBuyNow(false)
     }
@@ -444,6 +523,7 @@ export function ProductDetailLayout({
           </div>
         </>
       )}
+
     </div>
   )
 }

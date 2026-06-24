@@ -21,20 +21,34 @@ import { translate, type Lang } from './i18n'
  */
 export function buildWhatsAppMessage(opts: {
   intro?: string | null
+  introAr?: string | null
+  introHe?: string | null
   tenantName: string
   items: Array<{ id?: string; name: string; sku?: string | null; price: number; qty: number }>
   currency?: string
   lang?: Lang
   tenantSlug?: string
   baseUrl?: string
+  orderId?: string
+  orderNumber?: string
 }): string {
-  const { intro, tenantName, items, currency = 'ILS', lang = 'en', tenantSlug, baseUrl } = opts
+  const { intro, introAr, introHe, tenantName, items, currency = 'ILS', lang = 'en', tenantSlug, baseUrl, orderId, orderNumber } = opts
   const sym = currency === 'ILS' ? '₪' : `${currency} `
   const t = (key: string) => translate(lang, key, '', { tenantName })
 
+  // Select the appropriate intro based on language with fallback
+  let customIntro: string | null = null
+  if (lang === 'ar' && introAr) {
+    customIntro = introAr
+  } else if (lang === 'he' && introHe) {
+    customIntro = introHe
+  } else if (intro) {
+    customIntro = intro
+  }
+
   const lines: string[] = []
-  // Always use translated intro to respect user's language selection
-  lines.push(t('whatsapp.intro'))
+  // Use custom intro if available, otherwise use translated default
+  lines.push(customIntro || t('whatsapp.intro'))
   lines.push('')
 
   // Limit to 10 items to avoid URL length issues
@@ -65,6 +79,16 @@ export function buildWhatsAppMessage(opts: {
   lines.push(`${t('whatsapp.totalItems')} ${totalItems}`)
   lines.push(`${t('whatsapp.subtotal')} ${sym}${subtotal.toLocaleString()}`)
   lines.push('')
+
+  // Add order link if available
+  if (orderId && orderNumber) {
+    lines.push(`${translate(lang, 'whatsapp.orderNumber', '', { orderNumber })}`)
+    if (baseUrl && tenantSlug) {
+      lines.push(`${baseUrl}/${tenantSlug}/admin/orders/${orderId}`)
+    }
+    lines.push('')
+  }
+
   lines.push(t('whatsapp.sentFrom'))
   return lines.join('\n')
 }
@@ -91,8 +115,10 @@ export function buildFollowUpMessage(opts: {
   lang?: Lang
   tenantSlug?: string
   baseUrl?: string
+  orderId?: string
+  orderNumber?: string
 }): string {
-  const { items, currency = 'ILS', sendCount, lang = 'en', tenantSlug, baseUrl } = opts
+  const { items, currency = 'ILS', sendCount, lang = 'en', tenantSlug, baseUrl, orderId, orderNumber } = opts
   const sym = currency === 'ILS' ? '₪' : `${currency} `
   const t = (key: string) => translate(lang, key, '', { sendCount })
 
@@ -124,6 +150,16 @@ export function buildFollowUpMessage(opts: {
 
   const subtotal = items.reduce((s, i) => s + i.qty * i.price, 0)
   lines.push(`${t('whatsapp.subtotalItems')} ${sym}${subtotal.toLocaleString()}`)
+  lines.push('')
+
+  // Add order link if available
+  if (orderId && orderNumber) {
+    lines.push(`${translate(lang, 'whatsapp.orderNumber', '', { orderNumber })}`)
+    if (baseUrl && tenantSlug) {
+      lines.push(`${baseUrl}/${tenantSlug}/admin/orders/${orderId}`)
+    }
+  }
+
   return lines.join('\n')
 }
 
@@ -147,21 +183,35 @@ export function buildFollowUpMessage(opts: {
  */
 export function buildSingleItemMessage(opts: {
   intro?: string | null
+  introAr?: string | null
+  introHe?: string | null
   tenantName: string
   item: { id?: string; name: string; sku?: string | null; price: number; qty: number; description?: string | null }
   currency?: string
   lang?: Lang
   tenantSlug?: string
   baseUrl?: string
+  orderId?: string
+  orderNumber?: string
 }): string {
-  const { intro, tenantName, item, currency = 'ILS', lang = 'en', tenantSlug, baseUrl } = opts
+  const { intro, introAr, introHe, tenantName, item, currency = 'ILS', lang = 'en', tenantSlug, baseUrl, orderId, orderNumber } = opts
   const sym = currency === 'ILS' ? '₪' : `${currency} `
   const lineTotal = item.qty * item.price
   const t = (key: string) => translate(lang, key, '', { tenantName })
 
+  // Select the appropriate intro based on language with fallback
+  let customIntro: string | null = null
+  if (lang === 'ar' && introAr) {
+    customIntro = introAr
+  } else if (lang === 'he' && introHe) {
+    customIntro = introHe
+  } else if (intro) {
+    customIntro = intro
+  }
+
   const lines: string[] = []
-  // Always use translated intro to respect user's language selection
-  lines.push(t('whatsapp.introSingle'))
+  // Use custom intro if available, otherwise use translated default
+  lines.push(customIntro || t('whatsapp.introSingle'))
   lines.push('')
   lines.push(item.name)
   // Use short URL with just product ID
@@ -173,6 +223,18 @@ export function buildSingleItemMessage(opts: {
   lines.push(`${t('whatsapp.quantity')} ${item.qty}`)
   lines.push(`${t('whatsapp.total')} ${sym}${lineTotal.toLocaleString()}`)
   lines.push('')
+
+  // Add order link if available - with product summary
+  if (orderId && orderNumber) {
+    lines.push('———')
+    lines.push(`${translate(lang, 'whatsapp.orderNumber', '', { orderNumber })}`)
+    lines.push(`• ${item.name} (×${item.qty})`)
+    if (baseUrl && tenantSlug) {
+      lines.push(`${baseUrl}/${tenantSlug}/admin/orders/${orderId}`)
+    }
+    lines.push('')
+  }
+
   lines.push(t('whatsapp.sentFrom'))
   return lines.join('\n')
 }

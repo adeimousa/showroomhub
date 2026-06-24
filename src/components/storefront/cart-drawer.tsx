@@ -18,10 +18,13 @@ import { cn } from '@/lib/utils'
 
 type Props = {
   tenant: {
+    id: string
     name: string
     slug: string
     whatsappNumber: string | null
     whatsappPrefill: string | null
+    whatsappPrefillAr: string | null
+    whatsappPrefillHe: string | null
   }
 }
 
@@ -55,20 +58,46 @@ export function CartDrawer({ tenant }: Props) {
 
     setSending(true)
     try {
-      // If this is the first send, use the full message format.
-      // On subsequent sends, the cart is intentionally kept so the customer
-      // can add more items and send a follow-up message to the same
-      // WhatsApp conversation.
-      const isFirst = sendCount === 0
+      // Create order in database
+      const orderResponse = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tenantId: tenant.id,
+          customerName: null,
+          customerPhone: null,
+          items: items.map((i) => ({
+            productId: i.id,
+            name: i.name,
+            sku: i.sku,
+            price: i.price,
+            qty: i.qty,
+          })),
+          total: subtotal(),
+        }),
+      })
+
+      if (!orderResponse.ok) {
+        throw new Error('Failed to create order')
+      }
+
+      const { order } = await orderResponse.json()
       const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
+
+      // Build WhatsApp message with order link
+      const isFirst = sendCount === 0
       const message = isFirst
         ? buildWhatsAppMessage({
             intro: tenant.whatsappPrefill,
+            introAr: tenant.whatsappPrefillAr,
+            introHe: tenant.whatsappPrefillHe,
             tenantName: tenant.name,
             items: items.map((i) => ({ id: i.id, name: i.name, sku: i.sku, price: i.price, qty: i.qty })),
             lang,
             tenantSlug: tenant.slug,
             baseUrl,
+            orderId: order.id,
+            orderNumber: order.orderNumber,
           })
         : buildFollowUpMessage({
             items: items.map((i) => ({ id: i.id, name: i.name, sku: i.sku, price: i.price, qty: i.qty })),
@@ -76,6 +105,8 @@ export function CartDrawer({ tenant }: Props) {
             lang,
             tenantSlug: tenant.slug,
             baseUrl,
+            orderId: order.id,
+            orderNumber: order.orderNumber,
           })
 
       const url = buildWhatsAppUrl(tenant.whatsappNumber!, message)
@@ -84,11 +115,13 @@ export function CartDrawer({ tenant }: Props) {
       setSent(true)
       setSendCount((c) => c + 1)
       toast.success(t('cart.sent'), {
-        description: t('cart.sentMsg'),
+        description: `${t('cart.sentMsg')} (${order.orderNumber})`,
         duration: 6000,
       })
     } catch (e: any) {
-      toast.error(t('toast.error'))
+      toast.error(t('toast.error'), {
+        description: e.message || t('cart.orderFailed'),
+      })
     } finally {
       setSending(false)
     }
