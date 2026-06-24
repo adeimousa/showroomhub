@@ -19,7 +19,7 @@ export async function GET(_req: NextRequest, ctx: { params: Promise<{ id: string
 
 // Fields a client admin is allowed to edit on their own tenant
 const CLIENT_ADMIN_FIELDS = new Set([
-  'whatsappNumber', 'whatsappPrefill',
+  'whatsappNumber', 'whatsappPrefill', 'whatsappPrefillAr', 'whatsappPrefillHe',
   'themePrimary', 'themeAccent', 'themeBg', 'themeFont', 'rtl',
   'email', 'phone',
   'description', 'descriptionAr', 'descriptionHe',
