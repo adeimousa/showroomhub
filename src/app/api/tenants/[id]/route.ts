@@ -70,6 +70,16 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
     }
   }
 
+  // If layoutId is being assigned, check if it's already taken by another tenant
+  if (allowed.layoutId) {
+    const existingTenant = await db.tenant.findUnique({ where: { layoutId: allowed.layoutId } })
+    if (existingTenant && existingTenant.id !== id) {
+      return NextResponse.json({
+        error: `This layout is already assigned to "${existingTenant.name}". Each layout can only be used by one tenant.`
+      }, { status: 409 })
+    }
+  }
+
   // Convert validUntil to Date if present
   if (allowed.validUntil) {
     allowed.validUntil = new Date(allowed.validUntil)

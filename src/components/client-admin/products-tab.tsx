@@ -19,7 +19,7 @@ import {
 import {
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu'
-import { Plus, Search, MoreVertical, Pencil, Trash2, Star, Package, Loader2 } from 'lucide-react'
+import { Plus, Search, MoreVertical, Pencil, Trash2, Package, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 type Category = { id: string; name: string; image: string | null }
@@ -120,11 +120,7 @@ export function ProductsTab() {
     onError: (e: any) => toast.error(e.message || t('toast.error')),
   })
 
-  const toggleFeatured = (p: Product) => {
-    updateMut.mutate({ id: p.id, data: { featured: !p.featured } })
-  }
-
-  const fmtPrice = (n: number) => `$${n.toLocaleString()}`
+  const fmtPrice = (n: number) => `₪${n.toLocaleString()}`
 
   return (
     <div className="space-y-4">
@@ -195,12 +191,6 @@ export function ProductsTab() {
                     -{Math.round((1 - p.price / p.compareAt) * 100)}%
                   </Badge>
                 )}
-                {p.featured && (
-                  <Badge className="absolute top-2 right-2 bg-amber-500 text-[10px] gap-0.5">
-                    <Star className="h-2.5 w-2.5 fill-current" />
-                    {t('products.featured')}
-                  </Badge>
-                )}
                 <div className="absolute bottom-2 right-2" onClick={(e) => e.stopPropagation()}>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -212,10 +202,6 @@ export function ProductsTab() {
                       <DropdownMenuItem onClick={() => router.push(getEditUrl(p.id))}>
                         <Pencil className="h-3.5 w-3.5" />
                         {t('common.edit')}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => toggleFeatured(p)}>
-                        <Star className={cn('h-3.5 w-3.5', p.featured && 'fill-amber-500 text-amber-500')} />
-                        {p.featured ? 'Unfeature' : t('products.featured')}
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={() => setDeleteProduct(p)} className="text-rose-600 focus:text-rose-700">

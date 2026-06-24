@@ -4,6 +4,7 @@ import { SuperAdminEntry } from '@/components/super-admin/super-admin-entry'
 import { StorefrontClient } from '@/components/storefront/storefront-client'
 import { NotConfigured } from '@/components/not-configured'
 import { StoreStatus } from '@/components/storefront/store-status'
+import { ProductPage } from '@/components/storefront/product-page'
 
 /**
  * Root page — routes based on the Host header (set by middleware).
@@ -20,15 +21,32 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
   const tenantId = h.get('x-tenant-id')
   const isAdminDomain = h.get('x-is-admin-domain') === '1'
 
+  // Legacy: ?view=product&slug=…&productId=… (product detail preview)
+  if (params.view === 'product' && params.slug && params.productId) {
+    return <ProductPage slug={params.slug} productId={params.productId} />
+  }
+
   // Legacy: ?view=site&slug=… (sandbox preview)
   if (params.view === 'site' && params.slug) {
     const tenant = await db.tenant.findUnique({
       where: { slug: params.slug },
       include: {
         layout: true,
-        categories: { include: { _count: { select: { products: true } } }, orderBy: { name: 'asc' } },
-        heroSlides: { orderBy: { order: 'asc' } },
-        products: { include: { category: true }, orderBy: { createdAt: 'desc' }, where: { status: 'ACTIVE' } },
+        categories: {
+          include: { _count: { select: { products: true } } },
+          orderBy: { name: 'asc' },
+        },
+        heroSlides: {
+          where: { active: true },
+          orderBy: { order: 'asc' },
+          take: 5,
+        },
+        products: {
+          include: { category: true },
+          orderBy: { createdAt: 'desc' },
+          where: { status: 'ACTIVE' },
+          take: 50,
+        },
       },
     })
     if (tenant) {
@@ -51,9 +69,21 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
       where: { id: tenantId },
       include: {
         layout: true,
-        categories: { include: { _count: { select: { products: true } } }, orderBy: { name: 'asc' } },
-        heroSlides: { orderBy: { order: 'asc' } },
-        products: { include: { category: true }, orderBy: { createdAt: 'desc' }, where: { status: 'ACTIVE' } },
+        categories: {
+          include: { _count: { select: { products: true } } },
+          orderBy: { name: 'asc' },
+        },
+        heroSlides: {
+          where: { active: true },
+          orderBy: { order: 'asc' },
+          take: 5, // Limit hero slides
+        },
+        products: {
+          include: { category: true },
+          orderBy: { createdAt: 'desc' },
+          where: { status: 'ACTIVE' },
+          take: 50, // Limit initial products load
+        },
       },
     })
     if (tenant) {

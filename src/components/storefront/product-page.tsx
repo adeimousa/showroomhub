@@ -11,6 +11,7 @@ import { CartDrawer } from './cart-drawer'
 import { LanguageSwitcher } from '@/components/language-switcher'
 import { ProductDetailLayout } from './product-detail-layout'
 import { loc as locHelper } from '@/lib/loc'
+import { buildTenantUrl } from '@/lib/utils'
 
 type SiteData = {
   tenant: any
@@ -86,8 +87,8 @@ export function ProductPage({ slug, productId }: { slug: string; productId: stri
           <div className="text-6xl mb-4">🔍</div>
           <h1 className="text-xl font-bold mb-2">Store not found</h1>
           <p className="text-sm text-muted-foreground mb-4">{error}</p>
-          <Button asChild>
-            <a href="/">Back to dashboard</a>
+          <Button onClick={() => window.location.href = buildTenantUrl('/')}>
+            Back to dashboard
           </Button>
         </div>
       </div>
@@ -136,11 +137,9 @@ export function ProductPage({ slug, productId }: { slug: string; productId: stri
       <div className="min-h-screen bg-slate-100" dir={isRTL ? 'rtl' : 'ltr'}>
         {/* Floating admin bar */}
         <div className="sticky top-0 z-50 bg-slate-900/90 backdrop-blur text-white px-4 py-2 flex items-center justify-between text-xs">
-          <Button asChild variant="ghost" size="sm" className="text-white hover:text-white hover:bg-white/10 h-7 gap-1.5">
-            <a href={`/?view=site&slug=${encodeURIComponent(slug)}`}>
-              <ArrowLeft className="h-3.5 w-3.5" />
-              Back to store
-            </a>
+          <Button onClick={() => window.location.href = buildTenantUrl('/')} variant="ghost" size="sm" className="text-white hover:text-white hover:bg-white/10 h-7 gap-1.5">
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Back to store
           </Button>
           <LanguageSwitcher />
         </div>
@@ -151,8 +150,8 @@ export function ProductPage({ slug, productId }: { slug: string; productId: stri
             <p className="text-sm text-muted-foreground mb-4">
               This product may have been removed or is no longer available.
             </p>
-            <Button asChild>
-              <a href={`/?view=site&slug=${encodeURIComponent(slug)}`}>Back to store</a>
+            <Button onClick={() => window.location.href = buildTenantUrl('/')}>
+              Back to store
             </Button>
           </div>
         </div>
@@ -165,11 +164,9 @@ export function ProductPage({ slug, productId }: { slug: string; productId: stri
     return (
       <div className="min-h-screen bg-slate-100" dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="sticky top-0 z-50 bg-slate-900/90 backdrop-blur text-white px-4 py-2 flex items-center justify-between text-xs">
-          <Button asChild variant="ghost" size="sm" className="text-white hover:text-white hover:bg-white/10 h-7 gap-1.5">
-            <a href={`/?view=site&slug=${encodeURIComponent(slug)}`}>
-              <ArrowLeft className="h-3.5 w-3.5" />
-              Back to store
-            </a>
+          <Button onClick={() => window.location.href = buildTenantUrl('/')} variant="ghost" size="sm" className="text-white hover:text-white hover:bg-white/10 h-7 gap-1.5">
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Back to store
           </Button>
           <div className="flex items-center gap-2">
             <button onClick={() => cartStore.open()} className="flex items-center gap-1.5 px-2 py-1 rounded-md hover:bg-white/10">
@@ -186,7 +183,7 @@ export function ProductPage({ slug, productId }: { slug: string; productId: stri
           related={related}
           onSelectRelated={(p) => {
             // Navigate to the related product's URL
-            window.location.href = `/?view=product&slug=${encodeURIComponent(slug)}&productId=${encodeURIComponent(p.id)}`
+            window.location.href = buildTenantUrl(`/product/${encodeURIComponent(p.id)}`)
           }}
         />
         <CartDrawer tenant={tenant} />
@@ -227,17 +224,13 @@ export function ProductPage({ slug, productId }: { slug: string; productId: stri
       {/* Floating admin bar */}
       <div className="sticky top-0 z-50 bg-slate-900/90 backdrop-blur text-white px-4 py-2 flex items-center justify-between text-xs">
         <div className="flex items-center gap-3">
-          <Button asChild variant="ghost" size="sm" className="text-white hover:text-white hover:bg-white/10 h-7 gap-1.5">
-            <a href="/">
-              <ArrowLeft className="h-3.5 w-3.5" />
-              Dashboard
-            </a>
+          <Button onClick={() => window.location.href = buildTenantUrl('/')} variant="ghost" size="sm" className="text-white hover:text-white hover:bg-white/10 h-7 gap-1.5">
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Dashboard
           </Button>
-          <Button asChild variant="ghost" size="sm" className="text-white hover:text-white hover:bg-white/10 h-7 gap-1.5">
-            <a href={`/?view=site&slug=${encodeURIComponent(slug)}`}>
-              <ArrowLeft className="h-3.5 w-3.5" />
-              Back to store
-            </a>
+          <Button onClick={() => window.location.href = buildTenantUrl('/')} variant="ghost" size="sm" className="text-white hover:text-white hover:bg-white/10 h-7 gap-1.5">
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Back to store
           </Button>
           <span className="opacity-70 hidden sm:inline">Preview · {tenant.slug}</span>
         </div>
@@ -279,7 +272,7 @@ export function ProductPage({ slug, productId }: { slug: string; productId: stri
         related={related}
         onSelectRelated={(p) => {
           // Navigate to the related product's URL
-          window.location.href = `/?view=product&slug=${encodeURIComponent(slug)}&productId=${encodeURIComponent(p.id)}`
+          window.location.href = buildTenantUrl(`/product/${encodeURIComponent(p.id)}`)
         }}
       />
 
@@ -337,25 +330,28 @@ function StorefrontHeaderShim(props: any) {
       className="px-4 sm:px-8 py-3 flex items-center justify-between sticky top-0 z-40"
     >
       <div className="flex items-center gap-6">
-        <a
-          href={`/?view=site&slug=${encodeURIComponent(props.tenantSlug || '')}`}
-          className="font-bold text-lg"
+        <button
+          onClick={() => window.location.href = buildTenantUrl('/')}
+          className="font-bold text-lg bg-transparent border-0 cursor-pointer"
           style={{ fontFamily: fontHead }}
         >
           {tenantName}
-        </a>
+        </button>
         <nav className="hidden md:flex gap-5 text-sm">
-          <a href={`/?view=site&slug=${encodeURIComponent(props.tenantSlug || '')}`} className="opacity-90 hover:opacity-100">
+          <button
+            onClick={() => window.location.href = buildTenantUrl('/')}
+            className="opacity-90 hover:opacity-100 bg-transparent border-0 cursor-pointer"
+          >
             {t('store.home')}
-          </a>
+          </button>
           {cats.slice(0, 4).map((c: any) => (
-            <a
+            <button
               key={c.id}
-              href={`/?view=site&slug=${encodeURIComponent(props.tenantSlug || '')}`}
-              className="opacity-90 hover:opacity-100"
+              onClick={() => window.location.href = buildTenantUrl(`/?category=${c.id}`)}
+              className="opacity-90 hover:opacity-100 bg-transparent border-0 cursor-pointer"
             >
               {loc(c)}
-            </a>
+            </button>
           ))}
         </nav>
       </div>

@@ -51,7 +51,7 @@ model Tenant {
   descriptionHe   String?
   status          String   @default("ACTIVE") // ACTIVE | PAUSED | SUSPENDED
   plan            String   @default("BASIC") // BASIC | PRO | PREMIUM
-  layoutId        String? // assigned layout
+  layoutId        String?  @unique // assigned layout - one layout per tenant only
   themePrimary    String   @default("#0f766e") // teal-700
   themeAccent     String   @default("#f59e0b") // amber-500
   themeBg         String   @default("#ffffff")
@@ -78,6 +78,7 @@ model Layout {
   category    String // MODERN | LUXURY | MINIMAL | CREATIVE | CLASSIC
   description String
   premium     Boolean  @default(false)
+  previewImage String? // URL to layout preview image
   // Style tokens used by the renderer
   headerStyle   String // e.g. "minimal-bar", "centered-logo", "split-nav", "sticky-glass"
   heroStyle     String // e.g. "split-image", "full-bleed", "carousel", "grid-cells", "video-bg"
@@ -99,7 +100,7 @@ model Layout {
   navPosition   String   @default("top") // top | side | sticky
   createdAt     DateTime @default(now())
 
-  tenants Tenant[]
+  tenant Tenant? // one-to-one: each layout can only be assigned to one tenant
 }
 
 // ============================================================

@@ -150,9 +150,11 @@ export function HeroSlidesTab() {
                     {!s.active && <Badge variant="secondary" className="text-[10px]">hidden</Badge>}
                   </div>
                   {s.subtitle && <div className="text-sm text-muted-foreground truncate">{s.subtitle}</div>}
+                  {/* Button info - Hidden for now
                   <div className="mt-1 text-xs text-muted-foreground">
                     Button: <span className="font-medium">{s.ctaText}</span> → <span className="font-mono">{s.ctaLink}</span>
                   </div>
+                  */}
                 </div>
                 <div className="flex flex-col gap-1 items-end">
                   <div className="flex gap-1">
@@ -293,6 +295,7 @@ function SlideFormDialog({
             onChange={setSubtitle}
             placeholder="e.g. Up to 30% off hand-picked pieces"
           />
+          {/* CTA Button Fields - Hidden for now
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label htmlFor="s-cta">{t('hero.ctaText')}</Label>
@@ -303,6 +306,7 @@ function SlideFormDialog({
               <Input id="s-link" value={ctaLink} onChange={(e) => setCtaLink(e.target.value)} />
             </div>
           </div>
+          */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label htmlFor="s-order">{t('hero.order')}</Label>

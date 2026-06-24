@@ -8,7 +8,15 @@ export async function GET() {
 
   const layouts = await db.layout.findMany({
     orderBy: [{ category: 'asc' }, { name: 'asc' }],
-    include: { _count: { select: { tenants: true } } },
+    include: {
+      tenant: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+        },
+      },
+    },
   })
   return NextResponse.json({ layouts })
 }

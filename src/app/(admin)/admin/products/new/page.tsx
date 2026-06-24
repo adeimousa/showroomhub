@@ -14,11 +14,10 @@ import { Label } from '@/components/ui/label'
 import { MultiLanguageInput } from '@/components/admin/multi-language-input'
 import { MultiImageUpload } from '@/components/admin/multi-image-upload'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Switch } from '@/components/ui/switch'
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select'
-import { ArrowLeft, Loader2, Star } from 'lucide-react'
+import { ArrowLeft, Loader2 } from 'lucide-react'
 
 type Category = { id: string; name: string; icon: string | null }
 
@@ -77,7 +76,6 @@ export default function NewProductPage() {
   const [stock, setStock] = useState('0')
   const [images, setImages] = useState<string[]>([])
   const [categoryId, setCategoryId] = useState<string>('none')
-  const [featured, setFeatured] = useState(false)
   const [status, setStatus] = useState('ACTIVE')
 
   // Fetch categories
@@ -131,7 +129,6 @@ export default function NewProductPage() {
       images: JSON.stringify(images),
       image: images[0] || '📦', // Backward compat: set first image as main image
       categoryId: categoryId === 'none' ? null : categoryId,
-      featured,
       status,
     })
   }
@@ -232,17 +229,6 @@ export default function NewProductPage() {
                     </SelectContent>
                   </Select>
                 </div>
-              </div>
-
-              <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50">
-                <div>
-                  <Label htmlFor="p-featured" className="text-sm font-medium flex items-center gap-1">
-                    <Star className="h-3.5 w-3.5" />
-                    {t('products.featured')}
-                  </Label>
-                  <p className="text-xs text-muted-foreground">Show on storefront home</p>
-                </div>
-                <Switch id="p-featured" checked={featured} onCheckedChange={setFeatured} />
               </div>
 
               <div className="flex justify-end gap-2 pt-4">

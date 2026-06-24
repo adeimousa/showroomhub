@@ -26,7 +26,7 @@ type Props = {
 }
 
 export function CartDrawer({ tenant }: Props) {
-  const { t, isRTL } = useI18n()
+  const { t, isRTL, lang } = useI18n()
   const { items, isOpen, close, increment, decrement, remove, clear, subtotal, totalItems } = useCartStore()
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
@@ -60,15 +60,22 @@ export function CartDrawer({ tenant }: Props) {
       // can add more items and send a follow-up message to the same
       // WhatsApp conversation.
       const isFirst = sendCount === 0
+      const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
       const message = isFirst
         ? buildWhatsAppMessage({
             intro: tenant.whatsappPrefill,
             tenantName: tenant.name,
-            items: items.map((i) => ({ name: i.name, sku: i.sku, price: i.price, qty: i.qty })),
+            items: items.map((i) => ({ id: i.id, name: i.name, sku: i.sku, price: i.price, qty: i.qty })),
+            lang,
+            tenantSlug: tenant.slug,
+            baseUrl,
           })
         : buildFollowUpMessage({
-            items: items.map((i) => ({ name: i.name, sku: i.sku, price: i.price, qty: i.qty })),
+            items: items.map((i) => ({ id: i.id, name: i.name, sku: i.sku, price: i.price, qty: i.qty })),
             sendCount,
+            lang,
+            tenantSlug: tenant.slug,
+            baseUrl,
           })
 
       const url = buildWhatsAppUrl(tenant.whatsappNumber!, message)
@@ -114,7 +121,7 @@ export function CartDrawer({ tenant }: Props) {
             </SheetTitle>
           </div>
           <SheetDescription className="text-xs">
-            {tenant.name} · {t('cart.subtotal')}: ${total.toLocaleString()}
+            {tenant.name} · {t('cart.subtotal')}: ₪{total.toLocaleString()}
           </SheetDescription>
         </SheetHeader>
 
@@ -139,14 +146,14 @@ export function CartDrawer({ tenant }: Props) {
                     {item.image ? (
                       <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                     ) : (
-                      <div className="text-2xl">📦</div>
+                      <div className="text-[9px] text-muted-foreground text-center px-1">{t('common.noImage')}</div>
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-medium line-clamp-1">{item.name}</div>
                     {item.sku && <div className="text-[10px] text-muted-foreground font-mono">{item.sku}</div>}
                     <div className="text-xs text-muted-foreground">
-                      ${item.price.toLocaleString()} {t('cart.each')}
+                      ₪{item.price.toLocaleString()} {t('cart.each')}
                     </div>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
@@ -177,7 +184,7 @@ export function CartDrawer({ tenant }: Props) {
                     </Button>
                   </div>
                   <div className="text-sm font-bold w-16 text-right shrink-0">
-                    ${(item.price * item.qty).toLocaleString()}
+                    ₪{(item.price * item.qty).toLocaleString()}
                   </div>
                 </div>
               ))}
@@ -218,7 +225,7 @@ export function CartDrawer({ tenant }: Props) {
           <SheetFooter className="border-t border-slate-200 p-3 space-y-2">
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">{t('cart.subtotal')}</span>
-              <span className="font-bold text-lg">${total.toLocaleString()}</span>
+              <span className="font-bold text-lg">₪{total.toLocaleString()}</span>
             </div>
             <div className="flex items-center justify-between text-xs text-muted-foreground">
               <span>{t('cart.totalItems')}</span>

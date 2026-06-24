@@ -29,8 +29,15 @@ export default async function ProductPageRoute({ params }: { params: Promise<{ i
     where: { id: tenantId },
     include: {
       layout: true,
-      categories: { include: { _count: { select: { products: true } } } },
-      products: { include: { category: true } },
+      categories: {
+        include: { _count: { select: { products: true } } },
+        orderBy: { name: 'asc' },
+      },
+      products: {
+        include: { category: true },
+        where: { status: 'ACTIVE' },
+        take: 100, // Limit products for related items
+      },
     },
   })
 
@@ -55,7 +62,7 @@ export default async function ProductPageRoute({ params }: { params: Promise<{ i
           <p className="text-sm text-muted-foreground mb-4">
             This product may have been removed or is no longer available.
           </p>
-          <a href="/" className="text-sm text-rose-600 underline">Back to store</a>
+          <a href="#" onClick={() => typeof window !== 'undefined' && (window.location.href = '/')} className="text-sm text-rose-600 underline cursor-pointer">Back to store</a>
         </div>
       </div>
     )

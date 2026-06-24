@@ -1,3 +1,5 @@
+import { translate, type Lang } from './i18n'
+
 /**
  * Compose a WhatsApp order message from cart items.
  *
@@ -6,43 +8,64 @@
  *
  *   1. <Product name>
  *      <sku>
- *      Qty: 2 × $199 = $398
+ *      Qty: 2 × ₪199 = ₪398
  *
  *   2. <Product name>
  *      ...
  *
  *   ———
  *   Total items: 5
- *   Subtotal: $1,234
+ *   Subtotal: ₪1,234
  *
  *   Sent from <tenant name> storefront
  */
 export function buildWhatsAppMessage(opts: {
   intro?: string | null
   tenantName: string
-  items: Array<{ name: string; sku?: string | null; price: number; qty: number }>
+  items: Array<{ id?: string; name: string; sku?: string | null; price: number; qty: number }>
   currency?: string
+  lang?: Lang
+  tenantSlug?: string
+  baseUrl?: string
 }): string {
-  const { intro, tenantName, items, currency = 'USD' } = opts
-  const sym = currency === 'USD' ? '$' : `${currency} `
+  const { intro, tenantName, items, currency = 'ILS', lang = 'en', tenantSlug, baseUrl } = opts
+  const sym = currency === 'ILS' ? '₪' : `${currency} `
+  const t = (key: string) => translate(lang, key, '', { tenantName })
 
   const lines: string[] = []
-  lines.push(intro?.trim() || `Hello ${tenantName}! I would like to order the following items:`)
+  // Always use translated intro to respect user's language selection
+  lines.push(t('whatsapp.intro'))
   lines.push('')
-  items.forEach((it, i) => {
+
+  // Limit to 10 items to avoid URL length issues
+  const MAX_ITEMS = 10
+  const displayItems = items.slice(0, MAX_ITEMS)
+  const hasMore = items.length > MAX_ITEMS
+
+  displayItems.forEach((it, i) => {
     const lineTotal = it.qty * it.price
     lines.push(`${i + 1}. ${it.name}`)
-    if (it.sku) lines.push(`   SKU: ${it.sku}`)
-    lines.push(`   Qty: ${it.qty} × ${sym}${it.price.toLocaleString()} = ${sym}${lineTotal.toLocaleString()}`)
+    // Use short URL with just product ID
+    if (it.id && tenantSlug) {
+      lines.push(`   ${tenantSlug}/p/${it.id}`)
+    }
+    if (it.sku) lines.push(`   ${t('whatsapp.sku')} ${it.sku}`)
+    lines.push(`   ${t('whatsapp.qty')} ${it.qty} × ${sym}${it.price.toLocaleString()} = ${sym}${lineTotal.toLocaleString()}`)
     lines.push('')
   })
+
+  if (hasMore) {
+    lines.push(`... ${translate(lang, 'whatsapp.andMore', '', { count: items.length - MAX_ITEMS })}`)
+    lines.push('')
+  }
+
   const totalItems = items.reduce((s, i) => s + i.qty, 0)
   const subtotal = items.reduce((s, i) => s + i.qty * i.price, 0)
   lines.push('———')
-  lines.push(`Total items: ${totalItems}`)
-  lines.push(`Subtotal: ${sym}${subtotal.toLocaleString()}`)
+  lines.push(`${t('whatsapp.totalItems')} ${totalItems}`)
+  lines.push(`${t('whatsapp.subtotal')} ${sym}${subtotal.toLocaleString()}`)
   lines.push('')
-  lines.push(`Sent from ${tenantName} storefront`)
+  lines.push(t('whatsapp.sentFrom'))
   return lines.join('\n')
 }
 
@@ -62,25 +85,45 @@ export function buildWhatsAppUrl(number: string, message: string): string {
  * message — it just lists what's new since the last send.
  */
 export function buildFollowUpMessage(opts: {
-  items: Array<{ name: string; sku?: string | null; price: number; qty: number }>
+  items: Array<{ id?: string; name: string; sku?: string | null; price: number; qty: number }>
   currency?: string
   sendCount: number
+  lang?: Lang
+  tenantSlug?: string
+  baseUrl?: string
 }): string {
-  const { items, currency = 'USD', sendCount } = opts
-  const sym = currency === 'USD' ? '$' : `${currency} `
+  const { items, currency = 'ILS', sendCount, lang = 'en', tenantSlug, baseUrl } = opts
+  const sym = currency === 'ILS' ? '₪' : `${currency} `
+  const t = (key: string) => translate(lang, key, '', { sendCount })
 
   const lines: string[] = []
-  lines.push(`Follow-up #${sendCount} — additional items for the same order:`)
+  lines.push(t('whatsapp.followUp'))
   lines.push('')
-  items.forEach((it, i) => {
+
+  // Limit to 10 items to avoid URL length issues
+  const MAX_ITEMS = 10
+  const displayItems = items.slice(0, MAX_ITEMS)
+  const hasMore = items.length > MAX_ITEMS
+
+  displayItems.forEach((it, i) => {
     const lineTotal = it.qty * it.price
     lines.push(`${i + 1}. ${it.name}`)
-    if (it.sku) lines.push(`   SKU: ${it.sku}`)
-    lines.push(`   Qty: ${it.qty} × ${sym}${it.price.toLocaleString()} = ${sym}${lineTotal.toLocaleString()}`)
+    // Use short URL with just product ID
+    if (it.id && tenantSlug) {
+      lines.push(`   ${tenantSlug}/p/${it.id}`)
+    }
+    if (it.sku) lines.push(`   ${t('whatsapp.sku')} ${it.sku}`)
+    lines.push(`   ${t('whatsapp.qty')} ${it.qty} × ${sym}${it.price.toLocaleString()} = ${sym}${lineTotal.toLocaleString()}`)
     lines.push('')
   })
+
+  if (hasMore) {
+    lines.push(`... ${translate(lang, 'whatsapp.andMore', '', { count: items.length - MAX_ITEMS })}`)
+    lines.push('')
+  }
+
   const subtotal = items.reduce((s, i) => s + i.qty * i.price, 0)
-  lines.push(`Subtotal of these items: ${sym}${subtotal.toLocaleString()}`)
+  lines.push(`${t('whatsapp.subtotalItems')} ${sym}${subtotal.toLocaleString()}`)
   return lines.join('\n')
 }
 
@@ -93,9 +136,9 @@ export function buildFollowUpMessage(opts: {
  *
  *   <Product name>
  *   SKU: ...
- *   Price: $199 each
+ *   Price: ₪199 each
  *   Quantity: 2
- *   Total: $398
+ *   Total: ₪398
  *
  *   Sent from <tenant> storefront
  *
@@ -105,26 +148,31 @@ export function buildFollowUpMessage(opts: {
 export function buildSingleItemMessage(opts: {
   intro?: string | null
   tenantName: string
-  item: { name: string; sku?: string | null; price: number; qty: number; description?: string | null }
+  item: { id?: string; name: string; sku?: string | null; price: number; qty: number; description?: string | null }
   currency?: string
+  lang?: Lang
+  tenantSlug?: string
+  baseUrl?: string
 }): string {
-  const { intro, tenantName, item, currency = 'USD' } = opts
-  const sym = currency === 'USD' ? '$' : `${currency} `
+  const { intro, tenantName, item, currency = 'ILS', lang = 'en', tenantSlug, baseUrl } = opts
+  const sym = currency === 'ILS' ? '₪' : `${currency} `
   const lineTotal = item.qty * item.price
-
-  // If the tenant provided a custom intro, use it as-is.
-  // Otherwise synthesize a default that's grammatically correct for a single item.
-  const introLine = intro?.trim() || `Hello ${tenantName}! I would like to order this item:`
+  const t = (key: string) => translate(lang, key, '', { tenantName })
 
   const lines: string[] = []
-  lines.push(introLine)
+  // Always use translated intro to respect user's language selection
+  lines.push(t('whatsapp.introSingle'))
   lines.push('')
   lines.push(item.name)
-  if (item.sku) lines.push(`SKU: ${item.sku}`)
-  lines.push(`Price: ${sym}${item.price.toLocaleString()} each`)
-  lines.push(`Quantity: ${item.qty}`)
-  lines.push(`Total: ${sym}${lineTotal.toLocaleString()}`)
+  // Use short URL with just product ID
+  if (item.id && tenantSlug) {
+    lines.push(`${tenantSlug}/p/${item.id}`)
+  }
+  if (item.sku) lines.push(`${t('whatsapp.sku')} ${item.sku}`)
+  lines.push(`${t('whatsapp.price')} ${sym}${item.price.toLocaleString()} ${translate(lang, 'cart.each')}`)
+  lines.push(`${t('whatsapp.quantity')} ${item.qty}`)
+  lines.push(`${t('whatsapp.total')} ${sym}${lineTotal.toLocaleString()}`)
   lines.push('')
-  lines.push(`Sent from ${tenantName} storefront`)
+  lines.push(t('whatsapp.sentFrom'))
   return lines.join('\n')
 }

@@ -24,6 +24,7 @@ type Layout = {
   category: string
   description: string
   premium: boolean
+  previewImage?: string | null
   headerStyle: string
   heroStyle: string
   productGrid: string
@@ -36,7 +37,11 @@ type Layout = {
   fontBody: string
   borderRadius: number
   animation: string
-  _count?: { tenants: number }
+  tenant?: {
+    id: string
+    name: string
+    slug: string
+  } | null
 }
 
 type Tenant = {
@@ -175,44 +180,64 @@ export function LayoutsTab() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-              Pick a tenant to assign this layout to. The tenant's storefront will immediately use this layout's colors, typography, and structure.
-            </p>
-            <Select value={selectedTenant} onValueChange={setSelectedTenant}>
-              <SelectTrigger><SelectValue placeholder="Select tenant" /></SelectTrigger>
-              <SelectContent>
-                {tenants.map((tn) => (
-                  <SelectItem key={tn.id} value={tn.id}>
-                    {tn.name} {tn.layoutId === assignLayout?.id ? '✓' : ''}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {selectedTenant && (() => {
-              const tn = tenants.find((x) => x.id === selectedTenant)
-              if (!tn) return null
-              const alreadyAssigned = tn.layoutId === assignLayout?.id
-              return (
-                <div className={cn('p-2 rounded text-xs', alreadyAssigned ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700')}>
-                  {alreadyAssigned
-                    ? 'This tenant is already using this layout.'
-                    : 'This will replace the tenant\'s current layout.'}
-                </div>
-              )
-            })()}
+            {assignLayout?.tenant ? (
+              <div className="p-3 rounded-lg bg-amber-50 border border-amber-200">
+                <p className="text-sm font-medium text-amber-900 mb-1">
+                  Layout Already Assigned
+                </p>
+                <p className="text-xs text-amber-700">
+                  This layout is currently assigned to <strong>{assignLayout.tenant.name}</strong>. Each layout can only be used by one tenant at a time.
+                </p>
+                <p className="text-xs text-amber-600 mt-2">
+                  To assign this layout to another tenant, first remove it from {assignLayout.tenant.name}.
+                </p>
+              </div>
+            ) : (
+              <>
+                <p className="text-sm text-muted-foreground">
+                  Pick a tenant to assign this layout to. The tenant's storefront will immediately use this layout's colors, typography, and structure.
+                </p>
+                <Select value={selectedTenant} onValueChange={setSelectedTenant}>
+                  <SelectTrigger><SelectValue placeholder="Select tenant" /></SelectTrigger>
+                  <SelectContent>
+                    {tenants.filter((tn) => !tn.layoutId).map((tn) => (
+                      <SelectItem key={tn.id} value={tn.id}>
+                        {tn.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {selectedTenant && (() => {
+                  const tn = tenants.find((x) => x.id === selectedTenant)
+                  if (!tn) return null
+                  const alreadyAssigned = tn.layoutId === assignLayout?.id
+                  return (
+                    <div className={cn('p-2 rounded text-xs', alreadyAssigned ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700')}>
+                      {alreadyAssigned
+                        ? 'This tenant is already using this layout.'
+                        : tn.layoutId
+                          ? 'This will replace the tenant\'s current layout.'
+                          : 'This layout will be assigned to this tenant.'}
+                    </div>
+                  )
+                })()}
+              </>
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => { setAssignLayout(null); setSelectedTenant('') }}>
-              {t('common.cancel')}
+              {assignLayout?.tenant ? 'Close' : t('common.cancel')}
             </Button>
-            <Button
-              disabled={!selectedTenant || assignMutation.isPending}
-              onClick={() => assignLayout && selectedTenant && assignMutation.mutate({ tenantId: selectedTenant, layoutId: assignLayout.id })}
-              className="bg-rose-600 hover:bg-rose-700"
-            >
-              {assignMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
-              {t('layouts.assigned')}
-            </Button>
+            {!assignLayout?.tenant && (
+              <Button
+                disabled={!selectedTenant || assignMutation.isPending}
+                onClick={() => assignLayout && selectedTenant && assignMutation.mutate({ tenantId: selectedTenant, layoutId: assignLayout.id })}
+                className="bg-rose-600 hover:bg-rose-700"
+              >
+                {assignMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                {t('layouts.assigned')}
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -318,11 +343,11 @@ export function LayoutsTab() {
                   ['Body Font', previewLayout.fontBody],
                   ['Border Radius', `${previewLayout.borderRadius}px`],
                   ['Animation', previewLayout.animation],
-                  ['In use', `${previewLayout._count?.tenants ?? 0} tenants`],
+                  ['Assigned to', previewLayout.tenant?.name || 'Available'],
                 ].map(([k, v]) => (
                   <div key={k} className="flex justify-between p-2 rounded bg-slate-50">
                     <span className="text-muted-foreground">{k}</span>
-                    <span className="font-medium">{v}</span>
+                    <span className={cn('font-medium', k === 'Assigned to' && previewLayout.tenant && 'text-rose-600')}>{v}</span>
                   </div>
                 ))}
               </div>
@@ -405,113 +430,124 @@ function LayoutCard({
         className="relative h-40 overflow-hidden"
         style={{ background: layout.bgColor, color: layout.textColor }}
       >
-        {/* Header bar */}
-        <div
-          className="px-3 py-2 flex items-center justify-between text-[10px]"
-          style={{
-            background: layout.headerStyle === 'minimal-bar' ? layout.primaryColor : 'transparent',
-            color: layout.headerStyle === 'minimal-bar' ? '#fff' : layout.textColor,
-          }}
-        >
-          <div
-            className="font-bold"
-            style={{ fontFamily: `var(--font-${layout.fontHeading.toLowerCase().replace(/\s/g, '-')})` }}
-          >
-            {layout.name.split(' ')[0]}
-          </div>
-          {layout.headerStyle === 'split-nav' && (
-            <div className="flex gap-1.5 opacity-70">
-              <span>Home</span><span>Shop</span>
+        {/* Show preview image if available, otherwise show dynamic preview */}
+        {layout.previewImage ? (
+          <img
+            src={layout.previewImage}
+            alt={layout.name}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <>
+            {/* Header bar */}
+            <div
+              className="px-3 py-2 flex items-center justify-between text-[10px]"
+              style={{
+                background: layout.headerStyle === 'minimal-bar' ? layout.primaryColor : 'transparent',
+                color: layout.headerStyle === 'minimal-bar' ? '#fff' : layout.textColor,
+              }}
+            >
+              <div
+                className="font-bold"
+                style={{ fontFamily: `var(--font-${layout.fontHeading.toLowerCase().replace(/\s/g, '-')})` }}
+              >
+                {layout.name.split(' ')[0]}
+              </div>
+              {layout.headerStyle === 'split-nav' && (
+                <div className="flex gap-1.5 opacity-70">
+                  <span>Home</span><span>Shop</span>
+                </div>
+              )}
+              {layout.headerStyle === 'centered-logo' && (
+                <div className="opacity-50 text-[8px]">menu</div>
+              )}
             </div>
-          )}
-          {layout.headerStyle === 'centered-logo' && (
-            <div className="opacity-50 text-[8px]">menu</div>
-          )}
-        </div>
 
-        {/* Hero */}
-        <div
-          className="px-3 py-3"
-          style={{
-            background: `linear-gradient(135deg, ${layout.primaryColor}10, ${layout.accentColor}20)`,
-            height: 'calc(100% - 28px)',
-          }}
-        >
-          {layout.heroStyle === 'split-image' && (
-            <div className="flex gap-2 h-full">
-              <div className="flex-1 flex flex-col justify-center">
-                <div
-                  className="text-xs font-bold leading-tight mb-1"
-                  style={{ fontFamily: `var(--font-${layout.fontHeading.toLowerCase().replace(/\s/g, '-')})`, color: layout.primaryColor }}
-                >
-                  Modern Furniture
-                </div>
-                <div className="text-[8px] opacity-60 mb-1">Crafted for living</div>
-                <div
-                  className="inline-block self-start px-1.5 py-0.5 text-[7px] font-medium text-white"
-                  style={{ background: layout.accentColor, borderRadius: layout.borderRadius / 2 }}
-                >
-                  Shop →
-                </div>
-              </div>
-              <div
-                className="w-1/3 flex items-center justify-center text-2xl"
-                style={{ background: layout.accentColor + '30', borderRadius: layout.borderRadius }}
-              >
-                🛋️
-              </div>
-            </div>
-          )}
-          {layout.heroStyle === 'full-bleed' && (
-            <div className="h-full flex flex-col items-center justify-center text-center">
-              <div
-                className="text-sm font-bold leading-tight"
-                style={{ fontFamily: `var(--font-${layout.fontHeading.toLowerCase().replace(/\s/g, '-')})`, color: layout.primaryColor }}
-              >
-                Beautiful Living Spaces
-              </div>
-              <div className="text-[8px] opacity-60 mt-0.5">Crafted for living</div>
-            </div>
-          )}
-          {layout.heroStyle === 'carousel' && (
-            <div className="h-full flex flex-col justify-center">
-              <div className="flex gap-1 mb-1.5">
-                {['🛋️', '🪑', '🛏️'].map((e, i) => (
-                  <div
-                    key={i}
-                    className="flex-1 h-8 flex items-center justify-center text-sm"
-                    style={{ background: layout.accentColor + '30', borderRadius: layout.borderRadius / 2 }}
-                  >
-                    {e}
+            {/* Hero */}
+            <div
+              className="px-3 py-3"
+              style={{
+                background: `linear-gradient(135deg, ${layout.primaryColor}10, ${layout.accentColor}20)`,
+                height: 'calc(100% - 28px)',
+              }}
+            >
+              {layout.heroStyle === 'split-image' && (
+                <div className="flex gap-2 h-full">
+                  <div className="flex-1 flex flex-col justify-center">
+                    <div
+                      className="text-xs font-bold leading-tight mb-1"
+                      style={{ fontFamily: `var(--font-${layout.fontHeading.toLowerCase().replace(/\s/g, '-')})`, color: layout.primaryColor }}
+                    >
+                      Modern Furniture
+                    </div>
+                    <div className="text-[8px] opacity-60 mb-1">Crafted for living</div>
+                    <div
+                      className="inline-block self-start px-1.5 py-0.5 text-[7px] font-medium text-white"
+                      style={{ background: layout.accentColor, borderRadius: layout.borderRadius / 2 }}
+                    >
+                      Shop →
+                    </div>
                   </div>
-                ))}
-              </div>
-              <div
-                className="text-[10px] font-bold"
-                style={{ color: layout.primaryColor }}
-              >
-                Featured Collection →
-              </div>
-            </div>
-          )}
-          {layout.heroStyle === 'grid-cells' && (
-            <div className="grid grid-cols-2 gap-1 h-full">
-              {[1, 2, 3, 4].map((i) => (
-                <div
-                  key={i}
-                  className="flex items-center justify-center text-[8px] font-medium"
-                  style={{
-                    background: i % 2 === 0 ? layout.primaryColor + '20' : layout.accentColor + '20',
-                    color: layout.primaryColor,
-                    borderRadius: layout.borderRadius / 3,
-                  }}
-                >
-                  {i === 1 ? 'NEW' : i === 2 ? 'SALE' : i === 3 ? 'TREND' : 'HOT'}
+                  <div
+                    className="w-1/3 flex items-center justify-center text-2xl"
+                    style={{ background: layout.accentColor + '30', borderRadius: layout.borderRadius }}
+                  >
+                    🛋️
+                  </div>
                 </div>
-              ))}
+              )}
+              {layout.heroStyle === 'full-bleed' && (
+                <div className="h-full flex flex-col items-center justify-center text-center">
+                  <div
+                    className="text-sm font-bold leading-tight"
+                    style={{ fontFamily: `var(--font-${layout.fontHeading.toLowerCase().replace(/\s/g, '-')})`, color: layout.primaryColor }}
+                  >
+                    Beautiful Living Spaces
+                  </div>
+                  <div className="text-[8px] opacity-60 mt-0.5">Crafted for living</div>
+                </div>
+              )}
+              {layout.heroStyle === 'carousel' && (
+                <div className="h-full flex flex-col justify-center">
+                  <div className="flex gap-1 mb-1.5">
+                    {['🛋️', '🪑', '🛏️'].map((e, i) => (
+                      <div
+                        key={i}
+                        className="flex-1 h-8 flex items-center justify-center text-sm"
+                        style={{ background: layout.accentColor + '30', borderRadius: layout.borderRadius / 2 }}
+                      >
+                        {e}
+                      </div>
+                    ))}
+                  </div>
+                  <div
+                    className="text-[10px] font-bold"
+                    style={{ color: layout.primaryColor }}
+                  >
+                    Featured Collection →
+                  </div>
+                </div>
+              )}
+              {layout.heroStyle === 'grid-cells' && (
+                <div className="grid grid-cols-2 gap-1 h-full">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div
+                      key={i}
+                      className="flex items-center justify-center text-[8px] font-medium"
+                      style={{
+                        background: i % 2 === 0 ? layout.primaryColor + '20' : layout.accentColor + '20',
+                        color: layout.primaryColor,
+                        borderRadius: layout.borderRadius / 3,
+                      }}
+                    >
+                      {i === 1 ? 'NEW' : i === 2 ? 'SALE' : i === 3 ? 'TREND' : 'HOT'}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </>
+        )}
 
         {/* Hover overlay */}
         <div className={cn(
@@ -530,12 +566,19 @@ function LayoutCard({
       <CardContent className="p-3">
         <div className="flex items-start justify-between gap-2 mb-1">
           <div className="font-medium text-sm truncate">{layout.name}</div>
-          {layout.premium && (
-            <Badge variant="outline" className="text-[9px] text-amber-700 border-amber-300 bg-amber-50 shrink-0">
-              <Crown className="h-2.5 w-2.5 mr-0.5" />
-              {t('layouts.premium')}
-            </Badge>
-          )}
+          <div className="flex gap-1 shrink-0">
+            {layout.premium && (
+              <Badge variant="outline" className="text-[9px] text-amber-700 border-amber-300 bg-amber-50">
+                <Crown className="h-2.5 w-2.5 mr-0.5" />
+                {t('layouts.premium')}
+              </Badge>
+            )}
+            {layout.tenant && (
+              <Badge variant="outline" className="text-[9px] text-rose-700 border-rose-300 bg-rose-50">
+                Assigned
+              </Badge>
+            )}
+          </div>
         </div>
         <div className="text-[10px] text-muted-foreground line-clamp-2 mb-2">
           {layout.description}
@@ -544,9 +587,13 @@ function LayoutCard({
           <Badge variant="secondary" className="text-[9px]">
             {t(`layouts.category.${layout.category}`)}
           </Badge>
-          {(layout._count?.tenants ?? 0) > 0 && (
-            <span className="text-[10px] text-muted-foreground">
-              {layout._count?.tenants} {t('layouts.used')}
+          {layout.tenant ? (
+            <span className="text-[10px] text-rose-600 font-medium">
+              {layout.tenant.name}
+            </span>
+          ) : (
+            <span className="text-[10px] text-emerald-600 font-medium">
+              Available
             </span>
           )}
         </div>

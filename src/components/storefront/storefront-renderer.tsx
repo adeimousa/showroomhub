@@ -14,8 +14,9 @@
  *     JSX branch so every layout looks visibly different.
  */
 
-import { useState, useRef, useMemo } from 'react'
-import { Search, ShoppingCart, Heart, Menu, X, Phone, Mail, MapPin, Facebook, Instagram, Twitter, Star, ChevronRight, Eye, ArrowLeft } from 'lucide-react'
+import { useState, useRef, useMemo, useEffect } from 'react'
+import { Search, ShoppingCart, Heart, Menu, X, Phone, Mail, MapPin, Facebook, Instagram, Twitter, ChevronRight, Eye, ArrowLeft } from 'lucide-react'
+import { buildTenantUrl } from '@/lib/utils'
 
 type TranslateFn = (key: string, fallback?: string, vars?: Record<string, string | number>) => string
 
@@ -29,9 +30,10 @@ type Props = {
   cartCount: number
   onAddToCart: (product: any) => void
   onOpenCart: () => void
+  initialCategoryId?: string | null
 }
 
-export function StorefrontRenderer({ tenant, layout, lang, loc, t, isRTL, cartCount, onAddToCart, onOpenCart }: Props) {
+export function StorefrontRenderer({ tenant, layout, lang, loc, t, isRTL, cartCount, onAddToCart, onOpenCart, initialCategoryId }: Props) {
   // Resolve final style: tenant override wins over layout default
   const primary     = tenant.themePrimary  || layout.primaryColor
   const accent      = tenant.themeAccent   || layout.accentColor
@@ -89,17 +91,34 @@ export function StorefrontRenderer({ tenant, layout, lang, loc, t, isRTL, cartCo
 
   const name = loc(tenant, 'name')
   const desc = loc(tenant, 'description')
-  const featured = tenant.products.filter((p: any) => p.featured).slice(0, 6)
-  const all = tenant.products.slice(0, 12)
-  const activeSlides = tenant.heroSlides.filter((s: any) => s.active).sort((a: any, b: any) => a.order - b.order)
-  const slide = activeSlides[0]
+
+  // Memoize expensive computations
+  const { all, activeSlides, slide } = useMemo(() => {
+    const allProducts = tenant.products.slice(0, 12)
+    const slides = tenant.heroSlides // Already filtered server-side to active only
+    const firstSlide = slides[0]
+
+    return {
+      all: allProducts,
+      activeSlides: slides,
+      slide: firstSlide
+    }
+  }, [tenant.products, tenant.heroSlides])
+
   const cats = tenant.categories
 
   // ------- Filtering & search state -------
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null)
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(initialCategoryId || null)
   const [searchQuery, setSearchQuery] = useState('')
   const productsSectionRef = useRef<HTMLDivElement>(null)
   const topRef = useRef<HTMLDivElement>(null)
+
+  // Sync selectedCategoryId when initialCategoryId changes (e.g., when navigating from product page)
+  useEffect(() => {
+    if (initialCategoryId) {
+      setSelectedCategoryId(initialCategoryId)
+    }
+  }, [initialCategoryId])
 
   // Filtered products: when a category is selected OR a search query is active,
   // we show a single "results" section instead of the featured + all split.
@@ -172,9 +191,10 @@ export function StorefrontRenderer({ tenant, layout, lang, loc, t, isRTL, cartCo
 
   // Navigate to the full product page when a card is clicked.
   // Uses URL-based routing so the page can be shared / bookmarked.
+  // buildTenantUrl preserves ?host= param in local dev, uses clean URLs in production
   const handleViewDetails = (p: any) => {
     if (typeof window !== 'undefined') {
-      window.location.href = `/?view=product&slug=${encodeURIComponent(tenant.slug)}&productId=${encodeURIComponent(p.id)}`
+      window.location.href = buildTenantUrl(`/product/${encodeURIComponent(p.id)}`)
     }
   }
 
@@ -293,64 +313,32 @@ export function StorefrontRenderer({ tenant, layout, lang, loc, t, isRTL, cartCo
             )}
           </Section>
         ) : (
-          // ------- Default view: featured + all -------
-          <>
-            {/* Featured section */}
-            {featured.length > 0 && (
-              <Section
-                title={t('store.featured')}
-                accent={accent}
-                fontHead={fontVar(fontHeading)}
-                spacingClass={getSpacingClass()}
-              >
-                <ProductGrid
-                  variant={layout.productGrid}
-                  products={featured}
-                  loc={loc}
-                  t={t}
-                  primary={primary}
-                  accent={accent}
-                  text={textColor}
-                  bg={bgColor}
-                  radius={radius}
-                  cardStyle={cardStyle}
-                  spacing={spacing}
-                  imageStyle={imageStyle}
-                  buttonStyle={buttonStyle}
-                  gridGap={getGridGap()}
-                  onAddToCart={onAddToCart}
-                  onViewDetails={handleViewDetails}
-                />
-              </Section>
-            )}
-
-            {/* All products */}
-            <Section
-              title={t('store.allProducts')}
+          // ------- Default view: all products -------
+          <Section
+            title={t('store.allProducts')}
+            accent={accent}
+            fontHead={fontVar(fontHeading)}
+            spacingClass={getSpacingClass()}
+          >
+            <ProductGrid
+              variant={layout.productGrid}
+              products={all}
+              loc={loc}
+              t={t}
+              primary={primary}
               accent={accent}
-              fontHead={fontVar(fontHeading)}
-              spacingClass={getSpacingClass()}
-            >
-              <ProductGrid
-                variant={layout.productGrid}
-                products={all}
-                loc={loc}
-                t={t}
-                primary={primary}
-                accent={accent}
-                text={textColor}
-                bg={bgColor}
-                radius={radius}
-                cardStyle={cardStyle}
-                spacing={spacing}
-                imageStyle={imageStyle}
-                buttonStyle={buttonStyle}
-                gridGap={getGridGap()}
-                onAddToCart={onAddToCart}
-                onViewDetails={handleViewDetails}
-              />
-            </Section>
-          </>
+              text={textColor}
+              bg={bgColor}
+              radius={radius}
+              cardStyle={cardStyle}
+              spacing={spacing}
+              imageStyle={imageStyle}
+              buttonStyle={buttonStyle}
+              gridGap={getGridGap()}
+              onAddToCart={onAddToCart}
+              onViewDetails={handleViewDetails}
+            />
+          </Section>
         )}
       </div>
 
@@ -626,6 +614,7 @@ function Hero({ variant, slide, loc, t, primary, accent, text, bg, radius, fontH
             {slide.subtitle && (
               <p className="text-base lg:text-lg mb-6 opacity-70 max-w-md">{loc(slide, 'subtitle')}</p>
             )}
+            {/* CTA Button - Hidden for now
             <button
               onClick={onCtaClick}
               className="inline-flex items-center gap-2 px-6 py-3 text-white text-sm font-medium hover:opacity-90"
@@ -634,6 +623,7 @@ function Hero({ variant, slide, loc, t, primary, accent, text, bg, radius, fontH
               {slide.ctaText || t('store.shopNow')}
               <ChevronRight className="h-4 w-4" style={{ transform: isRTL ? 'scaleX(-1)' : '' }} />
             </button>
+            */}
           </div>
           <div
             className="aspect-square lg:aspect-[4/3] flex items-center justify-center text-9xl rounded-xl"
@@ -653,13 +643,14 @@ function Hero({ variant, slide, loc, t, primary, accent, text, bg, radius, fontH
         style={{ background: `linear-gradient(135deg, ${primary}, ${primary}dd)` }}
       >
         <div className={`max-w-3xl mx-auto text-white ${animClass}`}>
-          <div className="text-7xl lg:text-9xl mb-6">{slide.image || '🛋️'}</div>
+          {slide.image && <div className="text-7xl lg:text-9xl mb-6">{slide.image}</div>}
           <h1 className="text-4xl lg:text-6xl font-bold mb-4 leading-tight" style={{ fontFamily: fontHead }}>
             {loc(slide, 'title')}
           </h1>
           {slide.subtitle && (
             <p className="text-base lg:text-xl mb-8 opacity-80">{loc(slide, 'subtitle')}</p>
           )}
+          {/* CTA Button - Hidden for now
           <button
             onClick={onCtaClick}
             className="inline-flex items-center gap-2 px-8 py-4 text-sm font-medium hover:opacity-90"
@@ -668,6 +659,7 @@ function Hero({ variant, slide, loc, t, primary, accent, text, bg, radius, fontH
             {slide.ctaText || t('store.shopNow')}
             <ChevronRight className="h-4 w-4" style={{ transform: isRTL ? 'scaleX(-1)' : '' }} />
           </button>
+          */}
         </div>
       </section>
     )
@@ -714,9 +706,11 @@ function Hero({ variant, slide, loc, t, primary, accent, text, bg, radius, fontH
             <div className="text-5xl mb-3">{slide.image || '🛋️'}</div>
             <h2 className="text-2xl lg:text-3xl font-bold mb-2" style={{ fontFamily: fontHead }}>{loc(slide, 'title')}</h2>
             {slide.subtitle && <p className="text-sm opacity-80">{loc(slide, 'subtitle')}</p>}
+            {/* CTA Button - Hidden for now
             <button onClick={onCtaClick} className="mt-4 self-start px-4 py-2 text-xs font-medium bg-white/20 hover:bg-white/30" style={{ borderRadius: radius }}>
               {slide.ctaText || t('store.shopNow')}
             </button>
+            */}
           </div>
           {['NEW', 'SALE', 'TREND', 'HOT'].map((label, i) => (
             <div
@@ -974,7 +968,7 @@ function ProductCard({ p, loc, t, primary, accent, text, radius, cardStyle, imag
             style={{ borderRadius: getImageRadius() }}
           />
         ) : (
-          <div className="text-6xl">📦</div>
+          <div className="text-xs text-muted-foreground">{t('common.noImage')}</div>
         )}
         {discount > 0 && (
           <span
@@ -982,11 +976,6 @@ function ProductCard({ p, loc, t, primary, accent, text, radius, cardStyle, imag
             style={{ background: accent, borderRadius: radius / 2 }}
           >
             -{discount}% {t('store.off')}
-          </span>
-        )}
-        {p.featured && (
-          <span className="absolute top-2 right-2 h-5 w-5 rounded-full bg-amber-400 flex items-center justify-center">
-            <Star className="h-3 w-3 fill-white text-white" />
           </span>
         )}
         {/* Quick view hover button */}
@@ -1012,9 +1001,9 @@ function ProductCard({ p, loc, t, primary, accent, text, radius, cardStyle, imag
         )}
         <div className="flex items-center justify-between mt-2">
           <div>
-            <span className="font-bold text-sm">${p.price.toLocaleString()}</span>
+            <span className="font-bold text-sm">₪{p.price.toLocaleString()}</span>
             {discount > 0 && (
-              <span className="ml-1 text-xs line-through opacity-50">${p.compareAt.toLocaleString()}</span>
+              <span className="ml-1 text-xs line-through opacity-50">₪{p.compareAt.toLocaleString()}</span>
             )}
           </div>
           <button
@@ -1111,7 +1100,7 @@ function ProductRow({ p, loc, t, primary, accent, text, radius, cardStyle, image
             style={{ borderRadius: getImageRadius() }}
           />
         ) : (
-          <div className="text-3xl">📦</div>
+          <div className="text-[10px] text-muted-foreground text-center px-1">{t('common.noImage')}</div>
         )}
         <button
           onClick={(e) => { e.stopPropagation(); onViewDetails?.(p) }}
@@ -1126,8 +1115,8 @@ function ProductRow({ p, loc, t, primary, accent, text, radius, cardStyle, image
         <div className="font-medium line-clamp-1">{loc(p)}</div>
         {loc(p, 'description') && <div className="text-xs opacity-60 line-clamp-1 hidden sm:block">{loc(p, 'description')}</div>}
         <div className="flex items-center gap-2 mt-0.5">
-          <span className="font-bold text-sm">${p.price.toLocaleString()}</span>
-          {discount > 0 && <span className="text-xs line-through opacity-50">${p.compareAt.toLocaleString()}</span>}
+          <span className="font-bold text-sm">₪{p.price.toLocaleString()}</span>
+          {discount > 0 && <span className="text-xs line-through opacity-50">₪{p.compareAt.toLocaleString()}</span>}
         </div>
       </div>
       <div className="text-right shrink-0 flex flex-col items-end gap-1">

@@ -103,14 +103,9 @@ export async function middleware(req: NextRequest) {
     requestHeaders.set('x-tenant-id', resolved.tenantId)
     requestHeaders.set('x-tenant-slug', resolved.tenantSlug)
     requestHeaders.set('x-tenant-name', resolved.tenantName)
-    // Also strip the ?host= param so it doesn't show in the browser URL
-    if (hostOverride) {
-      const cleanUrl = new URL(req.url)
-      cleanUrl.searchParams.delete('host')
-      const response = NextResponse.next({ request: { headers: requestHeaders } })
-      // Note: we don't redirect — just rewrite so the URL stays clean
-      return response
-    }
+
+    // In local dev, keep the ?host= parameter in the URL so buildTenantUrl() can preserve it
+    // In production (custom domains), there's no ?host= parameter anyway
     return NextResponse.next({ request: { headers: requestHeaders } })
   }
 

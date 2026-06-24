@@ -126,7 +126,7 @@ export function PaymentsTab() {
               <DollarSign className="h-3.5 w-3.5" />
               {t('payments.totalCollected')}
             </div>
-            <div className="text-xl font-bold text-emerald-700">${collected.toLocaleString()}</div>
+            <div className="text-xl font-bold text-emerald-700">₪{collected.toLocaleString()}</div>
           </CardContent>
         </Card>
         <Card className="border-slate-200">
@@ -135,7 +135,7 @@ export function PaymentsTab() {
               <AlertTriangle className="h-3.5 w-3.5" />
               {t('payments.totalOutstanding')}
             </div>
-            <div className="text-xl font-bold text-rose-700">${outstanding.toLocaleString()}</div>
+            <div className="text-xl font-bold text-rose-700">₪{outstanding.toLocaleString()}</div>
           </CardContent>
         </Card>
         <Card className="border-slate-200">
@@ -219,7 +219,7 @@ export function PaymentsTab() {
                         <div className="text-xs text-muted-foreground">{p.tenant.email}</div>
                       </td>
                       <td className="px-4 py-3">{p.period}</td>
-                      <td className="px-4 py-3 font-medium">${p.amount.toLocaleString()} <span className="text-xs text-muted-foreground">{p.currency}</span></td>
+                      <td className="px-4 py-3 font-medium">₪{p.amount.toLocaleString()} <span className="text-xs text-muted-foreground">{p.currency}</span></td>
                       <td className="px-4 py-3">
                         {p.method ? (
                           <Badge variant="secondary" className="text-[10px]">{t(`payments.method.${p.method}` as any)}</Badge>

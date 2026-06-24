@@ -87,8 +87,8 @@ export function OverviewTab({ onNavigate }: { onNavigate: (k: string) => void })
     { label: t('overview.totalTenants'),   value: tenants.length,  icon: Building2,     color: 'bg-rose-100 text-rose-700' },
     { label: t('overview.activeTenants'),  value: activeCount,     icon: CheckCircle2,  color: 'bg-emerald-100 text-emerald-700' },
     { label: t('overview.pausedTenants'),  value: pausedCount,     icon: PauseCircle,   color: 'bg-amber-100 text-amber-700' },
-    { label: t('overview.totalRevenue'),   value: `$${collected.toLocaleString()}`, icon: DollarSign,    color: 'bg-violet-100 text-violet-700' },
-    { label: t('overview.outstanding'),    value: `$${outstanding.toLocaleString()}`, icon: AlertTriangle, color: 'bg-orange-100 text-orange-700' },
+    { label: t('overview.totalRevenue'),   value: `₪${collected.toLocaleString()}`, icon: DollarSign,    color: 'bg-violet-100 text-violet-700' },
+    { label: t('overview.outstanding'),    value: `₪${outstanding.toLocaleString()}`, icon: AlertTriangle, color: 'bg-orange-100 text-orange-700' },
   ]
 
   return (

@@ -20,10 +20,11 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
+import Image from 'next/image'
 import {
-  ShoppingCart, MessageCircle, Loader2, Plus, Minus, Star, Share, CheckCircle2, AlertCircle,
+  ShoppingCart, MessageCircle, Loader2, Plus, Minus, Share, CheckCircle2, AlertCircle,
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn, buildTenantUrl } from '@/lib/utils'
 import { loc as locHelper } from '@/lib/loc'
 
 type Product = {
@@ -76,6 +77,12 @@ export function ProductDetailLayout({
 
   const loc = (obj: any, field: string = 'name') => locHelper(obj, field, lang)
 
+  // Helper to check if image is a valid URL (not an emoji or invalid string)
+  const isValidImageUrl = (url: string | null) => {
+    if (!url) return false
+    return url.startsWith('http://') || url.startsWith('https://') || url.startsWith('/')
+  }
+
   const hasWhatsApp = !!tenant.whatsappNumber
   const discount = product.compareAt && product.compareAt > product.price
     ? Math.round((1 - product.price / product.compareAt) * 100)
@@ -105,16 +112,21 @@ export function ProductDetailLayout({
     }
     setSendingSingle(true)
     try {
+      const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
       const message = buildSingleItemMessage({
         intro: tenant.whatsappPrefill,
         tenantName: tenant.name,
         item: {
+          id: product.id,
           name: loc(product),
           sku: product.sku,
           price: product.price,
           qty,
           description: loc(product, 'description'),
         },
+        lang,
+        tenantSlug: tenant.slug,
+        baseUrl,
       })
       const url = buildWhatsAppUrl(tenant.whatsappNumber!, message)
       window.open(url, '_blank')
@@ -137,44 +149,27 @@ export function ProductDetailLayout({
     }
     setSendingBuyNow(true)
     try {
-      // Build items list synchronously (cartStore.add is async via React state)
-      const existingItem = cartStore.items.find((i) => i.id === product.id)
-      const finalItems = [
-        ...cartStore.items.map((i) => ({
-          name: i.name, sku: i.sku, price: i.price, qty: i.qty,
-        })),
-      ]
-      if (existingItem) {
-        // Merge — bump qty on the existing entry
-        const idx = finalItems.findIndex((i) => i.name === loc(product) && i.sku === product.sku)
-        if (idx >= 0) finalItems[idx].qty += qty
-      } else {
-        finalItems.push({
+      // Send only the current product via WhatsApp without adding to cart
+      const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
+      const message = buildSingleItemMessage({
+        intro: tenant.whatsappPrefill,
+        tenantName: tenant.name,
+        item: {
+          id: product.id,
           name: loc(product),
           sku: product.sku,
           price: product.price,
           qty,
-        })
-      }
-
-      // Add to cart for the badge / drawer
-      cartStore.add({
-        id: product.id,
-        name: loc(product),
-        price: product.price,
-        image: product.image,
-        sku: product.sku,
-      }, qty)
-
-      const message = buildWhatsAppMessage({
-        intro: tenant.whatsappPrefill,
-        tenantName: tenant.name,
-        items: finalItems,
+          description: loc(product, 'description'),
+        },
+        lang,
+        tenantSlug: tenant.slug,
+        baseUrl,
       })
       const url = buildWhatsAppUrl(tenant.whatsappNumber!, message)
       window.open(url, '_blank')
       toast.success(t('product.singleOrderSent'), {
-        description: t('product.cartOrderMsg'),
+        description: t('product.singleOrderMsg'),
         duration: 5000,
       })
       onAfterAction?.()
@@ -188,7 +183,7 @@ export function ProductDetailLayout({
   const handleShare = async () => {
     // Build a shareable URL that opens this exact product page
     const url = typeof window !== 'undefined'
-      ? `${window.location.origin}/?view=product&slug=${encodeURIComponent(tenant.slug)}&productId=${encodeURIComponent(product.id)}`
+      ? `${window.location.origin}${buildTenantUrl(`/product/${product.id}`)}`
       : ''
     try {
       if (navigator.share) {
@@ -216,12 +211,12 @@ export function ProductDetailLayout({
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-10">
       {/* Breadcrumb / back */}
       <div className="mb-4 text-xs text-muted-foreground flex items-center gap-2">
-        <a
-          href={`/?view=site&slug=${encodeURIComponent(tenant.slug)}`}
-          className="hover:text-foreground inline-flex items-center gap-1"
+        <button
+          onClick={() => window.location.href = buildTenantUrl('/')}
+          className="hover:text-foreground inline-flex items-center gap-1 bg-transparent border-0 cursor-pointer text-muted-foreground text-xs"
         >
           ← {tenant.name}
-        </a>
+        </button>
         <span>/</span>
         {product.category && (
           <>
@@ -236,15 +231,20 @@ export function ProductDetailLayout({
         {/* Left — image */}
         <div className="relative aspect-square md:aspect-[4/5] flex items-center justify-center rounded-2xl overflow-hidden"
              style={{ background: `linear-gradient(135deg, var(--sf-primary, #0f766e)15, var(--sf-accent, #f59e0b)25)` }}>
-          {product.image ? (
-            <img
+          {isValidImageUrl(product.image) ? (
+            <Image
               src={product.image}
               alt={loc(product)}
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 50vw"
+              priority
             />
           ) : (
-            <div className="text-[12rem] md:text-[16rem] leading-none select-none">
-              📦
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="bg-white/90 backdrop-blur-sm px-6 py-4 rounded-lg shadow-lg">
+                <div className="text-xl md:text-3xl font-semibold text-slate-600 text-center">{t('common.noImage')}</div>
+              </div>
             </div>
           )}
           {/* Badges */}
@@ -252,12 +252,6 @@ export function ProductDetailLayout({
             {discount > 0 && (
               <Badge className="bg-rose-600 text-white gap-1 text-sm px-3 py-1">
                 -{discount}% {t('product.off')}
-              </Badge>
-            )}
-            {product.featured && (
-              <Badge className="bg-amber-500 text-white gap-1 text-sm px-3 py-1">
-                <Star className="h-3 w-3 fill-current" />
-                Featured
               </Badge>
             )}
           </div>
@@ -298,14 +292,14 @@ export function ProductDetailLayout({
 
           {/* Price */}
           <div className="flex items-baseline gap-2 mb-4">
-            <span className="text-3xl font-bold">${product.price.toLocaleString()}</span>
+            <span className="text-3xl font-bold">₪{product.price.toLocaleString()}</span>
             {discount > 0 && (
               <>
                 <span className="text-base text-muted-foreground line-through">
-                  ${product.compareAt!.toLocaleString()}
+                  ₪{product.compareAt!.toLocaleString()}
                 </span>
                 <Badge variant="outline" className="text-emerald-700 border-emerald-300 bg-emerald-50 text-xs">
-                  {t('product.youSave')} ${savings.toLocaleString()}
+                  {t('product.youSave')} ₪{savings.toLocaleString()}
                 </Badge>
               </>
             )}
@@ -356,7 +350,7 @@ export function ProductDetailLayout({
                   <Plus className="h-4 w-4" />
                 </Button>
                 <span className="text-sm text-muted-foreground ml-3">
-                  = <span className="font-bold text-foreground">${lineTotal.toLocaleString()}</span>
+                  = <span className="font-bold text-foreground">₪{lineTotal.toLocaleString()}</span>
                 </span>
               </div>
             </div>
@@ -429,9 +423,21 @@ export function ProductDetailLayout({
                   onClick={() => onSelectRelated?.(rp)}
                   className="text-center p-3 rounded-lg border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all group"
                 >
-                  <div className="text-4xl mb-2">{rp.image || '📦'}</div>
+                  <div className="relative aspect-square mb-2 rounded-md overflow-hidden bg-slate-100 flex items-center justify-center">
+                    {isValidImageUrl(rp.image) ? (
+                      <Image
+                        src={rp.image}
+                        alt={loc(rp)}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                      />
+                    ) : (
+                      <div className="text-[10px] text-muted-foreground">{t('common.noImage')}</div>
+                    )}
+                  </div>
                   <div className="text-xs font-medium line-clamp-2 mb-1">{loc(rp)}</div>
-                  <div className="text-xs text-muted-foreground">${rp.price.toLocaleString()}</div>
+                  <div className="text-xs text-muted-foreground">₪{rp.price.toLocaleString()}</div>
                 </button>
               ))}
             </div>

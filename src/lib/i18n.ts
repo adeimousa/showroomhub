@@ -56,6 +56,7 @@ const en: Dict = {
   'common.sku': 'SKU',
   'common.category': 'Category',
   'common.image': 'Image',
+  'common.noImage': 'No image',
   'common.description': 'Description',
   'common.email': 'Email',
   'common.phone': 'Phone',
@@ -279,6 +280,21 @@ const en: Dict = {
   'cart.summary': 'Order summary',
   'cart.each': 'each',
 
+  // WhatsApp messages
+  'whatsapp.intro': 'Hello {tenantName}! I would like to order the following items:',
+  'whatsapp.introSingle': 'Hello {tenantName}! I would like to order this item:',
+  'whatsapp.followUp': 'Follow-up #{sendCount} — additional items for the same order:',
+  'whatsapp.sentFrom': 'Sent from {tenantName} storefront',
+  'whatsapp.sku': 'SKU:',
+  'whatsapp.qty': 'Qty:',
+  'whatsapp.totalItems': 'Total items:',
+  'whatsapp.subtotal': 'Subtotal:',
+  'whatsapp.subtotalItems': 'Subtotal of these items:',
+  'whatsapp.price': 'Price:',
+  'whatsapp.quantity': 'Quantity:',
+  'whatsapp.total': 'Total:',
+  'whatsapp.andMore': 'and {count} more items',
+
   // Product details
   'product.details': 'Product details',
   'product.sku': 'SKU',
@@ -374,6 +390,7 @@ const ar: Dict = {
   'common.sku': 'رمز المنتج',
   'common.category': 'الفئة',
   'common.image': 'صورة',
+  'common.noImage': 'لا توجد صورة',
   'common.description': 'الوصف',
   'common.email': 'البريد الإلكتروني',
   'common.phone': 'الهاتف',
@@ -586,6 +603,21 @@ const ar: Dict = {
   'cart.summary': 'ملخص الطلب',
   'cart.each': 'للقطعة',
 
+  // WhatsApp messages (Arabic)
+  'whatsapp.intro': 'مرحباً {tenantName}! أرغب في طلب المنتجات التالية:',
+  'whatsapp.introSingle': 'مرحباً {tenantName}! أرغب في طلب هذا المنتج:',
+  'whatsapp.followUp': 'متابعة #{sendCount} — منتجات إضافية لنفس الطلب:',
+  'whatsapp.sentFrom': 'تم الإرسال من متجر {tenantName}',
+  'whatsapp.sku': 'رقم المنتج:',
+  'whatsapp.qty': 'الكمية:',
+  'whatsapp.totalItems': 'إجمالي المنتجات:',
+  'whatsapp.subtotal': 'المجموع الفرعي:',
+  'whatsapp.subtotalItems': 'المجموع الفرعي لهذه المنتجات:',
+  'whatsapp.price': 'السعر:',
+  'whatsapp.quantity': 'الكمية:',
+  'whatsapp.total': 'الإجمالي:',
+  'whatsapp.andMore': 'و {count} منتجات إضافية',
+
   // Product details
   'product.details': 'تفاصيل المنتج',
   'product.sku': 'رمز المنتج',
@@ -680,6 +712,7 @@ const he: Dict = {
   'common.sku': 'מק"ט',
   'common.category': 'קטגוריה',
   'common.image': 'תמונה',
+  'common.noImage': 'אין תמונה',
   'common.description': 'תיאור',
   'common.email': 'אימייל',
   'common.phone': 'טלפון',
@@ -891,6 +924,21 @@ const he: Dict = {
   'cart.totalItems': 'סה"כ פריטים',
   'cart.summary': 'סיכום הזמנה',
   'cart.each': 'ליחידה',
+
+  // WhatsApp messages (Hebrew)
+  'whatsapp.intro': 'שלום {tenantName}! אני רוצה להזמין את המוצרים הבאים:',
+  'whatsapp.introSingle': 'שלום {tenantName}! אני רוצה להזמין את המוצר הזה:',
+  'whatsapp.followUp': 'המשך #{sendCount} — מוצרים נוספים לאותה הזמנה:',
+  'whatsapp.sentFrom': 'נשלח מחנות {tenantName}',
+  'whatsapp.sku': 'מק"ט:',
+  'whatsapp.qty': 'כמות:',
+  'whatsapp.totalItems': 'סה"כ פריטים:',
+  'whatsapp.subtotal': 'סיכום ביניים:',
+  'whatsapp.subtotalItems': 'סיכום ביניים של פריטים אלה:',
+  'whatsapp.price': 'מחיר:',
+  'whatsapp.quantity': 'כמות:',
+  'whatsapp.total': 'סה"כ:',
+  'whatsapp.andMore': 'ועוד {count} פריטים',
 
   // Product details
   'product.details': 'פרטי מוצר',

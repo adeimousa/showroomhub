@@ -8,8 +8,10 @@ import { LanguageSwitcher } from '@/components/language-switcher'
 import { ArrowLeft, ShoppingCart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { loc as locHelper } from '@/lib/loc'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
+import { buildTenantUrl } from '@/lib/utils'
+import { useSession } from 'next-auth/react'
 
 /**
  * Client component for the tenant storefront.
@@ -21,9 +23,25 @@ import { toast } from 'sonner'
 export function StorefrontClient({ tenant }: { tenant: any }) {
   const { t, lang, isRTL } = useI18n()
   const cartStore = useCartStore()
+  const { data: session } = useSession()
   const layout = tenant.layout
+  const [initialCategory, setInitialCategory] = useState<string | null>(null)
 
   const loc = (obj: any, field: string = 'name') => locHelper(obj, field, lang)
+
+  // Check if user is authenticated as CLIENT_ADMIN for this tenant
+  const isAdmin = session?.user && (session.user as any).role === 'CLIENT_ADMIN' && (session.user as any).tenantId === tenant.id
+
+  // Read category from URL params on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      const categoryId = params.get('category')
+      if (categoryId) {
+        setInitialCategory(categoryId)
+      }
+    }
+  }, [])
 
   const addToCart = (product: any) => {
     cartStore.add({
@@ -52,26 +70,43 @@ export function StorefrontClient({ tenant }: { tenant: any }) {
 
   return (
     <div className="min-h-screen bg-slate-100" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Discreet admin bar — for the tenant admin to access /admin.
-          NO "ShowroomHub" branding — just a small "Admin" link. */}
-      <div className="sticky top-0 z-50 bg-slate-900/80 backdrop-blur text-white px-4 py-1.5 flex items-center justify-between text-xs">
-        <a
-          href="/admin"
-          className="opacity-70 hover:opacity-100 transition-opacity"
-        >
-          Admin
-        </a>
-        <div className="flex items-center gap-2">
+      {/* Discreet admin bar — only shown to authenticated CLIENT_ADMIN users */}
+      {isAdmin && (
+        <div className="sticky top-0 z-50 bg-slate-900/80 backdrop-blur text-white px-4 py-1.5 flex items-center justify-between text-xs">
           <button
-            onClick={() => cartStore.open()}
-            className="flex items-center gap-1.5 opacity-70 hover:opacity-100 transition-opacity"
+            onClick={() => window.location.href = buildTenantUrl('/admin')}
+            className="opacity-70 hover:opacity-100 transition-opacity bg-transparent border-0 cursor-pointer text-white"
           >
-            <ShoppingCart className="h-3.5 w-3.5" />
-            <span>{cartStore.totalItems()}</span>
+            Admin
           </button>
-          <LanguageSwitcher />
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => cartStore.open()}
+              className="flex items-center gap-1.5 opacity-70 hover:opacity-100 transition-opacity"
+            >
+              <ShoppingCart className="h-3.5 w-3.5" />
+              <span>{cartStore.totalItems()}</span>
+            </button>
+            <LanguageSwitcher />
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Cart and language switcher for non-admin users */}
+      {!isAdmin && (
+        <div className="sticky top-0 z-50 bg-slate-900/80 backdrop-blur text-white px-4 py-1.5 flex items-center justify-end text-xs">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => cartStore.open()}
+              className="flex items-center gap-1.5 opacity-70 hover:opacity-100 transition-opacity"
+            >
+              <ShoppingCart className="h-3.5 w-3.5" />
+              <span>{cartStore.totalItems()}</span>
+            </button>
+            <LanguageSwitcher />
+          </div>
+        </div>
+      )}
 
       <StorefrontRenderer
         tenant={tenant}
@@ -83,6 +118,7 @@ export function StorefrontClient({ tenant }: { tenant: any }) {
         cartCount={cartStore.totalItems()}
         onAddToCart={addToCart}
         onOpenCart={() => cartStore.open()}
+        initialCategoryId={initialCategory}
       />
 
       <CartDrawer tenant={tenant} />
