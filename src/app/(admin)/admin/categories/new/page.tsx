@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -14,7 +14,7 @@ import { ImageUpload } from '@/components/admin/image-upload'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ArrowLeft, Loader2 } from 'lucide-react'
 
-export default function NewCategoryPage() {
+function NewCategoryPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { data: session } = useSession()
@@ -180,5 +180,13 @@ export default function NewCategoryPage() {
         {renderContent()}
       </div>
     </DashboardShell>
+  )
+}
+
+export default function NewCategoryPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
+      <NewCategoryPageContent />
+    </Suspense>
   )
 }

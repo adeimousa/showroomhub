@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -45,7 +45,7 @@ type Product = {
 
 const STATUSES = ['ACTIVE', 'DRAFT', 'ARCHIVED']
 
-export default function EditProductPage() {
+function EditProductPageContent() {
   const params = useParams()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -411,5 +411,13 @@ export default function EditProductPage() {
         {renderContent()}
       </div>
     </DashboardShell>
+  )
+}
+
+export default function EditProductPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
+      <EditProductPageContent />
+    </Suspense>
   )
 }

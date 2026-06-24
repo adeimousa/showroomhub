@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -23,7 +23,7 @@ type Category = { id: string; name: string; icon: string | null }
 
 const STATUSES = ['ACTIVE', 'DRAFT', 'ARCHIVED']
 
-export default function NewProductPage() {
+function NewProductPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { data: session } = useSession()
@@ -276,5 +276,13 @@ export default function NewProductPage() {
         {renderContent()}
       </div>
     </DashboardShell>
+  )
+}
+
+export default function NewProductPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
+      <NewProductPageContent />
+    </Suspense>
   )
 }
