@@ -4,7 +4,8 @@ import { NextResponse } from 'next/server'
 
 export type SessionUser = {
   id: string
-  email: string
+  email?: string | null
+  phone?: string | null
   name?: string | null
   role: 'SUPER_ADMIN' | 'CLIENT_ADMIN'
   tenantId?: string | null
@@ -12,11 +13,14 @@ export type SessionUser = {
 
 export async function getCurrentUser(): Promise<SessionUser | null> {
   const session = await getServerSession(authOptions)
-  if (!session?.user?.email) return null
+  // User must have either email or phone to be authenticated
+  if (!session?.user || (!session.user.email && !session.user.phone)) return null
   return {
     // @ts-expect-error custom field
     id: session.user.id || '',
     email: session.user.email,
+    // @ts-expect-error custom field
+    phone: session.user.phone,
     name: session.user.name,
     // @ts-expect-error custom field
     role: session.user.role,

@@ -4,11 +4,12 @@ import { useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useI18n } from '@/hooks/use-i18n'
 import { DashboardShell, NavItem } from '@/components/dashboard-shell'
-import { LayoutGrid, Building2, Palette, CreditCard } from 'lucide-react'
+import { LayoutGrid, Building2, Palette, CreditCard, Users } from 'lucide-react'
 import { OverviewTab } from './overview-tab'
 import { TenantsTab } from './tenants-tab'
 import { LayoutsTab } from './layouts-tab'
 import { PaymentsTab } from './payments-tab'
+import { UsersTab } from './users-tab'
 
 export function SuperAdminDashboard() {
   const { t } = useI18n()
@@ -18,6 +19,7 @@ export function SuperAdminDashboard() {
   const navItems: NavItem[] = [
     { key: 'overview', label: t('nav.overview'),    icon: LayoutGrid },
     { key: 'tenants',  label: t('nav.tenants'),     icon: Building2 },
+    { key: 'users',    label: 'Users',              icon: Users },
     { key: 'layouts',  label: t('nav.layouts'),     icon: Palette },
     { key: 'payments', label: t('nav.payments'),    icon: CreditCard },
   ]
@@ -36,6 +38,7 @@ export function SuperAdminDashboard() {
     >
       {active === 'overview' && <OverviewTab onNavigate={setActive} />}
       {active === 'tenants'  && <TenantsTab />}
+      {active === 'users'    && <UsersTab />}
       {active === 'layouts'  && <LayoutsTab />}
       {active === 'payments' && <PaymentsTab />}
     </DashboardShell>

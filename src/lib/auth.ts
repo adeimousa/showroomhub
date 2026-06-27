@@ -7,23 +7,42 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
-        email:    { label: 'Email',    type: 'email'    },
-        password: { label: 'Password', type: 'password' },
+        identifier: { label: 'Email or Phone', type: 'text' },
+        password:   { label: 'Password',       type: 'password' },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null
-        const user = await db.user.findUnique({
-          where: { email: credentials.email.toLowerCase() },
-          include: { tenant: true },
-        })
+        if (!credentials?.identifier || !credentials?.password) return null
+
+        // Try to find user by email or phone
+        const identifier = credentials.identifier.toLowerCase().trim()
+        let user = null
+
+        // First try email
+        if (identifier.includes('@')) {
+          user = await db.user.findUnique({
+            where: { email: identifier },
+            include: { tenant: true },
+          })
+        }
+
+        // If not found by email, try phone
+        if (!user) {
+          user = await db.user.findUnique({
+            where: { phone: identifier },
+            include: { tenant: true },
+          })
+        }
+
         if (!user) return null
         if (user.password !== credentials.password) return null
+
         return {
           id: user.id,
-          email: user.email,
+          email: user.email || user.phone, // Use phone as fallback for email field
           name: user.name,
           role: user.role,
           tenantId: user.tenantId,
+          phone: user.phone,
         } as any
       },
     }),
@@ -39,6 +58,8 @@ export const authOptions: NextAuthOptions = {
         token.tenantId = user.tenantId
         // @ts-expect-error custom fields
         token.userId = user.id
+        // @ts-expect-error custom fields
+        token.phone = user.phone
       }
       return token
     },
@@ -50,6 +71,8 @@ export const authOptions: NextAuthOptions = {
         session.user.tenantId = token.tenantId
         // @ts-expect-error custom fields
         session.user.id = token.userId
+        // @ts-expect-error custom fields
+        session.user.phone = token.phone
       }
       return session
     },
@@ -69,6 +92,7 @@ declare module 'next-auth' {
       id?: string
       name?: string | null
       email?: string | null
+      phone?: string | null
       image?: string | null
       role?: string
       tenantId?: string | null
@@ -77,6 +101,7 @@ declare module 'next-auth' {
   interface User {
     role?: string
     tenantId?: string | null
+    phone?: string | null
   }
 }
 
@@ -85,5 +110,6 @@ declare module 'next-auth/jwt' {
     role?: string
     tenantId?: string | null
     userId?: string
+    phone?: string | null
   }
 }

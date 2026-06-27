@@ -14,15 +14,15 @@ import { Separator } from '@/components/ui/separator'
 import { Sofa, Loader2, ShieldCheck, Store } from 'lucide-react'
 
 const DEMO_ACCOUNTS = [
-  { label: 'Super Admin',  email: 'admin@platform.com',       password: 'admin123',     role: 'SUPER_ADMIN'  },
-  { label: 'Demo Tenant',  email: 'admin@demofurniture.com',  password: 'demo123',      role: 'CLIENT_ADMIN' },
-  { label: 'Heritage Oak', email: 'admin@heritageoak.com',    password: 'heritage123',  role: 'CLIENT_ADMIN' },
+  { label: 'Super Admin',  identifier: 'admin@platform.com',       password: 'admin123',     role: 'SUPER_ADMIN'  },
+  { label: 'Demo Tenant',  identifier: 'admin@demofurniture.com',  password: 'demo123',      role: 'CLIENT_ADMIN' },
+  { label: 'Heritage Oak', identifier: 'admin@heritageoak.com',    password: 'heritage123',  role: 'CLIENT_ADMIN' },
 ]
 
 export function LoginScreen({ tenantName }: { tenantName?: string } = {}) {
   const { t } = useI18n()
   const router = useRouter()
-  const [email, setEmail] = useState('')
+  const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -30,12 +30,12 @@ export function LoginScreen({ tenantName }: { tenantName?: string } = {}) {
   // "ShowroomHub" branding and demo accounts, show the tenant's name instead.
   const isTenantAdmin = !!tenantName
 
-  const handleSubmit = async (e: React.FormEvent, preset?: { email: string; password: string }) => {
+  const handleSubmit = async (e: React.FormEvent, preset?: { identifier: string; password: string }) => {
     e.preventDefault()
-    const finalEmail = preset?.email ?? email
+    const finalIdentifier = preset?.identifier ?? identifier
     const finalPassword = preset?.password ?? password
 
-    if (!finalEmail || !finalPassword) {
+    if (!finalIdentifier || !finalPassword) {
       toast.error(t('auth.invalidCreds'))
       return
     }
@@ -43,7 +43,7 @@ export function LoginScreen({ tenantName }: { tenantName?: string } = {}) {
     setLoading(true)
     try {
       const res = await signIn('credentials', {
-        email: finalEmail,
+        identifier: finalIdentifier,
         password: finalPassword,
         redirect: false,
       })
@@ -133,14 +133,14 @@ export function LoginScreen({ tenantName }: { tenantName?: string } = {}) {
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="email">{t('auth.email')}</Label>
+                  <Label htmlFor="identifier">Email or Phone</Label>
                   <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@example.com"
-                    autoComplete="email"
+                    id="identifier"
+                    type="text"
+                    value={identifier}
+                    onChange={(e) => setIdentifier(e.target.value)}
+                    placeholder="you@example.com or phone number"
+                    autoComplete="username"
                     disabled={loading}
                     required
                   />
@@ -183,7 +183,7 @@ export function LoginScreen({ tenantName }: { tenantName?: string } = {}) {
               <div className="space-y-2">
                 {DEMO_ACCOUNTS.map((acc) => (
                   <button
-                    key={acc.email}
+                    key={acc.identifier}
                     onClick={(e) => handleSubmit(e, acc)}
                     disabled={loading}
                     className="w-full text-left p-3 rounded-lg border border-slate-200 hover:border-amber-400 hover:bg-amber-50/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed group"
@@ -194,7 +194,7 @@ export function LoginScreen({ tenantName }: { tenantName?: string } = {}) {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="text-sm font-medium">{acc.label}</div>
-                        <div className="text-xs text-muted-foreground truncate">{acc.email}</div>
+                        <div className="text-xs text-muted-foreground truncate">{acc.identifier}</div>
                       </div>
                       <div className="text-xs text-muted-foreground group-hover:text-amber-700 font-mono">
                         {acc.password}

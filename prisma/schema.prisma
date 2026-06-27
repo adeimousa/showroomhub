@@ -15,7 +15,8 @@ datasource db {
 
 model User {
   id        String   @id @default(cuid())
-  email     String   @unique
+  email     String?  @unique // optional; can login with phone instead
+  phone     String?  @unique // phone number for login (E.164 format)
   password  String // hashed in real apps; plaintext for demo
   name      String
   role      String   @default("CLIENT_ADMIN") // SUPER_ADMIN | CLIENT_ADMIN
