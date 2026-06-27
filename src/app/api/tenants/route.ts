@@ -36,8 +36,8 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null)
   if (!body) return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
 
-  if (!body.name || !body.slug || !body.email) {
-    return NextResponse.json({ error: 'Missing required fields (name, slug, email)' }, { status: 400 })
+  if (!body.name || !body.slug) {
+    return NextResponse.json({ error: 'Missing required fields (name, slug)' }, { status: 400 })
   }
 
   const existing = await db.tenant.findUnique({ where: { slug: body.slug } })
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
         nameAr: body.nameAr || null,
         nameHe: body.nameHe || null,
         slug: body.slug,
-        email: body.email,
+        email: body.email || null,
         phone: body.phone || null,
         whatsappNumber: body.whatsappNumber || null,
         whatsappPrefill: body.whatsappPrefill || null,

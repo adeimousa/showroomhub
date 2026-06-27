@@ -31,7 +31,10 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
 
   if (body.name !== undefined) allowed.name = body.name
   if (body.email !== undefined) allowed.email = body.email ? body.email.toLowerCase() : null
-  if (body.phone !== undefined) allowed.phone = body.phone || null
+  if (body.phone !== undefined) {
+    // Sanitize phone: remove all non-digits
+    allowed.phone = body.phone ? body.phone.replace(/\D/g, '') : null
+  }
   if (body.password !== undefined) allowed.password = body.password
   if (body.role !== undefined) allowed.role = body.role
   if (body.tenantId !== undefined) allowed.tenantId = body.tenantId

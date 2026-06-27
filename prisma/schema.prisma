@@ -39,8 +39,8 @@ model Tenant {
   slug            String   @unique // used internally + for old preview URLs
   domain          String? // primary custom domain (kept for backward compat)
   customDomains   String   @default("[]") // JSON array of domains, e.g. ["velvetnight.com","www.velvetnight.com"]
-  email           String
-  phone           String?
+  email           String? // optional - email contact (not required)
+  phone           String? // phone contact
   whatsappNumber  String? // E.164 without +, e.g. 15551234567 — used for cart checkout
   whatsappPrefill String? // optional custom intro line for the order message (English)
   whatsappPrefillAr String? // Arabic

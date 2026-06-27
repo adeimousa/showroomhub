@@ -39,9 +39,12 @@ export async function POST(req: NextRequest) {
     if (existing) return NextResponse.json({ error: 'Email already taken' }, { status: 409 })
   }
 
+  // Sanitize phone: remove all non-digits
+  const sanitizedPhone = body.phone ? body.phone.replace(/\D/g, '') : null
+
   // Check uniqueness of phone if provided
-  if (body.phone) {
-    const existing = await db.user.findUnique({ where: { phone: body.phone } })
+  if (sanitizedPhone) {
+    const existing = await db.user.findUnique({ where: { phone: sanitizedPhone } })
     if (existing) return NextResponse.json({ error: 'Phone already taken' }, { status: 409 })
   }
 
@@ -50,7 +53,7 @@ export async function POST(req: NextRequest) {
       data: {
         name: body.name,
         email: body.email ? body.email.toLowerCase() : null,
-        phone: body.phone || null,
+        phone: sanitizedPhone,
         password: body.password,
         role: body.role || 'CLIENT_ADMIN',
         tenantId: body.tenantId || null,

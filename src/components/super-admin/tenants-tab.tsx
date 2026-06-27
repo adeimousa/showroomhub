@@ -438,12 +438,10 @@ function TenantFormDialog({
     he: initial?.nameHe || '',
   })
   const [slug, setSlug] = useState(initial?.slug || '')
-  const [email, setEmail] = useState(initial?.email || '')
   const [phone, setPhone] = useState(initial?.phone || '')
   const [whatsappNumber, setWhatsappNumber] = useState(initial?.whatsappNumber || '')
   const [whatsappPrefill, setWhatsappPrefill] = useState(initial?.whatsappPrefill || '')
   const [ownerName, setOwnerName] = useState(initial?.ownerName || '')
-  const [ownerEmail, setOwnerEmail] = useState(initial?.ownerEmail || '')
   const [ownerPhone, setOwnerPhone] = useState(initial?.ownerPhone || '')
   const [validUntil, setValidUntil] = useState(() => {
     if (!initial?.validUntil) return ''
@@ -473,7 +471,7 @@ function TenantFormDialog({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!name.en || !slug || !email) {
+    if (!name.en || !slug) {
       toast.error(t('common.required'))
       return
     }
@@ -482,12 +480,10 @@ function TenantFormDialog({
       nameAr: name.ar || undefined,
       nameHe: name.he || undefined,
       slug: slug.toLowerCase().replace(/[^a-z0-9-]/g, '-'),
-      email,
       phone: phone || undefined,
       whatsappNumber: whatsappNumber || undefined,
       whatsappPrefill: whatsappPrefill || undefined,
       ownerName: ownerName || undefined,
-      ownerEmail: ownerEmail || undefined,
       ownerPhone: ownerPhone || undefined,
       validUntil: validUntil ? new Date(validUntil).toISOString() : undefined,
       customDomains: JSON.stringify(
@@ -532,11 +528,7 @@ function TenantFormDialog({
               required
             />
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="t-email">{t('common.email')} *</Label>
-              <Input id="t-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-            </div>
+          <div className="space-y-1.5">
             <div className="space-y-1.5">
               <Label htmlFor="t-phone">{t('common.phone')}</Label>
               <Input id="t-phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
@@ -577,26 +569,14 @@ function TenantFormDialog({
                 placeholder="John Doe"
               />
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <Label htmlFor="t-owner-email">Owner Email</Label>
-                <Input
-                  id="t-owner-email"
-                  type="email"
-                  value={ownerEmail}
-                  onChange={(e) => setOwnerEmail(e.target.value)}
-                  placeholder="owner@example.com"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="t-owner-phone">Owner Phone</Label>
-                <Input
-                  id="t-owner-phone"
-                  value={ownerPhone}
-                  onChange={(e) => setOwnerPhone(e.target.value)}
-                  placeholder="+1234567890"
-                />
-              </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="t-owner-phone">Owner Phone</Label>
+              <Input
+                id="t-owner-phone"
+                value={ownerPhone}
+                onChange={(e) => setOwnerPhone(e.target.value)}
+                placeholder="+1234567890"
+              />
             </div>
           </div>
           {/* Subscription Validity */}

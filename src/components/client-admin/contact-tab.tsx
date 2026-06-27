@@ -17,7 +17,6 @@ type Tenant = {
   id: string
   name: string
   slug: string
-  email: string
   phone: string | null
   whatsappNumber: string | null
   whatsappPrefill: string | null
@@ -44,7 +43,6 @@ export function ContactTab() {
   const [whatsappPrefill, setWhatsappPrefill] = useState(tenant?.whatsappPrefill || '')
   const [whatsappPrefillAr, setWhatsappPrefillAr] = useState(tenant?.whatsappPrefillAr || '')
   const [whatsappPrefillHe, setWhatsappPrefillHe] = useState(tenant?.whatsappPrefillHe || '')
-  const [email, setEmail] = useState(tenant?.email || '')
   const [phone, setPhone] = useState(tenant?.phone || '')
   const [initialized, setInitialized] = useState(false)
 
@@ -53,7 +51,6 @@ export function ContactTab() {
     setWhatsappPrefill(tenant.whatsappPrefill || '')
     setWhatsappPrefillAr(tenant.whatsappPrefillAr || '')
     setWhatsappPrefillHe(tenant.whatsappPrefillHe || '')
-    setEmail(tenant.email || '')
     setPhone(tenant.phone || '')
     setInitialized(true)
   }
@@ -78,7 +75,6 @@ export function ContactTab() {
       whatsappPrefill: whatsappPrefill || null,
       whatsappPrefillAr: whatsappPrefillAr || null,
       whatsappPrefillHe: whatsappPrefillHe || null,
-      email,
       phone: phone || null,
     })
   }
@@ -232,26 +228,9 @@ export function ContactTab() {
                 )}
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">{t('contact.emailSection')}</span>
-                <span className="font-medium text-xs truncate max-w-[160px]">{email || '—'}</span>
-              </div>
-              <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">{t('contact.phoneSection')}</span>
                 <span className="font-medium text-xs truncate max-w-[160px]">{phone || '—'}</span>
               </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-slate-200">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Mail className="h-4 w-4" />
-                {t('contact.emailSection')}
-              </CardTitle>
-              <CardDescription>{t('contact.emailHint')}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Input value={email} onChange={(e) => setEmail(e.target.value)} type="email" />
             </CardContent>
           </Card>
 

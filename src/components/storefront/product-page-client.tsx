@@ -115,7 +115,6 @@ export function ProductPageClient({ tenant, product }: { tenant: any; product: a
         variant={layout.footerStyle}
         tenantName={loc(tenant, 'name')}
         desc={loc(tenant, 'description')}
-        email={tenant.email}
         phone={tenant.phone}
         loc={loc}
         t={t}
@@ -198,7 +197,7 @@ function StorefrontHeaderShim(props: any) {
 // ============================================================
 
 function StorefrontFooterShim(props: any) {
-  const { variant, tenantName, desc, email, phone, loc, t, primary, accent, text, bg, fontHead, cats } = props
+  const { variant, tenantName, desc, phone, loc, t, primary, accent, text, bg, fontHead, cats } = props
   const year = new Date().getFullYear()
 
   if (variant === 'footer-minimal') {

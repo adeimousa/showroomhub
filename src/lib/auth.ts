@@ -14,21 +14,22 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.identifier || !credentials?.password) return null
 
         // Try to find user by email or phone
-        const identifier = credentials.identifier.toLowerCase().trim()
+        const identifier = credentials.identifier.trim()
         let user = null
 
-        // First try email
+        // First try email (contains @)
         if (identifier.includes('@')) {
           user = await db.user.findUnique({
-            where: { email: identifier },
+            where: { email: identifier.toLowerCase() },
             include: { tenant: true },
           })
         }
 
-        // If not found by email, try phone
+        // If not found by email, try phone (sanitize: keep only digits)
         if (!user) {
+          const sanitizedPhone = identifier.replace(/\D/g, '') // Remove all non-digits
           user = await db.user.findUnique({
-            where: { phone: identifier },
+            where: { phone: sanitizedPhone },
             include: { tenant: true },
           })
         }

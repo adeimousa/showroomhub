@@ -347,7 +347,6 @@ export function StorefrontRenderer({ tenant, layout, lang, loc, t, isRTL, cartCo
           variant={layout.footerStyle}
           tenantName={name}
           desc={desc}
-          email={tenant.email}
           phone={tenant.phone}
           loc={loc}
           t={t}
@@ -1169,7 +1168,7 @@ function Socials() {
 
 function Footer(props: any) {
   const {
-    variant, tenantName, desc, email, phone, loc, t,
+    variant, tenantName, desc, phone, loc, t,
     primary, accent, text, bg, radius, fontHead, cats,
     onSelectCategory, onAbout, onContact, onHome,
   } = props
@@ -1220,13 +1219,6 @@ function Footer(props: any) {
           <div>
             <div className="font-bold text-sm mb-3 opacity-90">{t('store.contact')}</div>
             <ul className="space-y-1 text-sm opacity-70">
-              {email && (
-                <li>
-                  <a href={`mailto:${email}`} className="flex items-center gap-2 hover:opacity-100">
-                    <Mail className="h-3.5 w-3.5" /> {email}
-                  </a>
-                </li>
-              )}
               {phone && (
                 <li>
                   <a href={`tel:${phone}`} className="flex items-center gap-2 hover:opacity-100">
@@ -1250,12 +1242,12 @@ function Footer(props: any) {
         <div className="max-w-3xl mx-auto">
           <button onClick={onHome} className="font-bold text-xl mb-2 hover:opacity-80" style={{ fontFamily: fontHead, color: primary }}>{tenantName}</button>
           {desc && <p className="text-sm opacity-70 mb-4">{desc}</p>}
-          {email && (
+          {phone && (
             <div className="flex items-center justify-center gap-2 text-sm opacity-80 mb-3">
-              <a href={`mailto:${email}`} className="flex items-center gap-1 hover:opacity-100">
-                <Mail className="h-3.5 w-3.5" /> {email}
+              <a href={`tel:${phone}`} className="flex items-center gap-1 hover:opacity-100">
+                <Phone className="h-3.5 w-3.5" /> {phone}
               </a>
-              {phone && (
+              {false && (
                 <>
                   <span className="mx-2">·</span>
                   <a href={`tel:${phone}`} className="flex items-center gap-1 hover:opacity-100">
