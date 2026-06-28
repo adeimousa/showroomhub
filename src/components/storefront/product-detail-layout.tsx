@@ -15,19 +15,14 @@
 import { useState, useEffect } from 'react'
 import { useI18n } from '@/hooks/use-i18n'
 import { useCartStore } from '@/hooks/use-cart'
-import { buildSingleItemMessage, buildWhatsAppUrl, buildWhatsAppMessage } from '@/lib/whatsapp'
+import { buildSingleItemMessage, buildWhatsAppUrl } from '@/lib/whatsapp'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import {
-  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from '@/components/ui/dialog'
 import Image from 'next/image'
 import {
-  ShoppingCart, MessageCircle, Loader2, Plus, Minus, Share, CheckCircle2, AlertCircle,
+  ShoppingCart, MessageCircle, Loader2, Plus, Minus, Share, AlertCircle,
 } from 'lucide-react'
 import { cn, buildTenantUrl } from '@/lib/utils'
 import { loc as locHelper } from '@/lib/loc'
@@ -76,7 +71,6 @@ export function ProductDetailLayout({
   const cartStore = useCartStore()
   const [qty, setQty] = useState(1)
   const [sendingSingle, setSendingSingle] = useState(false)
-  const [sendingBuyNow, setSendingBuyNow] = useState(false)
 
   // Reset qty when product changes
   useEffect(() => {
@@ -183,79 +177,6 @@ export function ProductDetailLayout({
       })
     } finally {
       setSendingSingle(false)
-    }
-  }
-
-  const handleBuyNow = async () => {
-    if (!hasWhatsApp) {
-      toast.error(t('cart.noWhatsapp'), { description: t('cart.noWhatsappMsg') })
-      return
-    }
-
-    setSendingBuyNow(true)
-
-    try {
-      // Create order in database
-      const orderResponse = await fetch('/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          tenantId: tenant.id,
-          customerName: null,
-          customerPhone: null,
-          items: [{
-            productId: product.id,
-            name: loc(product),
-            sku: product.sku,
-            price: product.price,
-            qty,
-          }],
-          total: lineTotal,
-        }),
-      })
-
-      if (!orderResponse.ok) {
-        throw new Error('Failed to create order')
-      }
-
-      const { order } = await orderResponse.json()
-
-      // Send WhatsApp message with order link
-      const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
-      const message = buildSingleItemMessage({
-        intro: tenant.whatsappPrefill,
-        introAr: tenant.whatsappPrefillAr,
-        introHe: tenant.whatsappPrefillHe,
-        tenantName: tenant.name,
-        item: {
-          id: product.id,
-          name: loc(product),
-          sku: product.sku,
-          price: product.price,
-          qty,
-          description: loc(product, 'description'),
-        },
-        lang,
-        tenantSlug: tenant.slug,
-        baseUrl,
-        orderId: order.id,
-        orderNumber: order.orderNumber,
-      })
-      const url = buildWhatsAppUrl(tenant.whatsappNumber!, message)
-      window.open(url, '_blank')
-
-      toast.success(t('product.singleOrderSent'), {
-        description: `${t('product.singleOrderMsg')} (${order.orderNumber})`,
-        duration: 5000,
-      })
-
-      onAfterAction?.()
-    } catch (e: any) {
-      toast.error(t('toast.error'), {
-        description: e.message || t('cart.orderFailed'),
-      })
-    } finally {
-      setSendingBuyNow(false)
     }
   }
 
@@ -438,33 +359,20 @@ export function ProductDetailLayout({
           {/* Action buttons */}
           {available ? (
             <div className="space-y-2 mt-auto">
-              <div className="grid grid-cols-2 gap-2">
-                <Button
-                  onClick={handleAddToCart}
-                  variant="outline"
-                  size="lg"
-                  className="gap-2 h-12"
-                >
-                  <ShoppingCart className="h-4 w-4" />
-                  {t('product.addToCart')}
-                </Button>
-                <Button
-                  onClick={handleBuyNow}
-                  disabled={sendingBuyNow}
-                  size="lg"
-                  className="gap-2 h-12"
-                  style={{ background: 'var(--sf-primary, #0f766e)', color: '#fff' }}
-                >
-                  {sendingBuyNow ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShoppingCart className="h-4 w-4" />}
-                  {t('product.buyNow')}
-                </Button>
-              </div>
+              <Button
+                onClick={handleAddToCart}
+                variant="outline"
+                size="lg"
+                className="w-full gap-2 h-12"
+              >
+                <ShoppingCart className="h-4 w-4" />
+                {t('product.addToCart')}
+              </Button>
               <Button
                 onClick={handleSingleOrder}
                 disabled={sendingSingle || !hasWhatsApp}
-                variant="outline"
                 size="lg"
-                className="w-full gap-2 border-emerald-500 text-emerald-700 hover:bg-emerald-50 h-12"
+                className="w-full gap-2 bg-emerald-600 hover:bg-emerald-700 text-white h-12"
               >
                 {sendingSingle ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageCircle className="h-4 w-4" />}
                 {t('product.orderViaWhatsapp')}

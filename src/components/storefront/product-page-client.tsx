@@ -230,7 +230,6 @@ function StorefrontFooterShim(props: any) {
           <div>
             <div className="font-bold text-sm mb-3 opacity-90">{t('store.contact')}</div>
             <ul className="space-y-1 text-sm opacity-70">
-              {email && <li>{email}</li>}
               {phone && <li>{phone}</li>}
             </ul>
           </div>
@@ -258,7 +257,6 @@ function StorefrontFooterShim(props: any) {
           <div>
             <div className="font-bold text-sm mb-2 opacity-90">{t('store.contact')}</div>
             <ul className="text-xs opacity-70 space-y-1">
-              {email && <li>{email}</li>}
               {phone && <li>{phone}</li>}
             </ul>
           </div>
