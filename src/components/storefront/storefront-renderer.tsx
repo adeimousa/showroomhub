@@ -617,9 +617,7 @@ function Hero({ variant, slide, loc, t, primary, accent, text, bg, radius, fontH
           eyebrow={t('store.shopNow').toUpperCase()}
           accent={accent}
           fontHead={fontHead}
-          radius={radius}
           animClass={animClass}
-          rounded
         />
       )
     }
@@ -655,7 +653,6 @@ function Hero({ variant, slide, loc, t, primary, accent, text, bg, radius, fontH
           subtitle={slide.subtitle ? loc(slide, 'subtitle') : ''}
           accent={accent}
           fontHead={fontHead}
-          radius={radius}
           animClass={animClass}
         />
       )
@@ -775,43 +772,36 @@ function SlideVisual({ image, alt, className, imgClassName }: { image?: string |
   return <span className={className}>{image || '🛋️'}</span>
 }
 
-// Large hero: the uploaded image fills the background and the title/subtitle
-// are overlaid on top, with a dark gradient scrim so the text stays legible.
-function ImageHero({ image, title, subtitle, eyebrow, accent, fontHead, radius, animClass, rounded }: {
+// Large hero: the uploaded image spans full width and the title/subtitle
+// are overlaid on top. Text uses drop shadows for legibility (no dark scrim).
+function ImageHero({ image, title, subtitle, eyebrow, accent, fontHead, animClass }: {
   image: string
   title: string
   subtitle?: string
   eyebrow?: string
   accent: string
   fontHead: string
-  radius: number
   animClass: string
-  rounded?: boolean
 }) {
   return (
-    <section className={rounded ? 'px-4 sm:px-8 py-6 lg:py-10' : ''}>
-      <div
-        className={`relative max-w-7xl mx-auto overflow-hidden flex items-end min-h-[340px] sm:min-h-[440px] lg:min-h-[560px] ${animClass}`}
-        style={{ borderRadius: rounded ? radius : 0 }}
-      >
-        {/* Background image */}
-        <img
-          src={image}
-          alt={title}
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        {/* Dark scrim for legibility */}
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.25) 45%, rgba(0,0,0,0.1) 100%)' }} />
-        {/* Overlaid text */}
-        <div className="relative z-10 w-full p-6 sm:p-10 lg:p-14 text-white max-w-3xl">
-          {eyebrow && <div className="text-xs font-semibold mb-3 tracking-wide" style={{ color: accent }}>{eyebrow}</div>}
-          <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold mb-3 leading-tight drop-shadow-lg" style={{ fontFamily: fontHead }}>
-            {title}
-          </h1>
-          {subtitle && (
-            <p className="text-sm sm:text-base lg:text-xl opacity-90 max-w-xl drop-shadow-md">{subtitle}</p>
-          )}
-        </div>
+    <section
+      className={`relative w-full overflow-hidden flex items-end min-h-[340px] sm:min-h-[460px] lg:min-h-[600px] ${animClass}`}
+    >
+      {/* Full-width background image */}
+      <img
+        src={image}
+        alt={title}
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+      {/* Overlaid text */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-14 py-8 sm:py-12 lg:py-16 text-white">
+        {eyebrow && <div className="text-xs font-semibold mb-3 tracking-wide drop-shadow" style={{ color: accent }}>{eyebrow}</div>}
+        <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold mb-3 leading-tight" style={{ fontFamily: fontHead, textShadow: '0 2px 12px rgba(0,0,0,0.55)' }}>
+          {title}
+        </h1>
+        {subtitle && (
+          <p className="text-sm sm:text-base lg:text-xl max-w-xl" style={{ textShadow: '0 1px 8px rgba(0,0,0,0.55)' }}>{subtitle}</p>
+        )}
       </div>
     </section>
   )
