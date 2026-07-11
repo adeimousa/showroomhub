@@ -92,7 +92,7 @@ export function ProductDetailLayout({
   const savings = product.compareAt && product.compareAt > product.price
     ? product.compareAt - product.price
     : 0
-  const available = product.status === 'ACTIVE' && product.stock > 0
+  const available = product.status === 'ACTIVE'
   const lineTotal = product.price * qty
 
   const handleAddToCart = () => {
@@ -195,18 +195,6 @@ export function ProductDetailLayout({
     } catch {}
   }
 
-  const stockLabel = product.stock <= 0
-    ? t('product.outOfStock')
-    : product.stock <= 5
-    ? t('product.lowStock', undefined, { n: product.stock })
-    : t('product.inStock')
-
-  const stockColor = product.stock <= 0
-    ? 'text-rose-600'
-    : product.stock <= 5
-    ? 'text-amber-600'
-    : 'text-emerald-600'
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-10">
       {/* Breadcrumb / back */}
@@ -305,17 +293,15 @@ export function ProductDetailLayout({
             )}
           </div>
 
-          {/* Stock + SKU */}
-          <div className="grid grid-cols-2 gap-2 mb-4 text-xs">
-            <div className="flex items-center justify-between p-2.5 rounded-lg bg-slate-50">
-              <span className="text-muted-foreground">{t('product.stock')}</span>
-              <span className={cn('font-medium', stockColor)}>{stockLabel}</span>
+          {/* SKU */}
+          {product.sku && (
+            <div className="mb-4 text-xs">
+              <div className="flex items-center justify-between p-2.5 rounded-lg bg-slate-50">
+                <span className="text-muted-foreground">{t('product.sku')}</span>
+                <span className="font-mono">{product.sku}</span>
+              </div>
             </div>
-            <div className="flex items-center justify-between p-2.5 rounded-lg bg-slate-50">
-              <span className="text-muted-foreground">{t('product.sku')}</span>
-              <span className="font-mono">{product.sku || '—'}</span>
-            </div>
-          </div>
+          )}
 
           {/* Description */}
           <div className="mb-5">
@@ -344,8 +330,7 @@ export function ProductDetailLayout({
                   variant="outline"
                   size="sm"
                   className="h-10 w-10 p-0"
-                  onClick={() => setQty((q) => Math.min(product.stock, q + 1))}
-                  disabled={qty >= product.stock}
+                  onClick={() => setQty((q) => q + 1)}
                 >
                   <Plus className="h-4 w-4" />
                 </Button>

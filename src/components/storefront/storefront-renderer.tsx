@@ -1081,8 +1081,7 @@ function ProductCard({ p, loc, t, primary, accent, text, radius, cardStyle, imag
           </div>
           <button
             onClick={(e) => { e.stopPropagation(); onAddToCart(p) }}
-            disabled={p.stock <= 0}
-            className={`px-2 py-1 text-[10px] font-medium disabled:opacity-40 hover:opacity-90 ${
+            className={`px-2 py-1 text-[10px] font-medium hover:opacity-90 ${
               buttonStyle === 'outline' ? 'border-2' :
               buttonStyle === 'ghost' ? '' :
               ''
@@ -1094,7 +1093,7 @@ function ProductCard({ p, loc, t, primary, accent, text, radius, cardStyle, imag
               borderRadius: buttonStyle === 'pill' ? 999 : radius / 2,
             }}
           >
-            {p.stock > 0 ? t('store.addToCart') : t('store.outOfStock')}
+            {t('store.addToCart')}
           </button>
         </div>
       </div>
@@ -1208,8 +1207,7 @@ function ProductRow({ p, loc, t, primary, accent, text, radius, cardStyle, image
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); onAddToCart(p) }}
-            disabled={p.stock <= 0}
-            className="px-3 py-1.5 text-xs font-medium disabled:opacity-40 hover:opacity-90"
+            className="px-3 py-1.5 text-xs font-medium hover:opacity-90"
             style={{
               background: buttonStyle === 'solid' ? primary : buttonStyle === 'ghost' ? 'transparent' : 'transparent',
               color: buttonStyle === 'solid' ? '#fff' : primary,
@@ -1217,7 +1215,7 @@ function ProductRow({ p, loc, t, primary, accent, text, radius, cardStyle, image
               borderRadius: buttonStyle === 'pill' ? 999 : radius / 2,
             }}
           >
-            {p.stock > 0 ? t('store.addToCart') : t('store.outOfStock')}
+            {t('store.addToCart')}
           </button>
         </div>
       </div>
