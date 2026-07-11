@@ -1,7 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "standalone",
+  // Only emit the standalone server bundle when self-hosting (Docker).
+  // On Vercel (VERCEL=1 at build time), standalone mode prevents route
+  // handlers from being registered as serverless functions, which makes
+  // /api/* return a cached static 404. Let Vercel build normally there.
+  output: process.env.VERCEL ? undefined : "standalone",
   /* config options here */
   typescript: {
     ignoreBuildErrors: true,
