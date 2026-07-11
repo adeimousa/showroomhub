@@ -45,6 +45,8 @@ model Tenant {
   whatsappPrefill String? // optional custom intro line for the order message (English)
   whatsappPrefillAr String? // Arabic
   whatsappPrefillHe String? // Hebrew
+  facebookUrl     String? // public Facebook profile/page URL (shown in storefront footer)
+  instagramUrl    String? // public Instagram profile URL (shown in storefront footer)
   ownerName       String? // tenant owner name
   ownerEmail      String? // tenant owner email
   ownerPhone      String? // tenant owner phone

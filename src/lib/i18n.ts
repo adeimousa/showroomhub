@@ -355,6 +355,10 @@ const en: Dict = {
   'contact.phoneSection': 'Public phone',
   'contact.emailHint': 'Shown in the storefront footer.',
   'contact.phoneHint': 'Shown in the storefront footer.',
+  'contact.socialSection': 'Social links',
+  'contact.socialHint': 'Shown as icons in the storefront footer. Leave blank to hide.',
+  'contact.facebook': 'Facebook URL',
+  'contact.instagram': 'Instagram URL',
 
   // Orders tab (client admin)
   'orders.title': 'Orders',
@@ -733,6 +737,10 @@ const ar: Dict = {
   'contact.phoneSection': 'الهاتف العام',
   'contact.emailHint': 'يظهر في تذييل المتجر.',
   'contact.phoneHint': 'يظهر في تذييل المتجر.',
+  'contact.socialSection': 'روابط التواصل الاجتماعي',
+  'contact.socialHint': 'تظهر كأيقونات في تذييل المتجر. اتركها فارغة للإخفاء.',
+  'contact.facebook': 'رابط فيسبوك',
+  'contact.instagram': 'رابط إنستغرام',
 
   // Orders tab (client admin)
   'orders.title': 'الطلبات',
@@ -1110,6 +1118,10 @@ const he: Dict = {
   'contact.phoneSection': 'טלפון ציבורי',
   'contact.emailHint': 'מוצג בתחתית החנות.',
   'contact.phoneHint': 'מוצג בתחתית החנות.',
+  'contact.socialSection': 'קישורים חברתיים',
+  'contact.socialHint': 'מוצגים כסמלים בתחתית החנות. השאירו ריק כדי להסתיר.',
+  'contact.facebook': 'קישור פייסבוק',
+  'contact.instagram': 'קישור אינסטגרם',
 
   // Orders tab (client admin)
   'orders.title': 'הזמנות',

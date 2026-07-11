@@ -21,7 +21,7 @@ export async function GET(_req: NextRequest, ctx: { params: Promise<{ id: string
 const CLIENT_ADMIN_FIELDS = new Set([
   'whatsappNumber', 'whatsappPrefill', 'whatsappPrefillAr', 'whatsappPrefillHe',
   'themePrimary', 'themeAccent', 'themeBg', 'themeFont', 'rtl',
-  'email', 'phone',
+  'email', 'phone', 'facebookUrl', 'instagramUrl',
   'description', 'descriptionAr', 'descriptionHe',
 ])
 

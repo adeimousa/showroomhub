@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Save, Loader2, MessageCircle, CheckCircle2, AlertCircle, ExternalLink, Phone, Mail } from 'lucide-react'
+import { Save, Loader2, MessageCircle, CheckCircle2, AlertCircle, ExternalLink, Phone, Mail, Facebook, Instagram } from 'lucide-react'
 
 type Tenant = {
   id: string
@@ -22,6 +22,8 @@ type Tenant = {
   whatsappPrefill: string | null
   whatsappPrefillAr: string | null
   whatsappPrefillHe: string | null
+  facebookUrl: string | null
+  instagramUrl: string | null
 }
 
 export function ContactTab() {
@@ -44,6 +46,8 @@ export function ContactTab() {
   const [whatsappPrefillAr, setWhatsappPrefillAr] = useState(tenant?.whatsappPrefillAr || '')
   const [whatsappPrefillHe, setWhatsappPrefillHe] = useState(tenant?.whatsappPrefillHe || '')
   const [phone, setPhone] = useState(tenant?.phone || '')
+  const [facebookUrl, setFacebookUrl] = useState(tenant?.facebookUrl || '')
+  const [instagramUrl, setInstagramUrl] = useState(tenant?.instagramUrl || '')
   const [initialized, setInitialized] = useState(false)
 
   if (tenant && !initialized) {
@@ -52,6 +56,8 @@ export function ContactTab() {
     setWhatsappPrefillAr(tenant.whatsappPrefillAr || '')
     setWhatsappPrefillHe(tenant.whatsappPrefillHe || '')
     setPhone(tenant.phone || '')
+    setFacebookUrl(tenant.facebookUrl || '')
+    setInstagramUrl(tenant.instagramUrl || '')
     setInitialized(true)
   }
 
@@ -76,6 +82,8 @@ export function ContactTab() {
       whatsappPrefillAr: whatsappPrefillAr || null,
       whatsappPrefillHe: whatsappPrefillHe || null,
       phone: phone || null,
+      facebookUrl: facebookUrl.trim() || null,
+      instagramUrl: instagramUrl.trim() || null,
     })
   }
 
@@ -244,6 +252,48 @@ export function ContactTab() {
             </CardHeader>
             <CardContent className="space-y-2">
               <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+972-50-123-4567" />
+            </CardContent>
+          </Card>
+
+          <Card className="border-slate-200">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Instagram className="h-4 w-4" />
+                {t('contact.socialSection')}
+              </CardTitle>
+              <CardDescription>{t('contact.socialHint')}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="facebook-url" className="flex items-center gap-1.5">
+                  <Facebook className="h-3.5 w-3.5" />
+                  {t('contact.facebook')}
+                </Label>
+                <Input
+                  id="facebook-url"
+                  value={facebookUrl}
+                  onChange={(e) => setFacebookUrl(e.target.value)}
+                  placeholder="https://facebook.com/yourpage"
+                  inputMode="url"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="instagram-url" className="flex items-center gap-1.5">
+                  <Instagram className="h-3.5 w-3.5" />
+                  {t('contact.instagram')}
+                </Label>
+                <Input
+                  id="instagram-url"
+                  value={instagramUrl}
+                  onChange={(e) => setInstagramUrl(e.target.value)}
+                  placeholder="https://instagram.com/yourhandle"
+                  inputMode="url"
+                />
+              </div>
+              <Button onClick={handleSave} disabled={saveMut.isPending} variant="outline" className="gap-1.5 w-full">
+                {saveMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                {t('contact.save')}
+              </Button>
             </CardContent>
           </Card>
         </div>

@@ -15,7 +15,7 @@
  */
 
 import { useState, useRef, useMemo, useEffect } from 'react'
-import { Search, ShoppingCart, Heart, Menu, X, Phone, Mail, MapPin, Facebook, Instagram, Twitter, ChevronRight, Eye, ArrowLeft } from 'lucide-react'
+import { Search, ShoppingCart, Heart, Menu, X, Phone, Mail, MapPin, Facebook, Instagram, ChevronRight, Eye, ArrowLeft } from 'lucide-react'
 import { buildTenantUrl } from '@/lib/utils'
 
 type TranslateFn = (key: string, fallback?: string, vars?: Record<string, string | number>) => string
@@ -348,6 +348,8 @@ export function StorefrontRenderer({ tenant, layout, lang, loc, t, isRTL, cartCo
           tenantName={name}
           desc={desc}
           phone={tenant.phone}
+          facebookUrl={tenant.facebookUrl}
+          instagramUrl={tenant.instagramUrl}
           loc={loc}
           t={t}
           primary={primary}
@@ -1187,20 +1189,29 @@ function ProductRow({ p, loc, t, primary, accent, text, radius, cardStyle, image
 // FOOTER VARIANTS
 // ============================================================
 
-// Shared social icons (decorative — would link to social profiles in a real app)
-function Socials() {
+// Shared social icons — links are driven by the tenant's contact settings.
+// Only icons with a configured URL are shown; nothing renders if none are set.
+function Socials({ facebookUrl, instagramUrl }: { facebookUrl?: string | null; instagramUrl?: string | null }) {
+  if (!facebookUrl && !instagramUrl) return null
   return (
     <div className="flex gap-3">
-      <Facebook className="h-4 w-4 opacity-70 hover:opacity-100 cursor-pointer" />
-      <Instagram className="h-4 w-4 opacity-70 hover:opacity-100 cursor-pointer" />
-      <Twitter className="h-4 w-4 opacity-70 hover:opacity-100 cursor-pointer" />
+      {facebookUrl && (
+        <a href={facebookUrl} target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+          <Facebook className="h-4 w-4 opacity-70 hover:opacity-100 cursor-pointer" />
+        </a>
+      )}
+      {instagramUrl && (
+        <a href={instagramUrl} target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+          <Instagram className="h-4 w-4 opacity-70 hover:opacity-100 cursor-pointer" />
+        </a>
+      )}
     </div>
   )
 }
 
 function Footer(props: any) {
   const {
-    variant, tenantName, desc, phone, loc, t,
+    variant, tenantName, desc, phone, facebookUrl, instagramUrl, loc, t,
     primary, accent, text, bg, radius, fontHead, cats,
     onSelectCategory, onAbout, onContact, onHome,
   } = props
@@ -1212,7 +1223,7 @@ function Footer(props: any) {
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <button onClick={onHome} className="font-bold hover:opacity-80" style={{ fontFamily: fontHead }}>{tenantName}</button>
           <div className="text-xs opacity-70">© {year} · {t('brand.tagline')}</div>
-          <Socials />
+          <Socials facebookUrl={facebookUrl} instagramUrl={instagramUrl} />
         </div>
       </footer>
     )
@@ -1226,7 +1237,7 @@ function Footer(props: any) {
             <button onClick={onHome} className="font-bold text-lg mb-2 block text-left hover:opacity-80" style={{ fontFamily: fontHead, color: accent }}>{tenantName}</button>
             {desc && <p className="text-sm opacity-70">{desc}</p>}
             <div className="flex gap-2 mt-3">
-              <Socials />
+              <Socials facebookUrl={facebookUrl} instagramUrl={instagramUrl} />
             </div>
           </div>
           <div>
@@ -1290,7 +1301,7 @@ function Footer(props: any) {
             </div>
           )}
           <div className="flex justify-center gap-3 mb-4">
-            <Socials />
+            <Socials facebookUrl={facebookUrl} instagramUrl={instagramUrl} />
           </div>
           <div className="text-xs opacity-60">© {year} {tenantName}</div>
         </div>
