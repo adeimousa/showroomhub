@@ -625,10 +625,10 @@ function Hero({ variant, slide, loc, t, primary, accent, text, bg, radius, fontH
             */}
           </div>
           <div
-            className="aspect-square lg:aspect-[4/3] flex items-center justify-center text-9xl rounded-xl"
+            className="aspect-square lg:aspect-[4/3] flex items-center justify-center text-9xl rounded-xl overflow-hidden"
             style={{ background: `linear-gradient(135deg, ${primary}15, ${accent}25)`, borderRadius: radius }}
           >
-            {slide.image || '🛋️'}
+            <SlideVisual image={slide.image} alt={loc(slide, 'title')} className="text-9xl" imgClassName="w-full h-full object-cover" />
           </div>
         </div>
       </section>
@@ -642,7 +642,11 @@ function Hero({ variant, slide, loc, t, primary, accent, text, bg, radius, fontH
         style={{ background: `linear-gradient(135deg, ${primary}, ${primary}dd)` }}
       >
         <div className={`max-w-3xl mx-auto text-white ${animClass}`}>
-          {slide.image && <div className="text-7xl lg:text-9xl mb-6">{slide.image}</div>}
+          {slide.image && (
+            isImageUrl(slide.image)
+              ? <img src={slide.image} alt={loc(slide, 'title')} className="mx-auto mb-6 max-h-64 w-auto object-contain rounded-xl" />
+              : <div className="text-7xl lg:text-9xl mb-6">{slide.image}</div>
+          )}
           <h1 className="text-4xl lg:text-6xl font-bold mb-4 leading-tight" style={{ fontFamily: fontHead }}>
             {loc(slide, 'title')}
           </h1>
@@ -680,7 +684,9 @@ function Hero({ variant, slide, loc, t, primary, accent, text, bg, radius, fontH
                   color: i === 0 ? '#fff' : text,
                 }}
               >
-                <div className="text-3xl mb-2">{s?.image || ['🛋️', '🪑', '🛏️'][i]}</div>
+                {isImageUrl(s?.image)
+                  ? <img src={s!.image} alt={s ? loc(s, 'title') : ''} className="w-16 h-16 mb-2 object-cover rounded-lg" />
+                  : <div className="text-3xl mb-2">{s?.image || ['🛋️', '🪑', '🛏️'][i]}</div>}
                 <div className="font-bold text-lg" style={{ fontFamily: fontHead }}>
                   {s ? loc(s, 'title') : ['Living Room', 'Dining', 'Bedroom'][i]}
                 </div>
@@ -702,7 +708,9 @@ function Hero({ variant, slide, loc, t, primary, accent, text, bg, radius, fontH
             className={`col-span-2 row-span-2 p-6 sm:p-10 flex flex-col justify-end min-h-[300px] ${animClass}`}
             style={{ background: `linear-gradient(135deg, ${primary}, ${accent})`, color: '#fff', borderRadius: radius }}
           >
-            <div className="text-5xl mb-3">{slide.image || '🛋️'}</div>
+            {isImageUrl(slide.image)
+              ? <img src={slide.image} alt={loc(slide, 'title')} className="w-24 h-24 mb-3 object-cover rounded-lg" />
+              : <div className="text-5xl mb-3">{slide.image || '🛋️'}</div>}
             <h2 className="text-2xl lg:text-3xl font-bold mb-2" style={{ fontFamily: fontHead }}>{loc(slide, 'title')}</h2>
             {slide.subtitle && <p className="text-sm opacity-80">{loc(slide, 'subtitle')}</p>}
             {/* CTA Button - Hidden for now
@@ -731,6 +739,30 @@ function Hero({ variant, slide, loc, t, primary, accent, text, bg, radius, fontH
   }
 
   return null
+}
+
+// slide.image historically held an emoji/color, but the admin upload feature
+// now stores an image URL there. Detect a URL so we can render an <img> instead
+// of printing the raw URL string as giant text.
+function isImageUrl(value?: string | null): boolean {
+  if (!value) return false
+  return /^(https?:\/\/|\/|data:image\/)/.test(value.trim())
+}
+
+// Renders slide.image as an <img> when it's a URL, otherwise as the legacy
+// emoji-as-text. `className` controls the text size for the emoji case;
+// `imgClassName` sizes the image (defaults to filling its container).
+function SlideVisual({ image, alt, className, imgClassName }: { image?: string | null; alt?: string; className?: string; imgClassName?: string }) {
+  if (isImageUrl(image)) {
+    return (
+      <img
+        src={image as string}
+        alt={alt || ''}
+        className={imgClassName || 'w-full h-full object-cover'}
+      />
+    )
+  }
+  return <span className={className}>{image || '🛋️'}</span>
 }
 
 // ============================================================
