@@ -10,8 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Save, Loader2, MessageCircle, CheckCircle2, AlertCircle, ExternalLink, Phone, Mail, Facebook, Instagram } from 'lucide-react'
+import { Save, Loader2, MessageCircle, CheckCircle2, AlertCircle, Phone, Mail, Facebook, Instagram } from 'lucide-react'
 
 type Tenant = {
   id: string
@@ -19,9 +18,6 @@ type Tenant = {
   slug: string
   phone: string | null
   whatsappNumber: string | null
-  whatsappPrefill: string | null
-  whatsappPrefillAr: string | null
-  whatsappPrefillHe: string | null
   facebookUrl: string | null
   instagramUrl: string | null
 }
@@ -42,9 +38,6 @@ export function ContactTab() {
   const tenant = tenantQ.data?.tenants?.[0]
 
   const [whatsappNumber, setWhatsappNumber] = useState(tenant?.whatsappNumber || '')
-  const [whatsappPrefill, setWhatsappPrefill] = useState(tenant?.whatsappPrefill || '')
-  const [whatsappPrefillAr, setWhatsappPrefillAr] = useState(tenant?.whatsappPrefillAr || '')
-  const [whatsappPrefillHe, setWhatsappPrefillHe] = useState(tenant?.whatsappPrefillHe || '')
   const [phone, setPhone] = useState(tenant?.phone || '')
   const [facebookUrl, setFacebookUrl] = useState(tenant?.facebookUrl || '')
   const [instagramUrl, setInstagramUrl] = useState(tenant?.instagramUrl || '')
@@ -52,9 +45,6 @@ export function ContactTab() {
 
   if (tenant && !initialized) {
     setWhatsappNumber(tenant.whatsappNumber || '')
-    setWhatsappPrefill(tenant.whatsappPrefill || '')
-    setWhatsappPrefillAr(tenant.whatsappPrefillAr || '')
-    setWhatsappPrefillHe(tenant.whatsappPrefillHe || '')
     setPhone(tenant.phone || '')
     setFacebookUrl(tenant.facebookUrl || '')
     setInstagramUrl(tenant.instagramUrl || '')
@@ -78,23 +68,10 @@ export function ContactTab() {
   const handleSave = () => {
     saveMut.mutate({
       whatsappNumber: whatsappNumber || null,
-      whatsappPrefill: whatsappPrefill || null,
-      whatsappPrefillAr: whatsappPrefillAr || null,
-      whatsappPrefillHe: whatsappPrefillHe || null,
       phone: phone || null,
       facebookUrl: facebookUrl.trim() || null,
       instagramUrl: instagramUrl.trim() || null,
     })
-  }
-
-  const handleTest = () => {
-    if (!whatsappNumber) {
-      toast.error(t('cart.noWhatsapp'))
-      return
-    }
-    const msg = whatsappPrefill || 'Test message from ShowroomHub'
-    window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(msg)}`, '_blank')
-    toast.success(t('cart.whatsappOpened'))
   }
 
   if (tenantQ.isLoading) return <Skeleton className="h-96 rounded-xl" />
@@ -138,76 +115,10 @@ export function ContactTab() {
               <p className="text-[10px] text-muted-foreground">{t('contact.whatsappNumberHint')}</p>
             </div>
 
-            <div className="space-y-1.5">
-              <Label>{t('contact.whatsappPrefill')}</Label>
-              <Tabs defaultValue="en" className="w-full">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="en">English</TabsTrigger>
-                  <TabsTrigger value="ar">العربية</TabsTrigger>
-                  <TabsTrigger value="he">עברית</TabsTrigger>
-                </TabsList>
-                <TabsContent value="en" className="space-y-2">
-                  <Input
-                    id="wa-pre-en"
-                    value={whatsappPrefill}
-                    onChange={(e) => setWhatsappPrefill(e.target.value)}
-                    placeholder="Hi! I'd like to order:"
-                  />
-                  <div className="p-3 rounded-lg bg-emerald-50/50 border border-emerald-100">
-                    <div className="text-xs text-muted-foreground mb-1">{t('cart.preview')} (English)</div>
-                    <div className="text-sm whitespace-pre-line font-mono">
-                      {whatsappPrefill || '(no intro set)'}
-                      {'\n\n'}
-                      <span className="text-muted-500">— cart items will be appended here —</span>
-                    </div>
-                  </div>
-                </TabsContent>
-                <TabsContent value="ar" className="space-y-2">
-                  <Input
-                    id="wa-pre-ar"
-                    value={whatsappPrefillAr}
-                    onChange={(e) => setWhatsappPrefillAr(e.target.value)}
-                    placeholder="مرحباً! أود الطلب:"
-                    dir="rtl"
-                  />
-                  <div className="p-3 rounded-lg bg-emerald-50/50 border border-emerald-100">
-                    <div className="text-xs text-muted-foreground mb-1">{t('cart.preview')} (العربية)</div>
-                    <div className="text-sm whitespace-pre-line font-mono" dir="rtl">
-                      {whatsappPrefillAr || '(no intro set)'}
-                      {'\n\n'}
-                      <span className="text-muted-500">— سيتم إضافة عناصر السلة هنا —</span>
-                    </div>
-                  </div>
-                </TabsContent>
-                <TabsContent value="he" className="space-y-2">
-                  <Input
-                    id="wa-pre-he"
-                    value={whatsappPrefillHe}
-                    onChange={(e) => setWhatsappPrefillHe(e.target.value)}
-                    placeholder="!שלום! אני רוצה להזמין"
-                    dir="rtl"
-                  />
-                  <div className="p-3 rounded-lg bg-emerald-50/50 border border-emerald-100">
-                    <div className="text-xs text-muted-foreground mb-1">{t('cart.preview')} (עברית)</div>
-                    <div className="text-sm whitespace-pre-line font-mono" dir="rtl">
-                      {whatsappPrefillHe || '(no intro set)'}
-                      {'\n\n'}
-                      <span className="text-muted-500">— פריטי העגלה יתווספו כאן —</span>
-                    </div>
-                  </div>
-                </TabsContent>
-              </Tabs>
-              <p className="text-[10px] text-muted-foreground">{t('contact.whatsappPrefillHint')}</p>
-            </div>
-
             <div className="flex flex-wrap gap-2 pt-2">
               <Button onClick={handleSave} disabled={saveMut.isPending} className="gap-1.5 bg-emerald-600 hover:bg-emerald-700">
                 {saveMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                 {t('contact.save')}
-              </Button>
-              <Button onClick={handleTest} variant="outline" className="gap-1.5" disabled={!whatsappNumber}>
-                <ExternalLink className="h-4 w-4" />
-                {t('contact.testNumber')}
               </Button>
             </div>
           </CardContent>

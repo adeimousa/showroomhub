@@ -80,12 +80,9 @@ export function buildWhatsAppMessage(opts: {
   lines.push(`${t('whatsapp.subtotal')} ${sym}${subtotal.toLocaleString()}`)
   lines.push('')
 
-  // Add order link if available
+  // Add order number if available
   if (orderId && orderNumber) {
     lines.push(`${translate(lang, 'whatsapp.orderNumber', '', { orderNumber })}`)
-    if (baseUrl && tenantSlug) {
-      lines.push(`${baseUrl}/${tenantSlug}/admin/orders/${orderId}`)
-    }
     lines.push('')
   }
 
@@ -152,12 +149,9 @@ export function buildFollowUpMessage(opts: {
   lines.push(`${t('whatsapp.subtotalItems')} ${sym}${subtotal.toLocaleString()}`)
   lines.push('')
 
-  // Add order link if available
+  // Add order number if available
   if (orderId && orderNumber) {
     lines.push(`${translate(lang, 'whatsapp.orderNumber', '', { orderNumber })}`)
-    if (baseUrl && tenantSlug) {
-      lines.push(`${baseUrl}/${tenantSlug}/admin/orders/${orderId}`)
-    }
   }
 
   return lines.join('\n')
@@ -224,14 +218,11 @@ export function buildSingleItemMessage(opts: {
   lines.push(`${t('whatsapp.total')} ${sym}${lineTotal.toLocaleString()}`)
   lines.push('')
 
-  // Add order link if available - with product summary
+  // Add order number if available - with product summary
   if (orderId && orderNumber) {
     lines.push('———')
     lines.push(`${translate(lang, 'whatsapp.orderNumber', '', { orderNumber })}`)
     lines.push(`• ${item.name} (×${item.qty})`)
-    if (baseUrl && tenantSlug) {
-      lines.push(`${baseUrl}/${tenantSlug}/admin/orders/${orderId}`)
-    }
     lines.push('')
   }
 

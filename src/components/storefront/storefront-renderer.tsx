@@ -603,7 +603,26 @@ function Hero({ variant, slide, loc, t, primary, accent, text, bg, radius, fontH
                   : anim === 'zoom' ? 'opacity-0 animate-[zoomIn_0.6s_ease-out_forwards]'
                   : ''
 
+  // When the slide has a real uploaded image, render a large hero with the
+  // image filling the background and the title/subtitle overlaid on top.
+  const hasImage = isImageUrl(slide.image)
+
   if (variant === 'split-image') {
+    if (hasImage) {
+      return (
+        <ImageHero
+          image={slide.image}
+          title={loc(slide, 'title')}
+          subtitle={slide.subtitle ? loc(slide, 'subtitle') : ''}
+          eyebrow={t('store.shopNow').toUpperCase()}
+          accent={accent}
+          fontHead={fontHead}
+          radius={radius}
+          animClass={animClass}
+          rounded
+        />
+      )
+    }
     return (
       <section className="px-4 sm:px-8 py-10 lg:py-16">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-8 items-center">
@@ -615,16 +634,6 @@ function Hero({ variant, slide, loc, t, primary, accent, text, bg, radius, fontH
             {slide.subtitle && (
               <p className="text-base lg:text-lg mb-6 opacity-70 max-w-md">{loc(slide, 'subtitle')}</p>
             )}
-            {/* CTA Button - Hidden for now
-            <button
-              onClick={onCtaClick}
-              className="inline-flex items-center gap-2 px-6 py-3 text-white text-sm font-medium hover:opacity-90"
-              style={{ background: primary, borderRadius: radius }}
-            >
-              {slide.ctaText || t('store.shopNow')}
-              <ChevronRight className="h-4 w-4" style={{ transform: isRTL ? 'scaleX(-1)' : '' }} />
-            </button>
-            */}
           </div>
           <div
             className="aspect-square lg:aspect-[4/3] flex items-center justify-center text-9xl rounded-xl overflow-hidden"
@@ -638,33 +647,32 @@ function Hero({ variant, slide, loc, t, primary, accent, text, bg, radius, fontH
   }
 
   if (variant === 'full-bleed') {
+    if (hasImage) {
+      return (
+        <ImageHero
+          image={slide.image}
+          title={loc(slide, 'title')}
+          subtitle={slide.subtitle ? loc(slide, 'subtitle') : ''}
+          accent={accent}
+          fontHead={fontHead}
+          radius={radius}
+          animClass={animClass}
+        />
+      )
+    }
     return (
       <section
         className="px-4 sm:px-8 py-16 lg:py-24 text-center"
         style={{ background: `linear-gradient(135deg, ${primary}, ${primary}dd)` }}
       >
         <div className={`max-w-3xl mx-auto text-white ${animClass}`}>
-          {slide.image && (
-            isImageUrl(slide.image)
-              ? <img src={slide.image} alt={loc(slide, 'title')} className="mx-auto mb-6 max-h-64 w-auto object-contain rounded-xl" />
-              : <div className="text-7xl lg:text-9xl mb-6">{slide.image}</div>
-          )}
+          {slide.image && <div className="text-7xl lg:text-9xl mb-6">{slide.image}</div>}
           <h1 className="text-4xl lg:text-6xl font-bold mb-4 leading-tight" style={{ fontFamily: fontHead }}>
             {loc(slide, 'title')}
           </h1>
           {slide.subtitle && (
             <p className="text-base lg:text-xl mb-8 opacity-80">{loc(slide, 'subtitle')}</p>
           )}
-          {/* CTA Button - Hidden for now
-          <button
-            onClick={onCtaClick}
-            className="inline-flex items-center gap-2 px-8 py-4 text-sm font-medium hover:opacity-90"
-            style={{ background: accent, color: '#fff', borderRadius: radius }}
-          >
-            {slide.ctaText || t('store.shopNow')}
-            <ChevronRight className="h-4 w-4" style={{ transform: isRTL ? 'scaleX(-1)' : '' }} />
-          </button>
-          */}
         </div>
       </section>
     )
@@ -765,6 +773,48 @@ function SlideVisual({ image, alt, className, imgClassName }: { image?: string |
     )
   }
   return <span className={className}>{image || '🛋️'}</span>
+}
+
+// Large hero: the uploaded image fills the background and the title/subtitle
+// are overlaid on top, with a dark gradient scrim so the text stays legible.
+function ImageHero({ image, title, subtitle, eyebrow, accent, fontHead, radius, animClass, rounded }: {
+  image: string
+  title: string
+  subtitle?: string
+  eyebrow?: string
+  accent: string
+  fontHead: string
+  radius: number
+  animClass: string
+  rounded?: boolean
+}) {
+  return (
+    <section className={rounded ? 'px-4 sm:px-8 py-6 lg:py-10' : ''}>
+      <div
+        className={`relative max-w-7xl mx-auto overflow-hidden flex items-end min-h-[340px] sm:min-h-[440px] lg:min-h-[560px] ${animClass}`}
+        style={{ borderRadius: rounded ? radius : 0 }}
+      >
+        {/* Background image */}
+        <img
+          src={image}
+          alt={title}
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        {/* Dark scrim for legibility */}
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.25) 45%, rgba(0,0,0,0.1) 100%)' }} />
+        {/* Overlaid text */}
+        <div className="relative z-10 w-full p-6 sm:p-10 lg:p-14 text-white max-w-3xl">
+          {eyebrow && <div className="text-xs font-semibold mb-3 tracking-wide" style={{ color: accent }}>{eyebrow}</div>}
+          <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold mb-3 leading-tight drop-shadow-lg" style={{ fontFamily: fontHead }}>
+            {title}
+          </h1>
+          {subtitle && (
+            <p className="text-sm sm:text-base lg:text-xl opacity-90 max-w-xl drop-shadow-md">{subtitle}</p>
+          )}
+        </div>
+      </div>
+    </section>
+  )
 }
 
 // ============================================================
