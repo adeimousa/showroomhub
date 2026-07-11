@@ -107,7 +107,8 @@ export async function DELETE(
       where: { id: itemId },
       include: {
         order: {
-          select: { tenantId: true, total: true },
+          // `include` returns all of the order's scalar fields (tenantId, total, …)
+          // plus its items. Can't combine `select` and `include` on one relation.
           include: { items: true }
         }
       }
