@@ -64,8 +64,8 @@ db/
 
 # Sandbox artifacts (do not commit)
 prev_chat.json
-download/
-upload/
+/download/
+/upload/
 worklog.md
 .zscripts/
 .z-ai-config
