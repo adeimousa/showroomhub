@@ -6,6 +6,9 @@ import { persist, createJSONStorage } from 'zustand/middleware'
 export type CartItem = {
   id: string
   name: string
+  // Hebrew product name — order messages are always sent in Hebrew.
+  // Falls back to `name` when not provided.
+  nameHe?: string | null
   price: number
   image: string | null
   sku: string | null

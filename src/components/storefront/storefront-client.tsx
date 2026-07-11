@@ -47,6 +47,7 @@ export function StorefrontClient({ tenant }: { tenant: any }) {
     cartStore.add({
       id: product.id,
       name: loc(product),
+      nameHe: locHelper(product, 'name', 'he'),
       price: product.price,
       image: product.image,
       sku: product.sku,

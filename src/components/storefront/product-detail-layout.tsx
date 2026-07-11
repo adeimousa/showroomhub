@@ -99,6 +99,7 @@ export function ProductDetailLayout({
     cartStore.add({
       id: product.id,
       name: loc(product),
+      nameHe: locHelper(product, 'name', 'he'),
       price: product.price,
       image: product.image,
       sku: product.sku,
@@ -150,13 +151,13 @@ export function ProductDetailLayout({
         tenantName: tenant.name,
         item: {
           id: product.id,
-          name: loc(product),
+          name: locHelper(product, 'name', 'he'),
           sku: product.sku,
           price: product.price,
           qty,
-          description: loc(product, 'description'),
+          description: locHelper(product, 'description', 'he'),
         },
-        lang,
+        lang: 'he', // order messages are always sent in Hebrew for now
         tenantSlug: tenant.slug,
         baseUrl,
         orderId: order.id,

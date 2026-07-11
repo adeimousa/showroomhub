@@ -92,17 +92,17 @@ export function CartDrawer({ tenant }: Props) {
             introAr: tenant.whatsappPrefillAr,
             introHe: tenant.whatsappPrefillHe,
             tenantName: tenant.name,
-            items: items.map((i) => ({ id: i.id, name: i.name, sku: i.sku, price: i.price, qty: i.qty })),
-            lang,
+            items: items.map((i) => ({ id: i.id, name: i.nameHe || i.name, sku: i.sku, price: i.price, qty: i.qty })),
+            lang: 'he', // order messages are always sent in Hebrew for now
             tenantSlug: tenant.slug,
             baseUrl,
             orderId: order.id,
             orderNumber: order.orderNumber,
           })
         : buildFollowUpMessage({
-            items: items.map((i) => ({ id: i.id, name: i.name, sku: i.sku, price: i.price, qty: i.qty })),
+            items: items.map((i) => ({ id: i.id, name: i.nameHe || i.name, sku: i.sku, price: i.price, qty: i.qty })),
             sendCount,
-            lang,
+            lang: 'he', // order messages are always sent in Hebrew for now
             tenantSlug: tenant.slug,
             baseUrl,
             orderId: order.id,
