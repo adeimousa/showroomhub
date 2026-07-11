@@ -1,6 +1,20 @@
 import { translate, type Lang } from './i18n'
 
 /**
+ * Build a full, clickable product URL for the storefront.
+ *
+ * WhatsApp only auto-links strings that look like real URLs, so we need an
+ * absolute URL with a scheme + host — a bare "slug/p/id" renders as broken
+ * text. Points at the real /product/[id] route.
+ * Returns null when we don't have a base URL to build an absolute link from.
+ */
+function productUrl(baseUrl: string | null | undefined, id: string): string | null {
+  if (!baseUrl) return null
+  const origin = baseUrl.replace(/\/+$/, '')
+  return `${origin}/product/${encodeURIComponent(id)}`
+}
+
+/**
  * Compose a WhatsApp order message from cart items.
  *
  * The message format is:
@@ -59,9 +73,10 @@ export function buildWhatsAppMessage(opts: {
   displayItems.forEach((it, i) => {
     const lineTotal = it.qty * it.price
     lines.push(`${i + 1}. ${it.name}`)
-    // Use short URL with just product ID
-    if (it.id && tenantSlug) {
-      lines.push(`   ${tenantSlug}/p/${it.id}`)
+    // Full, clickable link to the product page
+    if (it.id) {
+      const url = productUrl(baseUrl, it.id)
+      if (url) lines.push(`   ${url}`)
     }
     if (it.sku) lines.push(`   ${t('whatsapp.sku')} ${it.sku}`)
     lines.push(`   ${t('whatsapp.qty')} ${it.qty} × ${sym}${it.price.toLocaleString()} = ${sym}${lineTotal.toLocaleString()}`)
@@ -131,9 +146,10 @@ export function buildFollowUpMessage(opts: {
   displayItems.forEach((it, i) => {
     const lineTotal = it.qty * it.price
     lines.push(`${i + 1}. ${it.name}`)
-    // Use short URL with just product ID
-    if (it.id && tenantSlug) {
-      lines.push(`   ${tenantSlug}/p/${it.id}`)
+    // Full, clickable link to the product page
+    if (it.id) {
+      const url = productUrl(baseUrl, it.id)
+      if (url) lines.push(`   ${url}`)
     }
     if (it.sku) lines.push(`   ${t('whatsapp.sku')} ${it.sku}`)
     lines.push(`   ${t('whatsapp.qty')} ${it.qty} × ${sym}${it.price.toLocaleString()} = ${sym}${lineTotal.toLocaleString()}`)
@@ -208,9 +224,10 @@ export function buildSingleItemMessage(opts: {
   lines.push(customIntro || t('whatsapp.introSingle'))
   lines.push('')
   lines.push(item.name)
-  // Use short URL with just product ID
-  if (item.id && tenantSlug) {
-    lines.push(`${tenantSlug}/p/${item.id}`)
+  // Full, clickable link to the product page
+  if (item.id) {
+    const url = productUrl(baseUrl, item.id)
+    if (url) lines.push(url)
   }
   if (item.sku) lines.push(`${t('whatsapp.sku')} ${item.sku}`)
   lines.push(`${t('whatsapp.price')} ${sym}${item.price.toLocaleString()} ${translate(lang, 'cart.each')}`)
