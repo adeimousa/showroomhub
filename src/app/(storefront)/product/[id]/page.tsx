@@ -38,6 +38,10 @@ export default async function ProductPageRoute({ params }: { params: Promise<{ i
         where: { status: 'ACTIVE' },
         take: 100, // Limit products for related items
       },
+      catalogues: {
+        where: { active: true },
+        orderBy: { order: 'asc' },
+      },
     },
   })
 

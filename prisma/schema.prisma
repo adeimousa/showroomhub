@@ -72,6 +72,7 @@ model Tenant {
   heroSlides HeroSlide[]
   payments  Payment[]
   orders    Order[]
+  catalogues Catalogue[]
 }
 
 // ============================================================
@@ -168,6 +169,26 @@ model HeroSlide {
   createdAt DateTime @default(now())
 
   tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+}
+
+// ============================================================
+// CATALOGUES (store-wide image galleries shown on product pages)
+// ============================================================
+
+model Catalogue {
+  id        String   @id @default(cuid())
+  tenantId  String
+  name      String
+  nameAr    String?
+  nameHe    String?
+  images    String   @default("[]") // JSON array of image URLs
+  order     Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
 }
 
 // ============================================================

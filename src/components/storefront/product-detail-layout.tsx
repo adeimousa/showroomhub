@@ -22,10 +22,22 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import Image from 'next/image'
 import {
-  ShoppingCart, MessageCircle, Loader2, Plus, Minus, Share, AlertCircle,
+  ShoppingCart, MessageCircle, Loader2, Plus, Minus, Share, AlertCircle, ChevronLeft, ChevronRight, X,
 } from 'lucide-react'
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { cn, buildTenantUrl } from '@/lib/utils'
 import { loc as locHelper } from '@/lib/loc'
+
+// Parse a catalogue's JSON `images` string into a string[] defensively.
+function parseImages(images: string | null | undefined): string[] {
+  if (!images) return []
+  try {
+    const arr = JSON.parse(images)
+    return Array.isArray(arr) ? arr.filter((x) => typeof x === 'string') : []
+  } catch {
+    return []
+  }
+}
 
 type Product = {
   id: string
@@ -45,6 +57,16 @@ type Product = {
   category: { id: string; name: string; nameAr: string | null; nameHe: string | null; icon: string | null } | null
 }
 
+type Catalogue = {
+  id: string
+  name: string
+  nameAr: string | null
+  nameHe: string | null
+  images: string // JSON array of URLs
+  order: number
+  active: boolean
+}
+
 type Tenant = {
   id: string
   name: string
@@ -53,6 +75,7 @@ type Tenant = {
   whatsappPrefill: string | null
   whatsappPrefillAr: string | null
   whatsappPrefillHe: string | null
+  catalogues?: Catalogue[]
 }
 
 type Props = {
@@ -71,6 +94,11 @@ export function ProductDetailLayout({
   const cartStore = useCartStore()
   const [qty, setQty] = useState(1)
   const [sendingSingle, setSendingSingle] = useState(false)
+  // Catalogue image slider: which catalogue is open (null = closed) and current image index
+  const [openCatalogue, setOpenCatalogue] = useState<Catalogue | null>(null)
+
+  // Store-wide catalogues that actually have at least one image
+  const catalogues = (tenant.catalogues || []).filter((c) => parseImages(c.images).length > 0)
 
   // Reset qty when product changes
   useEffect(() => {
@@ -342,6 +370,37 @@ export function ProductDetailLayout({
             </div>
           )}
 
+          {/* Catalogues — store-wide image galleries. Click one to open its slider. */}
+          {catalogues.length > 0 && (
+            <div className="mb-5">
+              <div className="text-xs font-medium text-muted-foreground mb-1.5">{t('catalogues.title')}</div>
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                {catalogues.map((c) => {
+                  const imgs = parseImages(c.images)
+                  return (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => setOpenCatalogue(c)}
+                      className="group text-left rounded-lg overflow-hidden border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all"
+                      aria-label={loc(c)}
+                    >
+                      <div className="relative aspect-square bg-slate-100 overflow-hidden">
+                        <img src={imgs[0]} alt={loc(c)} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                        {imgs.length > 1 && (
+                          <span className="absolute bottom-1 right-1 text-[10px] px-1.5 py-0.5 rounded-full bg-black/60 text-white">
+                            {imgs.length}
+                          </span>
+                        )}
+                      </div>
+                      <div className="px-2 py-1.5 text-xs font-medium truncate">{loc(c)}</div>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
           {/* Action buttons */}
           {available ? (
             <div className="space-y-2 mt-auto">
@@ -418,6 +477,99 @@ export function ProductDetailLayout({
         </>
       )}
 
+      {/* Catalogue image slider overlay */}
+      <CatalogueSlider
+        catalogue={openCatalogue}
+        title={openCatalogue ? loc(openCatalogue) : ''}
+        onClose={() => setOpenCatalogue(null)}
+        isRTL={isRTL}
+      />
     </div>
+  )
+}
+
+// Full-screen slider that previews all images of a single catalogue.
+function CatalogueSlider({ catalogue, title, onClose, isRTL }: {
+  catalogue: Catalogue | null
+  title: string
+  onClose: () => void
+  isRTL: boolean
+}) {
+  const images = parseImages(catalogue?.images)
+  const [idx, setIdx] = useState(0)
+
+  // Reset to the first image whenever a different catalogue opens
+  useEffect(() => {
+    setIdx(0)
+  }, [catalogue?.id])
+
+  if (!catalogue || images.length === 0) return null
+
+  const prev = () => setIdx((i) => (i - 1 + images.length) % images.length)
+  const next = () => setIdx((i) => (i + 1) % images.length)
+
+  return (
+    <Dialog open={!!catalogue} onOpenChange={(o) => { if (!o) onClose() }}>
+      <DialogContent className="max-w-4xl p-0 overflow-hidden bg-black/95 border-0" dir={isRTL ? 'rtl' : 'ltr'}>
+        <DialogTitle className="sr-only">{title}</DialogTitle>
+        <div className="relative">
+          {/* Main image */}
+          <div className="relative flex items-center justify-center min-h-[50vh] max-h-[80vh] bg-black">
+            <img
+              src={images[idx]}
+              alt={`${title} ${idx + 1}`}
+              className="max-h-[80vh] max-w-full object-contain"
+            />
+
+            {/* Prev / next (only when more than one image) */}
+            {images.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  onClick={prev}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center"
+                  aria-label="Previous"
+                >
+                  {isRTL ? <ChevronRight className="h-6 w-6" /> : <ChevronLeft className="h-6 w-6" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={next}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center"
+                  aria-label="Next"
+                >
+                  {isRTL ? <ChevronLeft className="h-6 w-6" /> : <ChevronRight className="h-6 w-6" />}
+                </button>
+              </>
+            )}
+          </div>
+
+          {/* Caption + counter */}
+          <div className="flex items-center justify-between px-4 py-2 text-white text-sm">
+            <span className="font-medium truncate">{title}</span>
+            {images.length > 1 && <span className="text-white/70 text-xs shrink-0">{idx + 1} / {images.length}</span>}
+          </div>
+
+          {/* Thumbnail strip */}
+          {images.length > 1 && (
+            <div className="flex gap-1.5 px-4 pb-3 overflow-x-auto">
+              {images.map((url, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setIdx(i)}
+                  className={cn(
+                    'h-12 w-12 shrink-0 rounded overflow-hidden border-2 transition-colors',
+                    i === idx ? 'border-white' : 'border-transparent opacity-60 hover:opacity-100'
+                  )}
+                >
+                  <img src={url} alt="" className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
   )
 }

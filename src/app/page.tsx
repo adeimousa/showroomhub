@@ -47,6 +47,10 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
           where: { status: 'ACTIVE' },
           take: 50,
         },
+        catalogues: {
+          where: { active: true },
+          orderBy: { order: 'asc' },
+        },
       },
     })
     if (tenant) {
@@ -83,6 +87,10 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
           orderBy: { createdAt: 'desc' },
           where: { status: 'ACTIVE' },
           take: 50, // Limit initial products load
+        },
+        catalogues: {
+          where: { active: true },
+          orderBy: { order: 'asc' },
         },
       },
     })
