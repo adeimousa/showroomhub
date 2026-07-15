@@ -13,19 +13,19 @@ function subscribe(cb: () => void) {
 }
 
 function getSnapshot(): string {
-  if (typeof window === 'undefined') return 'en'
-  return localStorage.getItem(STORAGE_KEY) || 'en'
+  if (typeof window === 'undefined') return 'he'
+  return localStorage.getItem(STORAGE_KEY) || 'he'
 }
 
 function getServerSnapshot(): string {
-  return 'en'
+  return 'he'
 }
 
 export function useI18n() {
   // useSyncExternalStore is the React-recommended way to read from localStorage.
   // It hydrates automatically on the client without the cascading-render warning.
   const langRaw = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
-  const lang = (['en', 'ar', 'he'].includes(langRaw) ? langRaw : 'en') as Lang
+  const lang = (['en', 'ar', 'he'].includes(langRaw) ? langRaw : 'he') as Lang
 
   const setLang = useCallback((l: Lang) => {
     if (typeof window !== 'undefined') {

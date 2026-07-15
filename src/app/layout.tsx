@@ -30,7 +30,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="he" dir="rtl" suppressHydrationWarning>
       <body
         className={`${inter.variable} ${playfair.variable} ${lora.variable} ${spaceGrotesk.variable} ${dmSans.variable} ${archivo.variable} ${fraunces.variable} ${cormorant.variable} ${merriweather.variable} ${plusJakarta.variable} ${jetbrainsMono.variable} ${archivoBlack.variable} ${spaceMono.variable} ${caveat.variable} ${vt323.variable} ${notoSerifSc.variable} ${lato.variable} antialiased bg-background text-foreground`}
       >
