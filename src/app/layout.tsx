@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Playfair_Display, Lora, Space_Grotesk, DM_Sans, Archivo, Fraunces, Cormorant_Garamond, Merriweather, Plus_Jakarta_Sans, JetBrains_Mono, Archivo_Black, Space_Mono, Caveat, VT323, Noto_Serif_SC, Lato } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
+import { Analytics } from "@vercel/analytics/next";
 
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
 const playfair = Playfair_Display({ variable: "--font-playfair", subsets: ["latin"] });
@@ -35,6 +36,7 @@ export default function RootLayout({
         className={`${inter.variable} ${playfair.variable} ${lora.variable} ${spaceGrotesk.variable} ${dmSans.variable} ${archivo.variable} ${fraunces.variable} ${cormorant.variable} ${merriweather.variable} ${plusJakarta.variable} ${jetbrainsMono.variable} ${archivoBlack.variable} ${spaceMono.variable} ${caveat.variable} ${vt323.variable} ${notoSerifSc.variable} ${lato.variable} antialiased bg-background text-foreground`}
       >
         <Providers>{children}</Providers>
+        <Analytics />
       </body>
     </html>
   );
